@@ -1,0 +1,801 @@
+/*!
+ * Micro ERP Admin Styles
+ * Based on clean Bootstrap-like framework
+ */
+
+/* ==========================================================================
+   1. Reset & Base
+   ========================================================================== */
+.micro-erp *,
+.micro-erp *::before,
+.micro-erp *::after {
+	box-sizing: border-box;
+}
+
+.micro-erp {
+	margin-top: 20px;
+}
+
+.micro-erp h1 {
+	font-size: 23px;
+	line-height: 1.3;
+	margin: 0 0 16px;
+	padding-bottom: 0;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.micro-erp h1 .btn {
+	margin-left: auto;
+}
+
+.micro-erp h2 {
+	font-size: 18px;
+	margin: 20px 0 10px;
+}
+
+.micro-erp h3 {
+	font-size: 14px;
+	margin: 16px 0 8px;
+	color: #1d2327;
+}
+
+/* ==========================================================================
+   2. Grid System
+   ========================================================================== */
+.micro-erp .row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-right: -10px;
+	margin-left: -10px;
+	gap: 0;
+}
+
+.micro-erp .row > * {
+	padding-right: 10px;
+	padding-left: 10px;
+	margin-bottom: 20px;
+}
+
+.micro-erp .col {
+	flex: 1 0 0%;
+}
+
+.micro-erp .col-4 {
+	flex: 0 0 33.333333%;
+	max-width: 33.333333%;
+}
+
+.micro-erp .col-6 {
+	flex: 0 0 50%;
+	max-width: 50%;
+}
+
+.micro-erp .col-8 {
+	flex: 0 0 66.666667%;
+	max-width: 66.666667%;
+}
+
+.micro-erp .col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+/* ==========================================================================
+   3. Buttons
+   ========================================================================== */
+.micro-erp .btn {
+	display: inline-block;
+	padding: 6px 14px;
+	font-size: 13px;
+	line-height: 1.5;
+	height: 35px;
+	border-radius: 3px;
+	cursor: pointer;
+	white-space: nowrap;
+	text-align: center;
+	transition: all 0.15s ease-in-out;
+	border: 1px solid transparent;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.micro-erp .btn-sm {
+	padding: 3px 9px;
+	font-size: 12px;
+	height: auto;
+}
+
+.micro-erp .btn-primary {
+	color: #fff;
+	background-color: #2271b1;
+	border-color: #2271b1;
+}
+
+.micro-erp .btn-primary:hover {
+	background-color: #135e96;
+	border-color: #135e96;
+	color: #fff;
+}
+
+.micro-erp .btn-success {
+	color: #fff;
+	background-color: #00a32a;
+	border-color: #00a32a;
+}
+
+.micro-erp .btn-success:hover {
+	background-color: #008a20;
+	border-color: #008a20;
+	color: #fff;
+}
+
+.micro-erp .btn-danger {
+	color: #fff;
+	background-color: #d63638;
+	border-color: #d63638;
+}
+
+.micro-erp .btn-danger:hover {
+	background-color: #b32d2e;
+	border-color: #b32d2e;
+	color: #fff;
+}
+
+.micro-erp .btn-cancel {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	color: #2271b1;
+}
+
+.micro-erp .btn-cancel:hover {
+	background: #f0f0f1;
+	color: #135e96;
+}
+
+.micro-erp .btn-secondary {
+	color: #333;
+	background-color: #f1f1f1;
+	border: 1px solid #ccc;
+}
+
+.micro-erp .btn-secondary:hover {
+	background-color: #e2e2e2;
+	border-color: #bdbdbd;
+}
+
+/* ==========================================================================
+   4. Cards
+   ========================================================================== */
+.micro-erp .card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 3px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-bottom: 20px;
+}
+
+.micro-erp .card-header {
+	font-size: 14px;
+	font-weight: 600;
+	padding: 12px 16px;
+	border-bottom: 1px solid #e1e1e1;
+	background: #f6f7f7;
+	border-radius: 3px 3px 0 0;
+}
+
+.micro-erp .card-body {
+	padding: 16px;
+}
+
+.micro-erp .card-body table {
+	width: 100%;
+	margin: 0;
+}
+
+/* ==========================================================================
+   5. Dashboard Grid
+   ========================================================================== */
+.micro-erp .dashboard-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	margin-bottom: 20px;
+}
+
+.micro-erp .dashboard-grid > .card:first-child {
+	flex: 1 1 100%;
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+.micro-erp .dashboard-grid > .card {
+	flex: 1 1 calc(33.333% - 14px);
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+/* ==========================================================================
+   6. Tables
+   ========================================================================== */
+.micro-erp .table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 1rem;
+}
+
+.micro-erp table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.micro-erp table thead th {
+	padding: 10px 12px;
+	border-bottom: 2px solid #e1e1e1;
+	text-align: left;
+	font-weight: 600;
+	background: #f6f7f7;
+	color: #3c434a;
+	white-space: nowrap;
+}
+
+.micro-erp table td {
+	padding: 8px 12px;
+	vertical-align: middle;
+	border-bottom: 1px solid #f0f0f1;
+	background-color: #fff;
+}
+
+.micro-erp table tbody td {
+	padding: 0.5rem 0.75rem;
+	vertical-align: middle;
+}
+
+.micro-erp table tr:hover td {
+	background-color: #f0f6fb;
+}
+
+.micro-erp .table-striped tbody tr:nth-child(odd) td {
+	background-color: #f9f9f9;
+}
+
+.micro-erp .text-right {
+	text-align: right !important;
+}
+
+.micro-erp .text-center {
+	text-align: center !important;
+}
+
+/* Type group rows (COA) */
+.micro-erp .type-group td {
+	background: #f0f6fc;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-size: 12px;
+	letter-spacing: 0.5px;
+	color: #1d2327;
+	padding: 8px 12px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+/* Total row */
+.micro-erp .total-row td {
+	background: #f6f7f7;
+	font-weight: 600;
+	border-top: 2px solid #dcdcde;
+}
+
+/* ==========================================================================
+   7. KPI Cards
+   ========================================================================== */
+.micro-erp .kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 14px;
+	margin-bottom: 20px;
+}
+
+.micro-erp .kpi-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	padding: 18px 20px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	border-left: 4px solid #ccd0d4;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.micro-erp .kpi-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.micro-erp .kpi-card.income {
+	background: #edfaef;
+	border-color: #b8e4bc;
+	border-left-color: #00a32a;
+}
+
+.micro-erp .kpi-card.expense {
+	background: #fcf0f1;
+	border-color: #f0b8be;
+	border-left-color: #d63638;
+}
+
+.micro-erp .kpi-card.receivable {
+	background: #f0f6fc;
+	border-color: #b3d4f0;
+	border-left-color: #2271b1;
+}
+
+.micro-erp .kpi-card.payable {
+	background: #fcf9e8;
+	border-color: #f0e4a8;
+	border-left-color: #996800;
+}
+
+.micro-erp .kpi-value {
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #1d2327;
+}
+
+.micro-erp .kpi-label {
+	font-size: 13px;
+	color: #646970;
+	margin-top: 4px;
+	font-weight: 500;
+}
+
+/* ==========================================================================
+   8. Badges
+   ========================================================================== */
+.micro-erp .badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 8px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
+	white-space: nowrap;
+	text-transform: uppercase;
+}
+
+.micro-erp .badge-active {
+	background: #d1fae5;
+	color: #065f46;
+	border: 1px solid #a7f3d0;
+}
+
+.micro-erp .badge-inactive {
+	background: #fcf0f1;
+	color: #d63638;
+	border: 1px solid #f0b8be;
+}
+
+.micro-erp .badge-warning {
+	background: #fcf9e8;
+	color: #996800;
+	border: 1px solid #f0e4a8;
+}
+
+.micro-erp .badge-info {
+	background: #f0f6fc;
+	color: #2271b1;
+	border: 1px solid #b3d4f0;
+}
+
+.micro-erp .badge-neutral {
+	background: #f6f7f7;
+	color: #646970;
+	border: 1px solid #dcdcde;
+}
+
+/* ==========================================================================
+   9. Filters / Actions Bars
+   ========================================================================== */
+.micro-erp .filter-bar {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+}
+
+.micro-erp .actions-bar {
+	display: flex;
+	gap: 10px;
+	margin: 16px 0 30px;
+}
+
+.micro-erp .actions {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.micro-erp .inline-form {
+	display: inline;
+}
+
+/* ==========================================================================
+   10. Form Controls
+   ========================================================================== */
+.micro-erp select,
+.micro-erp input[type="text"],
+.micro-erp input[type="number"],
+.micro-erp input[type="date"],
+.micro-erp input[type="email"],
+.micro-erp input[type="password"],
+.micro-erp input[type="tel"],
+.micro-erp textarea {
+	display: block;
+	width: 100%;
+	padding: 6px 10px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #495057;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.micro-erp input[type="checkbox"] {
+	border-color: #8c8f94;
+}
+
+.micro-erp select:focus,
+.micro-erp input:focus,
+.micro-erp textarea:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.micro-erp label {
+	display: inline-block;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+}
+
+.micro-erp .form-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.micro-erp .form-table th {
+	padding: 14px 12px;
+	font-weight: 600;
+	vertical-align: top;
+	width: 220px;
+	text-align: left;
+}
+
+.micro-erp .form-table td {
+	padding: 12px 12px;
+}
+
+.micro-erp .form-table input,
+.micro-erp .form-table select,
+.micro-erp .form-table textarea {
+	width: 100%;
+	max-width: 420px;
+	height: 35px;
+}
+
+.micro-erp .form-table textarea {
+	height: auto;
+}
+
+/* ==========================================================================
+   11. Multi-row Line Items
+   ========================================================================== */
+.micro-erp .line-items-table {
+	margin-bottom: 10px;
+}
+
+.micro-erp .line-items-table .col-action {
+	width: 50px;
+	text-align: center;
+}
+
+.micro-erp .line-items-table th {
+	background: #f6f7f7;
+}
+
+/* ==========================================================================
+   12. Items Table with Totals Panel
+   ========================================================================== */
+.micro-erp .items-table .col-desc { width: 40%; }
+.micro-erp .items-table .col-qty  { width: 90px; }
+.micro-erp .items-table .col-price{ width: 110px; }
+.micro-erp .items-table .col-tax  { width: 90px; }
+.micro-erp .items-table .col-total{ width: 130px; }
+.micro-erp .items-table .col-action{ width: 50px; text-align: center; }
+
+.micro-erp .items-table input {
+	width: 100%;
+}
+
+.micro-erp .items-table .i-line-total {
+	font-weight: 600;
+}
+
+.micro-erp .totals {
+	float: right;
+	width: 260px;
+	margin-top: 12px;
+}
+
+.micro-erp .totals table {
+	width: 100%;
+}
+
+.micro-erp .totals td {
+	padding: 6px 8px;
+	font-size: 13px;
+	border: none;
+}
+
+.micro-erp .totals .grand-total td {
+	font-weight: 700;
+	font-size: 15px;
+	border-top: 2px solid #1d2327;
+}
+
+/* ==========================================================================
+   13. Attendance Grid
+   ========================================================================== */
+.micro-erp .attendance-grid {
+	overflow-x: auto;
+}
+
+.micro-erp .attendance-grid table td,
+.micro-erp .attendance-grid table th {
+	white-space: nowrap;
+}
+
+.micro-erp .attendance-grid input[type="time"] {
+	width: 90px;
+	padding: 3px 6px;
+}
+
+.micro-erp .attendance-grid th.weekend {
+	color: #d63638;
+}
+
+/* ==========================================================================
+   14. Invoice Info (Record Payment)
+   ========================================================================== */
+.micro-erp .invoice-info {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-left: 4px solid #2271b1;
+	border-radius: 3px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+}
+
+.micro-erp .invoice-info .row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 24px;
+	margin-bottom: 10px;
+}
+
+.micro-erp .invoice-info .row:last-child {
+	margin-bottom: 0;
+}
+
+.micro-erp .invoice-info .label {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #646970;
+}
+
+.micro-erp .invoice-info .value {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.micro-erp .invoice-info .balance {
+	font-size: 20px;
+	font-weight: 700;
+	color: #d63638;
+}
+
+/* ==========================================================================
+   15. Leave Type Cards
+   ========================================================================== */
+.micro-erp .leave-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 14px;
+	margin-bottom: 20px;
+}
+
+.micro-erp .leave-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	padding: 16px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.micro-erp .leave-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.micro-erp .leave-card .leave-name {
+	font-weight: 600;
+	font-size: 14px;
+	margin-bottom: 8px;
+}
+
+.micro-erp .leave-card .leave-quota {
+	font-size: 13px;
+	color: #646970;
+}
+
+/* ==========================================================================
+   16. Salary Summary Box
+   ========================================================================== */
+.micro-erp .summary-box {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+}
+
+.micro-erp .summary-box .box {
+	flex: 1;
+	min-width: 160px;
+	background: #f6f7f7;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	padding: 12px 16px;
+}
+
+.micro-erp .summary-box .box .num {
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.micro-erp .summary-box .box .lbl {
+	font-size: 12px;
+	color: #646970;
+}
+
+/* ==========================================================================
+   17. Month Nav
+   ========================================================================== */
+.micro-erp .month-nav {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.micro-erp .month-nav .current {
+	font-weight: 600;
+	font-size: 15px;
+	min-width: 130px;
+	text-align: center;
+}
+
+/* ==========================================================================
+   18. Utility Classes
+   ========================================================================== */
+.micro-erp .mb-0 { margin-bottom: 0 !important; }
+.micro-erp .mb-1 { margin-bottom: 0.25rem !important; }
+.micro-erp .mb-2 { margin-bottom: 0.5rem !important; }
+.micro-erp .mb-3 { margin-bottom: 1rem !important; }
+.micro-erp .mb-4 { margin-bottom: 1.5rem !important; }
+
+.micro-erp .mt-0 { margin-top: 0 !important; }
+.micro-erp .mt-1 { margin-top: 0.25rem !important; }
+.micro-erp .mt-2 { margin-top: 0.5rem !important; }
+.micro-erp .mt-3 { margin-top: 1rem !important; }
+.micro-erp .mt-4 { margin-top: 1.5rem !important; }
+
+.micro-erp .p-0 { padding: 0 !important; }
+.micro-erp .p-1 { padding: 0.25rem !important; }
+.micro-erp .p-2 { padding: 0.5rem !important; }
+.micro-erp .p-3 { padding: 1rem !important; }
+.micro-erp .p-4 { padding: 1.5rem !important; }
+
+.micro-erp .d-flex { display: flex !important; }
+.micro-erp .d-block { display: block !important; }
+.micro-erp .d-none { display: none !important; }
+.micro-erp .d-inline-block { display: inline-block !important; }
+
+.micro-erp .flex-wrap { flex-wrap: wrap !important; }
+.micro-erp .align-items-center { align-items: center !important; }
+.micro-erp .justify-content-between { justify-content: space-between !important; }
+.micro-erp .gap-2 { gap: 0.5rem !important; }
+.micro-erp .gap-3 { gap: 1rem !important; }
+
+.micro-erp .font-weight-bold { font-weight: 700 !important; }
+.micro-erp .text-muted { color: #6c757d !important; }
+.micro-erp .text-danger { color: #dc3545 !important; }
+.micro-erp .text-success { color: #28a745 !important; }
+
+.micro-erp .rounded { border-radius: 0.25rem !important; }
+.micro-erp .shadow-sm { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important; }
+
+/* ==========================================================================
+   19. WordPress Admin Compatibility
+   ========================================================================== */
+#adminmenu li.menu-top.menu-icon-generic .wp-submenu-head,
+#adminmenu .wp-submenu li[style*="line-height"] {
+	cursor: default;
+}
+
+.micro-erp-menu-header {
+	font-weight: 700;
+	font-size: 13px;
+	opacity: 0.6;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+#adminmenu .wp-submenu li a[href*="micro-erp-header-"] {
+	pointer-events: none;
+	cursor: default;
+}
+
+/* ==========================================================================
+   20. Responsive
+   ========================================================================== */
+@media screen and (max-width: 782px) {
+	.micro-erp .dashboard-grid {
+		flex-direction: column;
+	}
+
+	.micro-erp .dashboard-grid > .card {
+		flex: 1 1 100%;
+	}
+
+	.micro-erp .kpi-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.micro-erp .row {
+		flex-direction: column;
+	}
+
+	.micro-erp .row > * {
+		flex: 1 1 100%;
+		max-width: 100%;
+	}
+
+	.micro-erp .filter-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.micro-erp .form-table th {
+		width: auto;
+	}
+
+	.micro-erp .form-table input,
+	.micro-erp .form-table select,
+	.micro-erp .form-table textarea {
+		max-width: 100%;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.micro-erp .kpi-grid {
+		grid-template-columns: 1fr;
+	}
+}

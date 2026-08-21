@@ -22,15 +22,16 @@ $def_income  = (int) micro_erp_get_setting( 'default_income_account', 0 );
 $def_expense = (int) micro_erp_get_setting( 'default_expense_account', 0 );
 $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 ?>
-<div class="wrap micro-erp">
-	<h1><?php esc_html_e( 'Settings', 'micro-erp' ); ?></h1>
+<div class="wrap micro-erp-page">
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Settings', 'micro-erp' ); ?></h1>
+	<hr class="wp-header-end">
 
 	<?php if ( $fy ) : ?>
-		<div class="current-fy">
+		<div class="bg-light p-3 rounded shadow-sm border mt-3 mb-4 d-flex align-items-center gap-2 flex-wrap">
 			<strong><?php esc_html_e( 'Active Fiscal Year:', 'micro-erp' ); ?></strong>
 			<?php echo esc_html( $fy->name ); ?> (<?php echo esc_html( $fy->start_date ); ?> - <?php echo esc_html( $fy->end_date ); ?>)
-			<span class="badge badge-active" style="margin-left: 8px;"><?php esc_html_e( 'Active', 'micro-erp' ); ?></span>
-			<br><a href="<?php echo esc_url( add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_url( 'admin.php' ) ) ); ?>" style="font-size: 13px;"><?php esc_html_e( 'Manage Fiscal Years', 'micro-erp' ); ?></a>
+			<span class="status-badge status-active"><?php esc_html_e( 'Active', 'micro-erp' ); ?></span>
+			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_url( 'admin.php' ) ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Manage Fiscal Years', 'micro-erp' ); ?></a>
 		</div>
 	<?php endif; ?>
 
@@ -39,85 +40,91 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 		<input type="hidden" name="micro_erp_action" value="save_settings">
 		<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
-		<h3 class="section-title"><?php esc_html_e( 'General Settings', 'micro-erp' ); ?></h3>
-		<table class="form-table">
-			<tr>
-				<th scope="row"><label for="company_name"><?php esc_html_e( 'Company Name', 'micro-erp' ); ?></label></th>
-				<td><input type="text" id="company_name" name="company_name" value="<?php echo esc_attr( $company ); ?>"></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="currency_symbol"><?php esc_html_e( 'Currency Symbol', 'micro-erp' ); ?></label></th>
-				<td>
-					<select id="currency_symbol" name="currency_symbol">
-						<?php foreach ( array( '$' => 'USD', '€' => 'EUR', '£' => 'GBP', '৳' => 'BDT', '₹' => 'INR', '¥' => 'JPY' ) as $sym => $label ) : ?>
-							<option value="<?php echo esc_attr( $sym ); ?>" <?php selected( $currency, $sym ); ?>><?php echo esc_html( $sym ); ?> - <?php echo esc_html( $label ); ?></option>
-						<?php endforeach; ?>
-					</select>
-					<div class="description"><?php esc_html_e( 'Symbol displayed next to all amounts', 'micro-erp' ); ?></div>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="default_tax_rate"><?php esc_html_e( 'Default Tax Rate (%)', 'micro-erp' ); ?></label></th>
-				<td>
-					<input type="number" id="default_tax_rate" name="default_tax_rate" value="<?php echo esc_attr( $tax_rate ); ?>" step="0.01" min="0" max="100">
-					<div class="description"><?php esc_html_e( 'Applied to new sales and quotations', 'micro-erp' ); ?></div>
-				</td>
-			</tr>
-		</table>
+		<div class="row mt-3">
+			<div class="col-lg-6 col-md-12">
+				<div class="bg-light p-4 rounded shadow-sm mb-4">
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'General Settings', 'micro-erp' ); ?></h2>
 
-		<h3 class="section-title"><?php esc_html_e( 'Accounting', 'micro-erp' ); ?></h3>
-		<table class="form-table">
-			<tr>
-				<th scope="row"><label for="default_income_account"><?php esc_html_e( 'Default Income Account', 'micro-erp' ); ?></label></th>
-				<td>
-					<select id="default_income_account" name="default_income_account">
-						<option value="0"><?php esc_html_e( '— Auto (first income account) —', 'micro-erp' ); ?></option>
-						<?php foreach ( $income_accounts as $acct ) : ?>
-							<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_income, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="default_expense_account"><?php esc_html_e( 'Default Expense Account', 'micro-erp' ); ?></label></th>
-				<td>
-					<select id="default_expense_account" name="default_expense_account">
-						<option value="0"><?php esc_html_e( '— Auto (first expense account) —', 'micro-erp' ); ?></option>
-						<?php foreach ( $expense_accounts as $acct ) : ?>
-							<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_expense, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="cash_account"><?php esc_html_e( 'Cash/Bank Account', 'micro-erp' ); ?></label></th>
-				<td>
-					<select id="cash_account" name="cash_account">
-						<option value="0"><?php esc_html_e( '— Auto (first asset account) —', 'micro-erp' ); ?></option>
-						<?php foreach ( $asset_accounts as $acct ) : ?>
-							<option value="<?php echo (int) $acct->id; ?>" <?php selected( $cash_acct, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</td>
-			</tr>
-		</table>
+					<div class="mb-3">
+						<label for="company_name" class="form-label"><?php esc_html_e( 'Company Name', 'micro-erp' ); ?></label>
+						<input type="text" id="company_name" name="company_name" class="form-control" value="<?php echo esc_attr( $company ); ?>">
+					</div>
 
-		<h3 class="section-title"><?php esc_html_e( 'Modules', 'micro-erp' ); ?></h3>
-		<table class="form-table">
-			<tr>
-				<th scope="row"><label for="module_accounting"><?php esc_html_e( 'Accounting Module', 'micro-erp' ); ?></label></th>
-				<td><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) micro_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Enable', 'micro-erp' ); ?></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="module_hrm"><?php esc_html_e( 'HRM Module', 'micro-erp' ); ?></label></th>
-				<td><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) micro_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'Enable', 'micro-erp' ); ?></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="module_sales"><?php esc_html_e( 'Sales Module', 'micro-erp' ); ?></label></th>
-				<td><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) micro_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Enable', 'micro-erp' ); ?></td>
-			</tr>
-		</table>
+					<div class="mb-3">
+						<label for="currency_symbol" class="form-label"><?php esc_html_e( 'Currency Symbol', 'micro-erp' ); ?></label>
+						<select id="currency_symbol" name="currency_symbol" class="form-control">
+							<?php foreach ( array( '$' => 'USD', '€' => 'EUR', '£' => 'GBP', '৳' => 'BDT', '₹' => 'INR', '¥' => 'JPY' ) as $sym => $label ) : ?>
+								<option value="<?php echo esc_attr( $sym ); ?>" <?php selected( $currency, $sym ); ?>><?php echo esc_html( $sym ); ?> - <?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+						<div class="form-text"><?php esc_html_e( 'Symbol displayed next to all amounts', 'micro-erp' ); ?></div>
+					</div>
 
-		<button type="submit" class="btn btn-success"><?php esc_html_e( 'Save Settings', 'micro-erp' ); ?></button>
+					<div class="mb-3">
+						<label for="default_tax_rate" class="form-label"><?php esc_html_e( 'Default Tax Rate (%)', 'micro-erp' ); ?></label>
+						<input type="number" id="default_tax_rate" name="default_tax_rate" class="form-control" value="<?php echo esc_attr( $tax_rate ); ?>" step="0.01" min="0" max="100">
+						<div class="form-text"><?php esc_html_e( 'Applied to new sales and quotations', 'micro-erp' ); ?></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6 col-md-12">
+				<div class="bg-light p-4 rounded shadow-sm mb-4">
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Accounting', 'micro-erp' ); ?></h2>
+
+					<div class="mb-3">
+						<label for="default_income_account" class="form-label"><?php esc_html_e( 'Default Income Account', 'micro-erp' ); ?></label>
+						<select id="default_income_account" name="default_income_account" class="form-control">
+							<option value="0"><?php esc_html_e( '— Auto (first income account) —', 'micro-erp' ); ?></option>
+							<?php foreach ( $income_accounts as $acct ) : ?>
+								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_income, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<label for="default_expense_account" class="form-label"><?php esc_html_e( 'Default Expense Account', 'micro-erp' ); ?></label>
+						<select id="default_expense_account" name="default_expense_account" class="form-control">
+							<option value="0"><?php esc_html_e( '— Auto (first expense account) —', 'micro-erp' ); ?></option>
+							<?php foreach ( $expense_accounts as $acct ) : ?>
+								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_expense, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<label for="cash_account" class="form-label"><?php esc_html_e( 'Cash/Bank Account', 'micro-erp' ); ?></label>
+						<select id="cash_account" name="cash_account" class="form-control">
+							<option value="0"><?php esc_html_e( '— Auto (first asset account) —', 'micro-erp' ); ?></option>
+							<?php foreach ( $asset_accounts as $acct ) : ?>
+								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $cash_acct, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-6 col-md-12">
+				<div class="bg-light p-4 rounded shadow-sm mb-4">
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Modules', 'micro-erp' ); ?></h2>
+
+					<div class="mb-3 form-check">
+						<label><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) micro_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Accounting Module', 'micro-erp' ); ?></label>
+					</div>
+
+					<div class="mb-3 form-check">
+						<label><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) micro_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'HRM Module', 'micro-erp' ); ?></label>
+					</div>
+
+					<div class="mb-3 form-check">
+						<label><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) micro_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Sales Module', 'micro-erp' ); ?></label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button type="submit" class="btn-success mb-4"><?php esc_html_e( 'Save Settings', 'micro-erp' ); ?></button>
 	</form>
 </div>

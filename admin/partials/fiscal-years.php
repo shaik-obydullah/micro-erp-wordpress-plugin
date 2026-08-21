@@ -17,100 +17,113 @@ micro_erp_print_admin_notice();
 
 $back_url = add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_url( 'admin.php' ) );
 ?>
-<div class="wrap micro-erp">
-	<h1>
+<div class="wrap micro-erp-page">
+	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Fiscal Year', 'micro-erp' ) : esc_html__( 'Fiscal Years', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
+	<hr class="wp-header-end">
 
 	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
 
-		<div class="card">
-			<div class="card-header"><?php esc_html_e( 'Fiscal Year Details', 'micro-erp' ); ?></div>
-			<div class="card-body" style="padding: 0;">
-				<form method="post" action="">
-					<?php
-					$action = $editing ? 'save_fiscal_year' : 'save_fiscal_year';
-					wp_nonce_field( 'micro_erp_fiscal_year_save' );
-					?>
-					<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
-					<?php if ( $editing ) : ?>
-						<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
-					<?php endif; ?>
-					<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-					<table class="form-table">
-						<tr>
-							<th><label for="name"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="text" name="name" id="name" placeholder="e.g. FY 2025-2026" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required></td>
-						</tr>
-						<tr>
-							<th><label for="start_date"><?php esc_html_e( 'Start Date', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="date" name="start_date" id="start_date" value="<?php echo $editing ? esc_attr( $editing->start_date ) : ''; ?>" required></td>
-						</tr>
-						<tr>
-							<th><label for="end_date"><?php esc_html_e( 'End Date', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="date" name="end_date" id="end_date" value="<?php echo $editing ? esc_attr( $editing->end_date ) : ''; ?>" required></td>
-						</tr>
-					</table>
-					<div class="actions-bar">
-						<a href="<?php echo esc_url( $back_url ); ?>" class="btn btn-cancel"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-						<button type="submit" class="btn btn-success"><?php esc_html_e( 'Save Fiscal Year', 'micro-erp' ); ?></button>
-					</div>
-				</form>
+		<div class="row mt-3">
+			<div class="col-lg-6 col-md-12">
+				<div class="bg-light p-4 rounded shadow-sm">
+					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Fiscal Year Details', 'micro-erp' ); ?></h2>
+					<form method="post" action="">
+						<?php
+						$action = $editing ? 'save_fiscal_year' : 'save_fiscal_year';
+						wp_nonce_field( 'micro_erp_fiscal_year_save' );
+						?>
+						<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<?php if ( $editing ) : ?>
+							<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
+						<?php endif; ?>
+						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+
+						<div class="mb-3">
+							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="text" name="name" id="name" class="form-control" placeholder="e.g. FY 2025-2026" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="start_date" class="form-label"><?php esc_html_e( 'Start Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="date" name="start_date" id="start_date" class="form-control" value="<?php echo $editing ? esc_attr( $editing->start_date ) : ''; ?>" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="end_date" class="form-label"><?php esc_html_e( 'End Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="date" name="end_date" id="end_date" class="form-control" value="<?php echo $editing ? esc_attr( $editing->end_date ) : ''; ?>" required>
+						</div>
+
+						<div class="d-flex mt-4">
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
+							<button type="submit" class="btn-primary"><?php esc_html_e( 'Save Fiscal Year', 'micro-erp' ); ?></button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 
 	<?php else : ?>
 
-		<div class="card">
-			<div class="card-body" style="padding: 0;">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Start Date', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'End Date', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ( empty( $rows ) ) : ?>
-							<tr><td colspan="5"><?php esc_html_e( 'No fiscal years found.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $rows as $row ) : ?>
-							<tr>
-								<td><strong><?php echo esc_html( $row->name ); ?></strong></td>
-								<td><?php echo esc_html( $row->start_date ); ?></td>
-								<td><?php echo esc_html( $row->end_date ); ?></td>
-								<td><?php echo $row->is_active ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-neutral">Closed</span>'; // phpcs:ignore ?></td>
-								<td>
-									<div class="actions">
-										<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
-										<?php if ( ! $row->is_active ) : ?>
-											<form method="post" action="" class="inline-form">
-												<?php wp_nonce_field( 'micro_erp_fiscal_year_activate' ); ?>
-												<input type="hidden" name="micro_erp_action" value="activate_fiscal_year">
-												<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-												<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-												<button class="btn btn-success btn-sm"><?php esc_html_e( 'Activate', 'micro-erp' ); ?></button>
-											</form>
-										<?php endif; ?>
-										<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'micro-erp' ); ?>');">
-											<?php wp_nonce_field( 'micro_erp_fiscal_year_delete' ); ?>
-											<input type="hidden" name="micro_erp_action" value="delete_fiscal_year">
-											<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-											<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-											<button class="btn btn-danger btn-sm"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
-										</form>
-									</div>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
+		<div class="row mt-3">
+			<div class="col-lg-12">
+				<div class="bg-light p-3 rounded shadow-sm border">
+					<h2 class="h5 mb-3 fw-semibold">
+						<?php esc_html_e( 'All Fiscal Years', 'micro-erp' ); ?>
+					</h2>
+
+					<div class="table-responsive">
+						<table class="table table-striped table-hover table-bordered mb-2">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Start Date', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'End Date', 'micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
+									<th width="170" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+								</tr>
+							</thead>
+							<tbody class="bg-white">
+								<?php if ( empty( $rows ) ) : ?>
+									<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No fiscal years found.', 'micro-erp' ); ?></td></tr>
+								<?php endif; ?>
+								<?php foreach ( $rows as $row ) : ?>
+									<tr>
+										<td><strong><?php echo esc_html( $row->name ); ?></strong></td>
+										<td><?php echo esc_html( $row->start_date ); ?></td>
+										<td><?php echo esc_html( $row->end_date ); ?></td>
+										<td><?php echo $row->is_active ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-neutral">Closed</span>'; // phpcs:ignore ?></td>
+										<td>
+											<div class="pos-row-actions">
+												<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<?php if ( ! $row->is_active ) : ?>
+													<form method="post" action="" class="inline-form">
+														<?php wp_nonce_field( 'micro_erp_fiscal_year_activate' ); ?>
+														<input type="hidden" name="micro_erp_action" value="activate_fiscal_year">
+														<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
+														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+														<button type="submit" class="pos-action edit"><?php esc_html_e( 'Activate', 'micro-erp' ); ?></button>
+													</form>
+												<?php endif; ?>
+												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'micro-erp' ); ?>');">
+													<?php wp_nonce_field( 'micro_erp_fiscal_year_delete' ); ?>
+													<input type="hidden" name="micro_erp_action" value="delete_fiscal_year">
+													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
+													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<button type="submit" class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 

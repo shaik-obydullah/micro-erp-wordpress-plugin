@@ -176,38 +176,38 @@ function micro_erp_leave_type_name( $id ) {
 }
 
 function micro_erp_badge( $value, $map = array() ) {
-	$class = isset( $map[ $value ] ) ? $map[ $value ] : 'badge-neutral';
-	return '<span class="badge ' . esc_attr( $class ) . '">' . esc_html( ucfirst( $value ) ) . '</span>';
+	$class = isset( $map[ $value ] ) ? $map[ $value ] : 'status-neutral';
+	return '<span class="status-badge ' . esc_attr( $class ) . '">' . esc_html( ucfirst( $value ) ) . '</span>';
 }
 
 function micro_erp_status_badge( $status ) {
 	$map = array(
-		'active'    => 'badge-active',
-		'inactive'  => 'badge-inactive',
-		'terminated'=> 'badge-inactive',
-		'draft'     => 'badge-neutral',
-		'sent'      => 'badge-info',
-		'accepted'  => 'badge-active',
-		'rejected'  => 'badge-inactive',
-		'converted' => 'badge-info',
-		'paid'      => 'badge-active',
-		'unpaid'    => 'badge-inactive',
-		'partial'   => 'badge-warning',
-		'pending'   => 'badge-warning',
-		'approved'  => 'badge-active',
-		'present'   => 'badge-active',
-		'absent'    => 'badge-inactive',
-		'late'      => 'badge-warning',
-		'approved_half' => 'badge-info',
+		'active'    => 'status-active',
+		'inactive'  => 'status-inactive',
+		'terminated'=> 'status-inactive',
+		'draft'     => 'status-neutral',
+		'sent'      => 'status-info',
+		'accepted'  => 'status-active',
+		'rejected'  => 'status-inactive',
+		'converted' => 'status-info',
+		'paid'      => 'status-active',
+		'unpaid'    => 'status-inactive',
+		'partial'   => 'status-warning',
+		'pending'   => 'status-warning',
+		'approved'  => 'status-active',
+		'present'   => 'status-active',
+		'absent'    => 'status-inactive',
+		'late'      => 'status-warning',
+		'approved_half' => 'status-info',
 	);
 	return micro_erp_badge( $status, $map );
 }
 
 function micro_erp_contact_type_badge( $type ) {
 	$map = array(
-		'customer' => 'badge-info',
-		'vendor'   => 'badge-neutral',
-		'supplier' => 'badge-warning',
+		'customer' => 'status-info',
+		'vendor'   => 'status-neutral',
+		'supplier' => 'status-warning',
 	);
 	return micro_erp_badge( $type, $map );
 }

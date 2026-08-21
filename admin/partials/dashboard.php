@@ -20,136 +20,208 @@ $fy           = micro_erp_get_active_fiscal_year();
 
 micro_erp_print_admin_notice();
 ?>
-<div class="wrap micro-erp">
-	<h1><?php esc_html_e( 'Dashboard', 'micro-erp' ); ?></h1>
+<div class="wrap micro-erp-page">
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Dashboard', 'micro-erp' ); ?></h1>
+	<hr class="wp-header-end">
 
 	<?php if ( $fy ) : ?>
 		<p class="micro-erp-fy-label"><?php esc_html_e( 'Active Fiscal Year:', 'micro-erp' ); ?> <strong><?php echo esc_html( $fy->name ); ?></strong></p>
 	<?php endif; ?>
 
-	<div class="kpi-grid">
-		<div class="kpi-card income">
-			<div class="kpi-label"><?php esc_html_e( 'Total Income', 'micro-erp' ); ?></div>
-			<div class="kpi-value"><?php echo esc_html( micro_erp_format_money( $income ) ); ?></div>
+	<!-- Main Metrics Grid -->
+	<div class="row mb-4">
+		<!-- Total Income -->
+		<div class="col-lg-3 col-md-6 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-success">
+				<h3 class="fs-6 fw-normal text-muted mb-2">
+					<?php esc_html_e( 'Total Income', 'micro-erp' ); ?>
+				</h3>
+				<p class="summary-number text-success mb-0">
+					<?php echo esc_html( micro_erp_format_money( $income ) ); ?>
+				</p>
+				<small class="text-muted"><?php esc_html_e( 'All time revenue', 'micro-erp' ); ?></small>
+			</div>
 		</div>
-		<div class="kpi-card expense">
-			<div class="kpi-label"><?php esc_html_e( 'Total Expense', 'micro-erp' ); ?></div>
-			<div class="kpi-value"><?php echo esc_html( micro_erp_format_money( $expense ) ); ?></div>
+
+		<!-- Total Expense -->
+		<div class="col-lg-3 col-md-6 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-danger">
+				<h3 class="fs-6 fw-normal text-muted mb-2">
+					<?php esc_html_e( 'Total Expense', 'micro-erp' ); ?>
+				</h3>
+				<p class="summary-number text-danger mb-0">
+					<?php echo esc_html( micro_erp_format_money( $expense ) ); ?>
+				</p>
+				<small class="text-muted"><?php esc_html_e( 'All time expenses', 'micro-erp' ); ?></small>
+			</div>
 		</div>
-		<div class="kpi-card receivable">
-			<div class="kpi-label"><?php esc_html_e( 'Total Receivable', 'micro-erp' ); ?></div>
-			<div class="kpi-value"><?php echo esc_html( micro_erp_format_money( $receivable ) ); ?></div>
+
+		<!-- Total Receivable -->
+		<div class="col-lg-3 col-md-6 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-info">
+				<h3 class="fs-6 fw-normal text-muted mb-2">
+					<?php esc_html_e( 'Total Receivable', 'micro-erp' ); ?>
+				</h3>
+				<p class="summary-number text-info mb-0">
+					<?php echo esc_html( micro_erp_format_money( $receivable ) ); ?>
+				</p>
+				<small class="text-muted"><?php esc_html_e( 'Money owed to you', 'micro-erp' ); ?></small>
+			</div>
 		</div>
-		<div class="kpi-card payable">
-			<div class="kpi-label"><?php esc_html_e( 'Total Payable', 'micro-erp' ); ?></div>
-			<div class="kpi-value"><?php echo esc_html( micro_erp_format_money( $payable ) ); ?></div>
+
+		<!-- Total Payable -->
+		<div class="col-lg-3 col-md-6 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-warning">
+				<h3 class="fs-6 fw-normal text-muted mb-2">
+					<?php esc_html_e( 'Total Payable', 'micro-erp' ); ?>
+				</h3>
+				<p class="summary-number text-warning mb-0">
+					<?php echo esc_html( micro_erp_format_money( $payable ) ); ?>
+				</p>
+				<small class="text-muted"><?php esc_html_e( 'Money you owe', 'micro-erp' ); ?></small>
+			</div>
 		</div>
 	</div>
 
-	<div class="dashboard-grid">
-		<div class="card">
-			<div class="card-header"><?php esc_html_e( 'Recent Sales', 'micro-erp' ); ?></div>
-			<div class="card-body">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Customer', 'micro-erp' ); ?></th>
-							<th class="text-right"><?php esc_html_e( 'Amount', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
+	<!-- Recent Sales -->
+	<div class="row mt-4">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-12">
+			<div class="bg-light p-4 rounded shadow-sm">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="fs-6 fw-semibold mb-0">
+						<?php esc_html_e( 'Recent Sales', 'micro-erp' ); ?>
+					</h3>
+				</div>
+
+				<?php if ( ! empty( $recent_sales ) ) : ?>
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Customer', 'micro-erp' ); ?></th>
+									<th class="text-right"><?php esc_html_e( 'Amount', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $recent_sales as $sale ) : ?>
+									<tr>
+										<td><strong><?php echo esc_html( $sale->sale_no ); ?></strong></td>
+										<td><?php echo esc_html( micro_erp_contact_name( $sale->contact_id ) ); ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( $sale->total ) ); ?></td>
+										<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td><?php echo esc_html( $sale->sale_date ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php else : ?>
+					<div class="text-center py-5">
+						<p class="mb-0 text-muted">
+							<?php esc_html_e( 'No sales yet.', 'micro-erp' ); ?>
+						</p>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pending Actions & Recent Employees -->
+	<div class="row mt-4">
+		<div class="col-lg-6 col-md-12 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm h-100">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="fs-6 fw-semibold mb-0">
+						<?php esc_html_e( 'Pending Actions', 'micro-erp' ); ?>
+					</h3>
+				</div>
+				<table class="table table-hover mb-0">
 					<tbody>
-						<?php if ( empty( $recent_sales ) ) : ?>
-							<tr><td colspan="5"><?php esc_html_e( 'No sales yet.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $recent_sales as $sale ) : ?>
-							<tr>
-								<td><strong><?php echo esc_html( $sale->sale_no ); ?></strong></td>
-								<td><?php echo esc_html( micro_erp_contact_name( $sale->contact_id ) ); ?></td>
-								<td class="text-right"><?php echo esc_html( micro_erp_format_money( $sale->total ) ); ?></td>
-								<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
-								<td><?php echo esc_html( $sale->sale_date ); ?></td>
-							</tr>
-						<?php endforeach; ?>
+						<tr>
+							<td><span class="status-badge status-warning"><?php echo (int) $pending_quo; ?></span> <?php esc_html_e( 'Pending Quotations', 'micro-erp' ); ?></td>
+						</tr>
+						<tr>
+							<td><span class="status-badge status-warning"><?php echo (int) $pending_leave; ?></span> <?php esc_html_e( 'Leave Requests', 'micro-erp' ); ?></td>
+						</tr>
+						<tr>
+							<td><span class="status-badge status-inactive"><?php echo (int) $unpaid_sales; ?></span> <?php esc_html_e( 'Unpaid Invoices', 'micro-erp' ); ?></td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
 
-		<div class="card">
-			<div class="card-header"><?php esc_html_e( 'Pending Actions', 'micro-erp' ); ?></div>
-			<div class="card-body">
-				<table>
-					<tbody>
-						<tr>
-							<td><span class="badge badge-warning"><?php echo (int) $pending_quo; ?></span> <?php esc_html_e( 'Pending Quotations', 'micro-erp' ); ?></td>
-						</tr>
-						<tr>
-							<td><span class="badge badge-warning"><?php echo (int) $pending_leave; ?></span> <?php esc_html_e( 'Leave Requests', 'micro-erp' ); ?></td>
-						</tr>
-						<tr>
-							<td><span class="badge badge-inactive"><?php echo (int) $unpaid_sales; ?></span> <?php esc_html_e( 'Unpaid Invoices', 'micro-erp' ); ?></td>
-						</tr>
-					</tbody>
-				</table>
+		<div class="col-lg-6 col-md-12 mb-3">
+			<div class="bg-light p-4 rounded shadow-sm h-100">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="fs-6 fw-semibold mb-0">
+						<?php esc_html_e( 'Recent Employees', 'micro-erp' ); ?>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-hover mb-0">
+						<thead>
+							<tr class="bg-primary text-white">
+								<th><?php esc_html_e( 'ID', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Department', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php if ( empty( $recent_emp ) ) : ?>
+								<tr><td colspan="4"><?php esc_html_e( 'No employees yet.', 'micro-erp' ); ?></td></tr>
+							<?php endif; ?>
+							<?php foreach ( $recent_emp as $emp ) : ?>
+								<tr>
+									<td><?php echo esc_html( $emp->employee_id ); ?></td>
+									<td><?php echo esc_html( $emp->name ); ?></td>
+									<td><?php echo esc_html( micro_erp_department_name( $emp->department_id ) ); ?></td>
+									<td><?php echo micro_erp_status_badge( $emp->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
+	</div>
 
-		<div class="card">
-			<div class="card-header"><?php esc_html_e( 'Recent Employees', 'micro-erp' ); ?></div>
-			<div class="card-body">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'ID', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Department', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ( empty( $recent_emp ) ) : ?>
-							<tr><td colspan="4"><?php esc_html_e( 'No employees yet.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $recent_emp as $emp ) : ?>
-							<tr>
-								<td><?php echo esc_html( $emp->employee_id ); ?></td>
-								<td><?php echo esc_html( $emp->name ); ?></td>
-								<td><?php echo esc_html( micro_erp_department_name( $emp->department_id ) ); ?></td>
-								<td><?php echo micro_erp_status_badge( $emp->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+	<!-- Recent Journal Entries -->
+	<div class="row mt-4">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-12">
+			<div class="bg-light p-4 rounded shadow-sm">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="fs-6 fw-semibold mb-0">
+						<?php esc_html_e( 'Recent Journal Entries', 'micro-erp' ); ?>
+					</h3>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-hover mb-0">
+						<thead>
+							<tr class="bg-primary text-white">
+								<th>#</th>
+								<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
 							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-		<div class="card">
-			<div class="card-header"><?php esc_html_e( 'Recent Journal Entries', 'micro-erp' ); ?></div>
-			<div class="card-body">
-				<table>
-					<thead>
-						<tr>
-							<th>#</th>
-							<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ( empty( $recent_jrnl ) ) : ?>
-							<tr><td colspan="3"><?php esc_html_e( 'No journal entries yet.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $recent_jrnl as $je ) : ?>
-							<tr>
-								<td>JE-<?php echo (int) $je->id; ?></td>
-								<td><?php echo esc_html( $je->description ); ?></td>
-								<td><?php echo esc_html( $je->entry_date ); ?></td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							<?php if ( empty( $recent_jrnl ) ) : ?>
+								<tr><td colspan="3"><?php esc_html_e( 'No journal entries yet.', 'micro-erp' ); ?></td></tr>
+							<?php endif; ?>
+							<?php foreach ( $recent_jrnl as $je ) : ?>
+								<tr>
+									<td>JE-<?php echo (int) $je->id; ?></td>
+									<td><?php echo esc_html( $je->description ); ?></td>
+									<td><?php echo esc_html( $je->entry_date ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

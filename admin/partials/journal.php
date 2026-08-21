@@ -30,53 +30,58 @@ if ( $view_id ) {
 	$view_lines = isset( $lines_by_entry[ $view_id ] ) ? $lines_by_entry[ $view_id ] : array();
 }
 ?>
-<div class="wrap micro-erp">
-	<h1>
+<div class="wrap micro-erp-page">
+	<h1 class="wp-heading-inline mb-3">
 		<?php echo $show_form ? esc_html__( 'New Journal Entry', 'micro-erp' ) : esc_html__( 'Journal Entries', 'micro-erp' ); ?>
 		<?php if ( ! $show_form ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn btn-primary"><?php esc_html_e( '+ New Entry', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
+	<hr class="wp-header-end">
 
 	<?php if ( $show_form && $view_id ) : ?>
 
-		<div class="card">
-			<div class="card-header"><?php echo esc_html( $view_entry->description ); ?></div>
-			<div class="card-body" style="padding: 0;">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-							<th class="text-right"><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
-							<th class="text-right"><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php
-						$td = 0;
-						$tc = 0;
-						foreach ( $view_lines as $line ) :
-							$td += (float) $line->debit;
-							$tc += (float) $line->credit;
-							?>
-							<tr>
-								<td><?php echo esc_html( $line->code . ' - ' . $line->name ); ?></td>
-								<td><?php echo esc_html( $line->description ); ?></td>
-								<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->debit ) ); ?></td>
-								<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->credit ) ); ?></td>
-							</tr>
-						<?php endforeach; ?>
-						<tr class="total-row">
-							<td colspan="2"><strong><?php esc_html_e( 'Total', 'micro-erp' ); ?></strong></td>
-							<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $td ) ); ?></strong></td>
-							<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $tc ) ); ?></strong></td>
-						</tr>
-					</tbody>
-				</table>
+		<div class="row mt-3">
+			<div class="col-lg-12">
+				<div class="bg-light p-3 rounded shadow-sm border">
+					<h2 class="h5 mb-3 fw-semibold"><?php echo esc_html( $view_entry->description ); ?></h2>
+					<div class="table-responsive">
+						<table class="table table-striped table-hover table-bordered mb-2">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
+									<th width="140" class="text-right"><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
+									<th width="140" class="text-right"><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
+								</tr>
+							</thead>
+							<tbody class="bg-white">
+								<?php
+								$td = 0;
+								$tc = 0;
+								foreach ( $view_lines as $line ) :
+									$td += (float) $line->debit;
+									$tc += (float) $line->credit;
+									?>
+									<tr>
+										<td><?php echo esc_html( $line->code . ' - ' . $line->name ); ?></td>
+										<td><?php echo esc_html( $line->description ); ?></td>
+										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->debit ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->credit ) ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+								<tr class="total-row">
+									<td colspan="2"><strong><?php esc_html_e( 'Total', 'micro-erp' ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $td ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $tc ) ); ?></strong></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mt-2 d-inline-block">← <?php esc_html_e( 'Back to Journal', 'micro-erp' ); ?></a>
+				</div>
 			</div>
 		</div>
-		<a href="<?php echo esc_url( $back_url ); ?>" class="btn btn-cancel"><?php esc_html_e( '← Back to Journal', 'micro-erp' ); ?></a>
 
 	<?php elseif ( $show_form ) : ?>
 
@@ -85,137 +90,149 @@ if ( $view_id ) {
 			<input type="hidden" name="micro_erp_action" value="save_journal">
 			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
-			<div class="card">
-				<div class="card-header"><?php esc_html_e( 'Entry Details', 'micro-erp' ); ?></div>
-				<div class="card-body" style="padding: 0;">
-					<table class="form-table">
-						<tr>
-							<th><label for="entry_date"><?php esc_html_e( 'Date', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="date" name="entry_date" id="entry_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required></td>
-						</tr>
-						<tr>
-							<th><label for="description"><?php esc_html_e( 'Description', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="text" name="description" id="description" placeholder="<?php esc_attr_e( 'Brief description of this entry', 'micro-erp' ); ?>" required></td>
-						</tr>
-					</table>
+			<div class="row mt-3">
+				<div class="col-lg-6 col-md-12">
+					<div class="bg-light p-4 rounded shadow-sm mb-4">
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Entry Details', 'micro-erp' ); ?></h2>
+
+						<div class="mb-3">
+							<label for="entry_date" class="form-label"><?php esc_html_e( 'Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="date" name="entry_date" id="entry_date" class="form-control" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="description" class="form-label"><?php esc_html_e( 'Description', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="text" name="description" id="description" class="form-control" placeholder="<?php esc_attr_e( 'Brief description of this entry', 'micro-erp' ); ?>" required>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<div class="card">
-				<div class="card-header"><?php esc_html_e( 'Journal Lines', 'micro-erp' ); ?></div>
-				<div class="card-body">
-					<table class="journal-lines" id="journal-lines">
-						<thead>
-							<tr>
-								<th><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>
-									<select name="account_id[]" required>
-										<option value=""><?php esc_html_e( 'Select Account', 'micro-erp' ); ?></option>
-										<?php foreach ( $accounts as $acct ) : ?>
-											<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
-										<?php endforeach; ?>
-									</select>
-								</td>
-								<td><input type="text" name="line_description[]"></td>
-								<td><input type="number" name="debit[]" class="j-debit" step="0.01" min="0" placeholder="0.00"></td>
-								<td><input type="number" name="credit[]" class="j-credit" step="0.01" min="0" placeholder="0.00"></td>
-								<td><button type="button" class="btn btn-danger btn-sm j-remove">×</button></td>
-							</tr>
-							<tr>
-								<td>
-									<select name="account_id[]" required>
-										<option value=""><?php esc_html_e( 'Select Account', 'micro-erp' ); ?></option>
-										<?php foreach ( $accounts as $acct ) : ?>
-											<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
-										<?php endforeach; ?>
-									</select>
-								</td>
-								<td><input type="text" name="line_description[]"></td>
-								<td><input type="number" name="debit[]" class="j-debit" step="0.01" min="0" placeholder="0.00"></td>
-								<td><input type="number" name="credit[]" class="j-credit" step="0.01" min="0" placeholder="0.00"></td>
-								<td><button type="button" class="btn btn-danger btn-sm j-remove">×</button></td>
-							</tr>
-						</tbody>
-						<tfoot>
-							<tr class="total-row">
-								<td colspan="2"><strong><?php esc_html_e( 'Total', 'micro-erp' ); ?></strong></td>
-								<td class="text-right"><strong class="j-total-debit">0.00</strong></td>
-								<td class="text-right"><strong class="j-total-credit">0.00</strong></td>
-								<td></td>
-							</tr>
-						</tfoot>
-					</table>
-					<button type="button" class="btn btn-primary j-add-line" style="margin-top: 12px;"><?php esc_html_e( '+ Add Line', 'micro-erp' ); ?></button>
-					<p class="j-balance-note" style="margin-top: 8px; font-size: 12px; color: #646970;"><?php esc_html_e( 'Debit and Credit totals must be equal.', 'micro-erp' ); ?></p>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="bg-light p-4 rounded shadow-sm mb-4">
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Journal Lines', 'micro-erp' ); ?></h2>
+
+						<table class="journal-lines table table-striped table-hover table-bordered" id="journal-lines">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th style="width:30%;"><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
+									<th width="50"></th>
+								</tr>
+							</thead>
+							<tbody class="bg-white">
+								<tr>
+									<td>
+										<select name="account_id[]" required class="form-control form-control-sm">
+											<option value=""><?php esc_html_e( 'Select Account', 'micro-erp' ); ?></option>
+											<?php foreach ( $accounts as $acct ) : ?>
+												<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+											<?php endforeach; ?>
+										</select>
+									</td>
+									<td><input type="text" name="line_description[]" class="form-control form-control-sm"></td>
+									<td><input type="number" name="debit[]" class="j-debit form-control form-control-sm text-right" step="0.01" min="0" placeholder="0.00"></td>
+									<td><input type="number" name="credit[]" class="j-credit form-control form-control-sm text-right" step="0.01" min="0" placeholder="0.00"></td>
+									<td><button type="button" class="btn-danger j-remove">×</button></td>
+								</tr>
+								<tr>
+									<td>
+										<select name="account_id[]" required class="form-control form-control-sm">
+											<option value=""><?php esc_html_e( 'Select Account', 'micro-erp' ); ?></option>
+											<?php foreach ( $accounts as $acct ) : ?>
+												<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+											<?php endforeach; ?>
+										</select>
+									</td>
+									<td><input type="text" name="line_description[]" class="form-control form-control-sm"></td>
+									<td><input type="number" name="debit[]" class="j-debit form-control form-control-sm text-right" step="0.01" min="0" placeholder="0.00"></td>
+									<td><input type="number" name="credit[]" class="j-credit form-control form-control-sm text-right" step="0.01" min="0" placeholder="0.00"></td>
+									<td><button type="button" class="btn-danger j-remove">×</button></td>
+								</tr>
+							</tbody>
+							<tfoot>
+								<tr class="total-row">
+									<td colspan="2"><strong><?php esc_html_e( 'Total', 'micro-erp' ); ?></strong></td>
+									<td class="text-right"><strong class="j-total-debit">0.00</strong></td>
+									<td class="text-right"><strong class="j-total-credit">0.00</strong></td>
+									<td></td>
+								</tr>
+							</tfoot>
+						</table>
+
+						<button type="button" class="btn-primary j-add-line mt-3"><?php esc_html_e( '+ Add Line', 'micro-erp' ); ?></button>
+						<p class="j-balance-note form-text mt-1"><?php esc_html_e( 'Debit and Credit totals must be equal.', 'micro-erp' ); ?></p>
+					</div>
 				</div>
 			</div>
 
-			<div class="actions-bar">
-				<a href="<?php echo esc_url( $back_url ); ?>" class="btn btn-cancel"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-				<button type="submit" class="btn btn-success"><?php esc_html_e( 'Save Journal Entry', 'micro-erp' ); ?></button>
+			<div class="d-flex mt-2 mb-4">
+				<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
+				<button type="submit" class="btn-success"><?php esc_html_e( 'Save Journal Entry', 'micro-erp' ); ?></button>
 			</div>
 		</form>
 
 	<?php else : ?>
 
-		<div class="card">
-			<div class="card-body" style="padding: 0;">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-							<th>#</th>
-							<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Source', 'micro-erp' ); ?></th>
-							<th class="text-right"><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
-							<th class="text-right"><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ( empty( $entries ) ) : ?>
-							<tr><td colspan="7"><?php esc_html_e( 'No journal entries yet.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $entries as $entry ) :
-							$entry_lines = isset( $lines_by_entry[ $entry->id ] ) ? $lines_by_entry[ $entry->id ] : array();
-							$t_d = 0;
-							$t_c = 0;
-							foreach ( $entry_lines as $l ) {
-								$t_d += (float) $l->debit;
-								$t_c += (float) $l->credit;
-							}
-							?>
-							<tr>
-								<td><?php echo esc_html( $entry->entry_date ); ?></td>
-								<td>JE-<?php echo (int) $entry->id; ?></td>
-								<td><strong><?php echo esc_html( $entry->description ); ?></strong></td>
-								<td><?php echo esc_html( $entry->reference_type ? ucwords( str_replace( '_', ' ', $entry->reference_type ) ) : '—' ); ?></td>
-								<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_d ) ); ?></td>
-								<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_c ) ); ?></td>
-								<td>
-									<div class="actions">
-										<a href="<?php echo esc_url( add_query_arg( 'view', $entry->id, $back_url ) ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'View', 'micro-erp' ); ?></a>
-										<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this entry?', 'micro-erp' ); ?>');">
-											<?php wp_nonce_field( 'micro_erp_journal_delete' ); ?>
-											<input type="hidden" name="micro_erp_action" value="delete_journal">
-											<input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
-											<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-											<button class="btn btn-danger btn-sm"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
-										</form>
-									</div>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
+		<div class="row mt-3">
+			<div class="col-lg-12">
+				<div class="bg-light p-3 rounded shadow-sm border">
+					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'All Entries', 'micro-erp' ); ?></h2>
+
+					<div class="table-responsive">
+						<table class="table table-striped table-hover table-bordered mb-2">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th width="110"><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
+									<th width="80">#</th>
+									<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Source', 'micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Debit', 'micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Credit', 'micro-erp' ); ?></th>
+									<th width="150" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+								</tr>
+							</thead>
+							<tbody class="bg-white">
+								<?php if ( empty( $entries ) ) : ?>
+									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'No journal entries yet.', 'micro-erp' ); ?></td></tr>
+								<?php endif; ?>
+								<?php foreach ( $entries as $entry ) :
+									$entry_lines = isset( $lines_by_entry[ $entry->id ] ) ? $lines_by_entry[ $entry->id ] : array();
+									$t_d = 0;
+									$t_c = 0;
+									foreach ( $entry_lines as $l ) {
+										$t_d += (float) $l->debit;
+										$t_c += (float) $l->credit;
+									}
+									?>
+									<tr>
+										<td><?php echo esc_html( $entry->entry_date ); ?></td>
+										<td>JE-<?php echo (int) $entry->id; ?></td>
+										<td><strong><?php echo esc_html( $entry->description ); ?></strong></td>
+										<td><?php echo esc_html( $entry->reference_type ? ucwords( str_replace( '_', ' ', $entry->reference_type ) ) : '—' ); ?></td>
+										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_d ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_c ) ); ?></td>
+										<td>
+											<div class="pos-row-actions">
+												<a href="<?php echo esc_url( add_query_arg( 'view', $entry->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'View', 'micro-erp' ); ?></a>
+												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this entry?', 'micro-erp' ); ?>');">
+													<?php wp_nonce_field( 'micro_erp_journal_delete' ); ?>
+													<input type="hidden" name="micro_erp_action" value="delete_journal">
+													<input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
+													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<button class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 

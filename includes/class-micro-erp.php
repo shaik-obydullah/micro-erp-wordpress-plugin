@@ -80,7 +80,8 @@ class MicroERP {
 		if ( ! $screen || strpos( $screen->id, 'micro-erp' ) === false ) {
 			return;
 		}
-		wp_enqueue_style( 'micro-erp-admin', MICRO_ERP_URL . 'assets/css/micro-erp-admin.css', array(), MICRO_ERP_VERSION );
+		wp_enqueue_style( 'micro-erp-base', MICRO_ERP_URL . 'assets/css/base.css', array(), MICRO_ERP_VERSION );
+		wp_enqueue_style( 'micro-erp-admin', MICRO_ERP_URL . 'assets/css/micro-erp-admin.css', array( 'micro-erp-base' ), MICRO_ERP_VERSION );
 		wp_enqueue_script( 'micro-erp-admin', MICRO_ERP_URL . 'assets/js/micro-erp-admin.js', array( 'jquery' ), MICRO_ERP_VERSION, true );
 	}
 

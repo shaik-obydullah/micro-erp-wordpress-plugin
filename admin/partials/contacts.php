@@ -35,138 +35,164 @@ micro_erp_print_admin_notice();
 
 $back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( 'admin.php' ) );
 ?>
-<div class="wrap micro-erp">
-	<h1>
+<div class="wrap micro-erp-page">
+	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Contact', 'micro-erp' ) : esc_html__( 'Contacts', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn btn-primary"><?php esc_html_e( '+ Add Contact', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Contact', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
+	<hr class="wp-header-end">
 
 	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
 
-		<div class="card">
-			<div class="card-header"><?php echo $editing ? esc_html__( 'Contact Information', 'micro-erp' ) : esc_html__( 'New Contact', 'micro-erp' ); ?></div>
-			<div class="card-body" style="padding: 0;">
-				<form method="post" action="">
-					<?php
-					$action = $editing ? 'update_contact' : 'save_contact';
-					wp_nonce_field( 'micro_erp_contact_save' );
-					?>
-					<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
-					<?php if ( $editing ) : ?>
-						<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
-					<?php endif; ?>
-					<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-					<table class="form-table">
-						<tr>
-							<th><label for="type"><?php esc_html_e( 'Type', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td>
-								<select name="type" id="type" required>
-									<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
-										<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $editing ? $editing->type : 'customer', $t ); ?>><?php echo esc_html( ucfirst( $t ) ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<th><label for="name"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="required">*</span></label></th>
-							<td><input type="text" name="name" id="name" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required></td>
-						</tr>
-						<tr>
-							<th><label for="email"><?php esc_html_e( 'Email', 'micro-erp' ); ?></label></th>
-							<td><input type="email" name="email" id="email" value="<?php echo $editing ? esc_attr( $editing->email ) : ''; ?>"></td>
-						</tr>
-						<tr>
-							<th><label for="phone"><?php esc_html_e( 'Phone', 'micro-erp' ); ?></label></th>
-							<td><input type="text" name="phone" id="phone" value="<?php echo $editing ? esc_attr( $editing->phone ) : ''; ?>"></td>
-						</tr>
-						<tr>
-							<th><label for="company"><?php esc_html_e( 'Company', 'micro-erp' ); ?></label></th>
-							<td><input type="text" name="company" id="company" value="<?php echo $editing ? esc_attr( $editing->company ) : ''; ?>"></td>
-						</tr>
-						<tr>
-							<th><label for="tax_id"><?php esc_html_e( 'Tax ID', 'micro-erp' ); ?></label></th>
-							<td><input type="text" name="tax_id" id="tax_id" value="<?php echo $editing ? esc_attr( $editing->tax_id ) : ''; ?>"></td>
-						</tr>
-						<tr>
-							<th><label for="address"><?php esc_html_e( 'Address', 'micro-erp' ); ?></label></th>
-							<td><textarea name="address" id="address"><?php echo $editing ? esc_textarea( $editing->address ) : ''; ?></textarea></td>
-						</tr>
-						<tr>
-							<th><label for="status"><?php esc_html_e( 'Status', 'micro-erp' ); ?></label></th>
-							<td>
-								<select name="status" id="status">
-									<option value="active" <?php selected( $editing ? $editing->status : 'active', 'active' ); ?>><?php esc_html_e( 'Active', 'micro-erp' ); ?></option>
-									<option value="inactive" <?php selected( $editing ? $editing->status : '', 'inactive' ); ?>><?php esc_html_e( 'Inactive', 'micro-erp' ); ?></option>
-								</select>
-							</td>
-						</tr>
-					</table>
-					<div class="actions-bar">
-						<a href="<?php echo esc_url( $back_url ); ?>" class="btn btn-cancel"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-						<button type="submit" class="btn btn-success"><?php esc_html_e( 'Save Contact', 'micro-erp' ); ?></button>
-					</div>
-				</form>
+		<div class="row mt-3">
+			<div class="col-lg-6 col-md-12">
+				<div class="bg-light p-4 rounded shadow-sm">
+					<h2 id="form-title" class="mb-3 mt-1">
+						<?php echo $editing ? esc_html__( 'Contact Information', 'micro-erp' ) : esc_html__( 'New Contact', 'micro-erp' ); ?>
+					</h2>
+					<form method="post" action="">
+						<?php
+						$action = $editing ? 'update_contact' : 'save_contact';
+						wp_nonce_field( 'micro_erp_contact_save' );
+						?>
+						<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<?php if ( $editing ) : ?>
+							<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
+						<?php endif; ?>
+						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+
+						<div class="mb-3">
+							<label for="type" class="form-label"><?php esc_html_e( 'Type', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<select name="type" id="type" class="form-control" required>
+								<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
+									<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $editing ? $editing->type : 'customer', $t ); ?>><?php echo esc_html( ucfirst( $t ) ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+
+						<div class="mb-3">
+							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<input type="text" name="name" id="name" class="form-control" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="email" class="form-label"><?php esc_html_e( 'Email', 'micro-erp' ); ?></label>
+							<input type="email" name="email" id="email" class="form-control" value="<?php echo $editing ? esc_attr( $editing->email ) : ''; ?>">
+						</div>
+
+						<div class="mb-3">
+							<label for="phone" class="form-label"><?php esc_html_e( 'Phone', 'micro-erp' ); ?></label>
+							<input type="text" name="phone" id="phone" class="form-control" value="<?php echo $editing ? esc_attr( $editing->phone ) : ''; ?>">
+						</div>
+
+						<div class="mb-3">
+							<label for="company" class="form-label"><?php esc_html_e( 'Company', 'micro-erp' ); ?></label>
+							<input type="text" name="company" id="company" class="form-control" value="<?php echo $editing ? esc_attr( $editing->company ) : ''; ?>">
+						</div>
+
+						<div class="mb-3">
+							<label for="tax_id" class="form-label"><?php esc_html_e( 'Tax ID', 'micro-erp' ); ?></label>
+							<input type="text" name="tax_id" id="tax_id" class="form-control" value="<?php echo $editing ? esc_attr( $editing->tax_id ) : ''; ?>">
+						</div>
+
+						<div class="mb-3">
+							<label for="address" class="form-label"><?php esc_html_e( 'Address', 'micro-erp' ); ?></label>
+							<textarea name="address" id="address" class="form-control"><?php echo $editing ? esc_textarea( $editing->address ) : ''; ?></textarea>
+						</div>
+
+						<div class="mb-3">
+							<label for="status" class="form-label"><?php esc_html_e( 'Status', 'micro-erp' ); ?></label>
+							<select name="status" id="status" class="form-control">
+								<option value="active" <?php selected( $editing ? $editing->status : 'active', 'active' ); ?>><?php esc_html_e( 'Active', 'micro-erp' ); ?></option>
+								<option value="inactive" <?php selected( $editing ? $editing->status : '', 'inactive' ); ?>><?php esc_html_e( 'Inactive', 'micro-erp' ); ?></option>
+							</select>
+						</div>
+
+						<div class="d-flex mt-4">
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
+							<button type="submit" class="btn-primary"><?php esc_html_e( 'Save Contact', 'micro-erp' ); ?></button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 
 	<?php else : ?>
 
-		<form method="get" action="" class="filter-bar">
-			<input type="hidden" name="page" value="micro-erp/contacts">
-			<select name="type">
-				<option value=""><?php esc_html_e( 'All Types', 'micro-erp' ); ?></option>
-				<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
-					<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $type_filter, $t ); ?>><?php echo esc_html( ucfirst( $t ) ); ?></option>
-				<?php endforeach; ?>
-			</select>
-			<input type="text" name="s" placeholder="<?php esc_attr_e( 'Search contacts...', 'micro-erp' ); ?>" value="<?php echo esc_attr( $search ); ?>">
-			<button class="btn btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
-		</form>
+		<div class="row mt-3">
+			<div class="col-lg-12">
+				<div class="bg-light p-3 rounded shadow-sm border">
+					<h2 class="h5 mb-3 fw-semibold">
+						<?php esc_html_e( 'All Contacts', 'micro-erp' ); ?>
+					</h2>
 
-		<div class="card">
-			<div class="card-body" style="padding: 0;">
-				<table>
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Type', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Email', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Phone', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Company', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-							<th><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ( empty( $rows ) ) : ?>
-							<tr><td colspan="7"><?php esc_html_e( 'No contacts found.', 'micro-erp' ); ?></td></tr>
-						<?php endif; ?>
-						<?php foreach ( $rows as $row ) : ?>
-							<tr>
-								<td><strong><?php echo esc_html( $row->name ); ?></strong></td>
-								<td><?php echo micro_erp_contact_type_badge( $row->type ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
-								<td><?php echo esc_html( $row->email ); ?></td>
-								<td><?php echo esc_html( $row->phone ); ?></td>
-								<td><?php echo esc_html( $row->company ); ?></td>
-								<td><?php echo micro_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
-								<td>
-									<div class="actions">
-										<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="btn btn-primary btn-sm"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
-										<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this contact?', 'micro-erp' ); ?>');">
-											<?php wp_nonce_field( 'micro_erp_contact_delete' ); ?>
-											<input type="hidden" name="micro_erp_action" value="delete_contact">
-											<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-											<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-											<button class="btn btn-danger btn-sm"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
-										</form>
-									</div>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
+					<!-- Search Box -->
+					<form method="get" action="" class="search-section mb-3">
+						<input type="hidden" name="page" value="micro-erp/contacts">
+						<div class="d-flex flex-wrap align-items-center gap-2">
+							<div class="search-group flex-grow-1">
+								<label for="contact-search" class="form-label mb-1"><?php esc_html_e( 'Search Contacts', 'micro-erp' ); ?></label>
+								<div class="d-flex align-items-center gap-2">
+									<select name="type" class="form-control form-control-sm" style="max-width:160px;">
+										<option value=""><?php esc_html_e( 'All Types', 'micro-erp' ); ?></option>
+										<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
+											<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $type_filter, $t ); ?>><?php echo esc_html( ucfirst( $t ) ); ?></option>
+										<?php endforeach; ?>
+									</select>
+									<input type="text" name="s" id="contact-search" class="form-control form-control-sm" placeholder="<?php esc_attr_e( 'Search contacts...', 'micro-erp' ); ?>" value="<?php echo esc_attr( $search ); ?>">
+									<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+								</div>
+								<div class="form-text"><?php esc_html_e( 'Search by name, email or company', 'micro-erp' ); ?></div>
+							</div>
+						</div>
+					</form>
+
+					<!-- Contacts Table -->
+					<div class="table-responsive">
+						<table class="table table-striped table-hover table-bordered mb-2">
+							<thead>
+								<tr class="bg-primary text-white">
+									<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Type', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Email', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Phone', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Company', 'micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+								</tr>
+							</thead>
+							<tbody class="bg-white">
+								<?php if ( empty( $rows ) ) : ?>
+									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'No contacts found.', 'micro-erp' ); ?></td></tr>
+								<?php endif; ?>
+								<?php foreach ( $rows as $row ) : ?>
+									<tr>
+										<td><strong><?php echo esc_html( $row->name ); ?></strong></td>
+										<td><?php echo micro_erp_contact_type_badge( $row->type ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td><?php echo esc_html( $row->email ); ?></td>
+										<td><?php echo esc_html( $row->phone ); ?></td>
+										<td><?php echo esc_html( $row->company ); ?></td>
+										<td><?php echo micro_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td>
+											<div class="pos-row-actions">
+												<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this contact?', 'micro-erp' ); ?>');">
+													<?php wp_nonce_field( 'micro_erp_contact_delete' ); ?>
+													<input type="hidden" name="micro_erp_action" value="delete_contact">
+													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
+													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<button type="submit" class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 

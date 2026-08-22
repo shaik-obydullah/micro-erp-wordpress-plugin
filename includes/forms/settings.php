@@ -23,5 +23,5 @@ function micro_erp_handle_settings_form() {
 	}
 
 	micro_erp_audit_log( 'save', 'settings', 0, 'Updated plugin settings' );
-	micro_erp_redirect_notice( __( 'Settings saved.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Settings saved.', 'lime-micro-erp' ) );
 }

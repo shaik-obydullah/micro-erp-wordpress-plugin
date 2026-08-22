@@ -7,13 +7,13 @@ function micro_erp_handle_leave_type_form( $action ) {
 	micro_erp_verify_nonce( 'micro_erp_leave_type_save' );
 
 	$data = array(
-		'name'         => sanitize_text_field( wp_unslash( $_POST['name'] ) ),
+		'name'         => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
 		'days_per_year'=> isset( $_POST['days_per_year'] ) ? (int) $_POST['days_per_year'] : 0,
 		'is_active'    => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 
 	if ( ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Leave type name is required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Leave type name is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -22,13 +22,13 @@ function micro_erp_handle_leave_type_form( $action ) {
 
 	if ( 'update_leave_type' === $action ) {
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-		$wpdb->update( $table, $data, array( 'id' => $id ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%d', '%d' ), array( '%d' ) );
 		$entity_id = $id;
-		$message   = __( 'Leave type updated.', 'micro-erp' );
+		$message   = __( 'Leave type updated.', 'lime-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data );
+		$wpdb->insert( $table, $data, array( '%s', '%d', '%d' ) );
 		$entity_id = (int) $wpdb->insert_id;
-		$message   = __( 'Leave type created.', 'micro-erp' );
+		$message   = __( 'Leave type created.', 'lime-micro-erp' );
 	}
 
 	micro_erp_audit_log( 'save', 'leave_type', $entity_id, $data['name'] );
@@ -40,9 +40,9 @@ function micro_erp_handle_delete_leave_type() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'leave_types' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'leave_types' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'leave_type', $id, 'Deleted leave type #' . $id );
-	micro_erp_redirect_notice( __( 'Leave type deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Leave type deleted.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_leave_request_form() {
@@ -50,18 +50,18 @@ function micro_erp_handle_leave_request_form() {
 
 	$employee_id = isset( $_POST['employee_id'] ) ? (int) $_POST['employee_id'] : 0;
 	$leave_type  = isset( $_POST['leave_type_id'] ) ? (int) $_POST['leave_type_id'] : 0;
-	$start       = sanitize_text_field( wp_unslash( $_POST['start_date'] ) );
-	$end         = sanitize_text_field( wp_unslash( $_POST['end_date'] ) );
+	$start       = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
+	$end         = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
 	$reason      = isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '';
 
 	if ( ! $employee_id || ! $leave_type || ! $start || ! $end ) {
-		micro_erp_redirect_notice( __( 'Employee, leave type, start and end dates are required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Employee, leave type, start and end dates are required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	$total_days = (int) ceil( ( strtotime( $end ) - strtotime( $start ) ) / DAY_IN_SECONDS ) + 1;
 	if ( $total_days < 1 ) {
-		micro_erp_redirect_notice( __( 'End date must be after start date.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'End date must be after start date.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -76,12 +76,13 @@ function micro_erp_handle_leave_request_form() {
 			'total_days'   => $total_days,
 			'reason'       => $reason,
 			'status'       => 'pending',
-		)
+		),
+		array( '%d', '%d', '%s', '%s', '%d', '%s', '%s' )
 	);
 
 	$entity_id = (int) $wpdb->insert_id;
 	micro_erp_audit_log( 'save', 'leave_request', $entity_id, 'New leave request' );
-	micro_erp_redirect_notice( __( 'Leave request submitted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Leave request submitted.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_leave_status( $status ) {
@@ -92,8 +93,10 @@ function micro_erp_handle_leave_status( $status ) {
 	$wpdb->update(
 		micro_erp_table( 'leave_requests' ),
 		array( 'status' => $status, 'approved_by' => get_current_user_id() ),
-		array( 'id' => $id )
+		array( 'id' => $id ),
+		array( '%s', '%d' ),
+		array( '%d' )
 	);
 	micro_erp_audit_log( 'approve', 'leave_request', $id, 'Leave request ' . $status );
-	micro_erp_redirect_notice( sprintf( __( 'Leave request %s.', 'micro-erp' ), $status ) );
+	micro_erp_redirect_notice( sprintf( __( 'Leave request %s.', 'lime-micro-erp' ), $status ) );
 }

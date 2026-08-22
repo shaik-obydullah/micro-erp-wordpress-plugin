@@ -6,11 +6,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 function micro_erp_handle_attendance_form() {
 	micro_erp_verify_nonce( 'micro_erp_attendance_save' );
 
-	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array();
+	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- every row value is sanitized individually in the loop below.
 	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
 
 	if ( ! $date ) {
-		micro_erp_redirect_notice( __( 'A date is required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'A date is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -44,14 +44,14 @@ function micro_erp_handle_attendance_form() {
 		);
 
 		if ( $existing ) {
-			$wpdb->update( $table, $data, array( 'id' => $existing ) );
+			$wpdb->update( $table, $data, array( 'id' => $existing ), array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ), array( '%d' ) );
 		} else {
-			$wpdb->insert( $table, $data );
+			$wpdb->insert( $table, $data, array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ) );
 		}
 	}
 
 	micro_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
-	micro_erp_redirect_notice( __( 'Attendance saved.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Attendance saved.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_delete_attendance() {
@@ -59,7 +59,7 @@ function micro_erp_handle_delete_attendance() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'attendance' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
-	micro_erp_redirect_notice( __( 'Attendance record deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Attendance record deleted.', 'lime-micro-erp' ) );
 }

@@ -8,7 +8,7 @@ function micro_erp_handle_salary_paid() {
 
 	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' );
 	if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
-		micro_erp_redirect_notice( __( 'Invalid month.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Invalid month.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -48,10 +48,10 @@ function micro_erp_handle_salary_paid() {
 		);
 
 		if ( $existing ) {
-			$wpdb->update( $spt, $data, array( 'id' => $existing ) );
+			$wpdb->update( $spt, $data, array( 'id' => $existing ), array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ), array( '%d' ) );
 			$payment_id = (int) $existing;
 		} else {
-			$wpdb->insert( $spt, $data );
+			$wpdb->insert( $spt, $data, array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ) );
 			$payment_id = (int) $wpdb->insert_id;
 		}
 
@@ -69,12 +69,12 @@ function micro_erp_handle_salary_paid() {
 			$payment_id
 		);
 
-		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ) );
+		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) );
 
 		do_action( 'micro_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
 		$count++;
 	}
 
 	micro_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
-	micro_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'micro-erp' ), $count ) );
+	micro_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'lime-micro-erp' ), $count ) );
 }

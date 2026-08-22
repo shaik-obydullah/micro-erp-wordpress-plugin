@@ -16,7 +16,7 @@ $fiscal = micro_erp_get_active_fiscal_year();
 micro_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Sales Reports', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Sales Reports', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<?php
@@ -28,31 +28,31 @@ micro_erp_print_admin_notice();
 	$report_stats = array(
 		array(
 			'key'   => 'sales',
-			'label' => __( 'Total Sales (12 months)', 'micro-erp' ),
+			'label' => __( 'Total Sales (12 months)', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_sales_all ),
-			'sub'   => __( 'Gross invoiced amount', 'micro-erp' ),
+			'sub'   => __( 'Gross invoiced amount', 'lime-micro-erp' ),
 			'icon'  => 'chart-area',
 			'bar'   => null,
 		),
 		array(
 			'key'   => 'invoices',
-			'label' => __( 'Invoices (12 months)', 'micro-erp' ),
+			'label' => __( 'Invoices (12 months)', 'lime-micro-erp' ),
 			'value' => number_format_i18n( $invoice_count ),
-			'sub'   => __( 'Sales orders created', 'micro-erp' ),
+			'sub'   => __( 'Sales orders created', 'lime-micro-erp' ),
 			'icon'  => 'analytics',
 			'bar'   => null,
 		),
 		array(
 			'key'   => 'collected',
-			'label' => __( 'Collected', 'micro-erp' ),
+			'label' => __( 'Collected', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_paid_all ),
-			'sub'   => sprintf( __( '%d%% of total sales', 'micro-erp' ), $pct_collected ),
+			'sub'   => sprintf( __( '%d%% of total sales', 'lime-micro-erp' ), $pct_collected ),
 			'icon'  => 'money-alt',
 			'bar'   => $pct_collected,
 		),
 		array(
 			'key'   => 'fiscal',
-			'label' => __( 'Active Fiscal Year', 'micro-erp' ),
+			'label' => __( 'Active Fiscal Year', 'lime-micro-erp' ),
 			'value' => $fiscal ? esc_html( $fiscal->name ) : '—',
 			'sub'   => $fiscal ? esc_html( $fiscal->start_date . ' — ' . $fiscal->end_date ) : '',
 			'icon'  => 'calendar-alt',
@@ -81,22 +81,22 @@ micro_erp_print_admin_notice();
 	<div class="row mt-1">
 		<div class="col-lg-12">
 			<div class="bg-light p-3 rounded shadow-sm border mb-4">
-				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Monthly Comparison', 'micro-erp' ); ?></h2>
+				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Monthly Comparison', 'lime-micro-erp' ); ?></h2>
 
 				<div class="table-responsive">
 					<table class="table table-striped table-hover table-bordered mb-2">
 						<thead>
 							<tr class="bg-primary text-white">
-								<th width="160"><?php esc_html_e( 'Month', 'micro-erp' ); ?></th>
-								<th width="140" class="text-right"><?php esc_html_e( 'Invoice Count', 'micro-erp' ); ?></th>
-								<th width="150" class="text-right"><?php esc_html_e( 'Total Sales', 'micro-erp' ); ?></th>
-								<th width="150" class="text-right"><?php esc_html_e( 'Amount Paid', 'micro-erp' ); ?></th>
-								<th width="150" class="text-right"><?php esc_html_e( 'Outstanding', 'micro-erp' ); ?></th>
+								<th width="160"><?php esc_html_e( 'Month', 'lime-micro-erp' ); ?></th>
+								<th width="140" class="text-right"><?php esc_html_e( 'Invoice Count', 'lime-micro-erp' ); ?></th>
+								<th width="150" class="text-right"><?php esc_html_e( 'Total Sales', 'lime-micro-erp' ); ?></th>
+								<th width="150" class="text-right"><?php esc_html_e( 'Amount Paid', 'lime-micro-erp' ); ?></th>
+								<th width="150" class="text-right"><?php esc_html_e( 'Outstanding', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody class="bg-white">
 							<?php if ( empty( $rows ) ) : ?>
-								<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No sales recorded yet.', 'micro-erp' ); ?></td></tr>
+								<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No sales recorded yet.', 'lime-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
 							<?php foreach ( $rows as $row ) :
 								$month_name = date_i18n( 'F Y', strtotime( $row->month_label . '-01' ) );
@@ -120,14 +120,14 @@ micro_erp_print_admin_notice();
 	<div class="row">
 		<div class="col-lg-6 col-md-12">
 			<div class="bg-light p-3 rounded shadow-sm border mb-4">
-				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Account Balances (Top Level)', 'micro-erp' ); ?></h2>
+				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Account Balances (Top Level)', 'lime-micro-erp' ); ?></h2>
 
 				<div class="table-responsive">
 					<table class="table table-striped table-hover table-bordered mb-2">
 						<thead>
 							<tr class="bg-primary text-white">
-								<th><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
-								<th width="150" class="text-right"><?php esc_html_e( 'Balance', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Account', 'lime-micro-erp' ); ?></th>
+								<th width="150" class="text-right"><?php esc_html_e( 'Balance', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody class="bg-white">

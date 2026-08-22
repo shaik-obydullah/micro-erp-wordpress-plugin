@@ -7,13 +7,13 @@ function micro_erp_handle_department_form( $action ) {
 	micro_erp_verify_nonce( 'micro_erp_department_save' );
 
 	$data = array(
-		'name'        => sanitize_text_field( wp_unslash( $_POST['name'] ) ),
+		'name'        => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
 		'description' => isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '',
 		'status'      => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'active',
 	);
 
 	if ( ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Department name is required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Department name is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -22,13 +22,13 @@ function micro_erp_handle_department_form( $action ) {
 
 	if ( 'update_department' === $action ) {
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-		$wpdb->update( $table, $data, array( 'id' => $id ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s' ), array( '%d' ) );
 		$entity_id = $id;
-		$message   = __( 'Department updated.', 'micro-erp' );
+		$message   = __( 'Department updated.', 'lime-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data );
+		$wpdb->insert( $table, $data, array( '%s', '%s', '%s' ) );
 		$entity_id = (int) $wpdb->insert_id;
-		$message   = __( 'Department created.', 'micro-erp' );
+		$message   = __( 'Department created.', 'lime-micro-erp' );
 	}
 
 	micro_erp_audit_log( 'save', 'department', $entity_id, $data['name'] );
@@ -42,10 +42,10 @@ function micro_erp_handle_delete_department() {
 	global $wpdb;
 	$used = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . micro_erp_table( 'employees' ) . " WHERE department_id = %d", $id ) );
 	if ( $used ) {
-		micro_erp_redirect_notice( __( 'This department has employees and cannot be deleted.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'This department has employees and cannot be deleted.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
-	$wpdb->delete( micro_erp_table( 'departments' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'departments' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'department', $id, 'Deleted department #' . $id );
-	micro_erp_redirect_notice( __( 'Department deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Department deleted.', 'lime-micro-erp' ) );
 }

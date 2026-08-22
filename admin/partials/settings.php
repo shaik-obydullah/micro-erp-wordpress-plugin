@@ -23,16 +23,16 @@ $def_expense = (int) micro_erp_get_setting( 'default_expense_account', 0 );
 $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Settings', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Settings', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<?php if ( $fy ) : ?>
 		<div class="bg-light p-3 rounded shadow-sm border mt-3 mb-4 d-flex align-items-center gap-2 flex-wrap">
-			<strong><?php esc_html_e( 'Active Fiscal Year:', 'micro-erp' ); ?></strong>
+			<strong><?php esc_html_e( 'Active Fiscal Year:', 'lime-micro-erp' ); ?></strong>
 			<?php echo esc_html( $fy->name ); ?> (<?php echo esc_html( $fy->start_date ); ?> - <?php echo esc_html( $fy->end_date ); ?>)
-			<span class="status-badge status-active"><?php esc_html_e( 'Active', 'micro-erp' ); ?></span>
+			<span class="status-badge status-active"><?php esc_html_e( 'Active', 'lime-micro-erp' ); ?></span>
 			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years' ) ); ?>" class="btn-secondary ml-auto">
-				<?php esc_html_e( 'Manage Fiscal Years', 'micro-erp' ); ?>
+				<?php esc_html_e( 'Manage Fiscal Years', 'lime-micro-erp' ); ?>
 				<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
 			</a>
 		</div>
@@ -46,39 +46,39 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm mb-4">
-					<h2 class="mb-3 mt-1"><?php esc_html_e( 'General Settings', 'micro-erp' ); ?></h2>
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'General Settings', 'lime-micro-erp' ); ?></h2>
 
 					<div class="mb-3">
-						<label for="company_name" class="form-label"><?php esc_html_e( 'Company Name', 'micro-erp' ); ?></label>
+						<label for="company_name" class="form-label"><?php esc_html_e( 'Company Name', 'lime-micro-erp' ); ?></label>
 						<input type="text" id="company_name" name="company_name" class="form-control" value="<?php echo esc_attr( $company ); ?>">
 					</div>
 
 					<div class="mb-3">
-						<label for="currency_symbol" class="form-label"><?php esc_html_e( 'Currency Symbol', 'micro-erp' ); ?></label>
+						<label for="currency_symbol" class="form-label"><?php esc_html_e( 'Currency Symbol', 'lime-micro-erp' ); ?></label>
 						<select id="currency_symbol" name="currency_symbol" class="form-control">
 							<?php foreach ( array( '$' => 'USD', '€' => 'EUR', '£' => 'GBP', '৳' => 'BDT', '₹' => 'INR', '¥' => 'JPY' ) as $sym => $label ) : ?>
 								<option value="<?php echo esc_attr( $sym ); ?>" <?php selected( $currency, $sym ); ?>><?php echo esc_html( $sym ); ?> - <?php echo esc_html( $label ); ?></option>
 							<?php endforeach; ?>
 						</select>
-						<div class="form-text"><?php esc_html_e( 'Symbol displayed next to all amounts', 'micro-erp' ); ?></div>
+						<div class="form-text"><?php esc_html_e( 'Symbol displayed next to all amounts', 'lime-micro-erp' ); ?></div>
 					</div>
 
 					<div class="mb-3">
-						<label for="default_tax_rate" class="form-label"><?php esc_html_e( 'Default Tax Rate (%)', 'micro-erp' ); ?></label>
+						<label for="default_tax_rate" class="form-label"><?php esc_html_e( 'Default Tax Rate (%)', 'lime-micro-erp' ); ?></label>
 						<input type="number" id="default_tax_rate" name="default_tax_rate" class="form-control" value="<?php echo esc_attr( $tax_rate ); ?>" step="0.01" min="0" max="100">
-						<div class="form-text"><?php esc_html_e( 'Applied to new sales and quotations', 'micro-erp' ); ?></div>
+						<div class="form-text"><?php esc_html_e( 'Applied to new sales and quotations', 'lime-micro-erp' ); ?></div>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm mb-4">
-					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Accounting', 'micro-erp' ); ?></h2>
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Accounting', 'lime-micro-erp' ); ?></h2>
 
 					<div class="mb-3">
-						<label for="default_income_account" class="form-label"><?php esc_html_e( 'Default Income Account', 'micro-erp' ); ?></label>
+						<label for="default_income_account" class="form-label"><?php esc_html_e( 'Default Income Account', 'lime-micro-erp' ); ?></label>
 						<select id="default_income_account" name="default_income_account" class="form-control">
-							<option value="0"><?php esc_html_e( '— Auto (first income account) —', 'micro-erp' ); ?></option>
+							<option value="0"><?php esc_html_e( '— Auto (first income account) —', 'lime-micro-erp' ); ?></option>
 							<?php foreach ( $income_accounts as $acct ) : ?>
 								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_income, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
 							<?php endforeach; ?>
@@ -86,9 +86,9 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 					</div>
 
 					<div class="mb-3">
-						<label for="default_expense_account" class="form-label"><?php esc_html_e( 'Default Expense Account', 'micro-erp' ); ?></label>
+						<label for="default_expense_account" class="form-label"><?php esc_html_e( 'Default Expense Account', 'lime-micro-erp' ); ?></label>
 						<select id="default_expense_account" name="default_expense_account" class="form-control">
-							<option value="0"><?php esc_html_e( '— Auto (first expense account) —', 'micro-erp' ); ?></option>
+							<option value="0"><?php esc_html_e( '— Auto (first expense account) —', 'lime-micro-erp' ); ?></option>
 							<?php foreach ( $expense_accounts as $acct ) : ?>
 								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $def_expense, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
 							<?php endforeach; ?>
@@ -96,9 +96,9 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 					</div>
 
 					<div class="mb-3">
-						<label for="cash_account" class="form-label"><?php esc_html_e( 'Cash/Bank Account', 'micro-erp' ); ?></label>
+						<label for="cash_account" class="form-label"><?php esc_html_e( 'Cash/Bank Account', 'lime-micro-erp' ); ?></label>
 						<select id="cash_account" name="cash_account" class="form-control">
-							<option value="0"><?php esc_html_e( '— Auto (first asset account) —', 'micro-erp' ); ?></option>
+							<option value="0"><?php esc_html_e( '— Auto (first asset account) —', 'lime-micro-erp' ); ?></option>
 							<?php foreach ( $asset_accounts as $acct ) : ?>
 								<option value="<?php echo (int) $acct->id; ?>" <?php selected( $cash_acct, $acct->id ); ?>><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
 							<?php endforeach; ?>
@@ -111,18 +111,18 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 		<div class="row">
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm mb-4">
-					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Modules', 'micro-erp' ); ?></h2>
+					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Modules', 'lime-micro-erp' ); ?></h2>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) micro_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Accounting Module', 'micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) micro_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Accounting Module', 'lime-micro-erp' ); ?></label>
 					</div>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) micro_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'HRM Module', 'micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) micro_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'HRM Module', 'lime-micro-erp' ); ?></label>
 					</div>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) micro_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Sales Module', 'micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) micro_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Sales Module', 'lime-micro-erp' ); ?></label>
 					</div>
 				</div>
 			</div>
@@ -133,7 +133,7 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 				<div class="bg-light p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-end gap-2 flex-wrap">
 					<button type="submit" class="btn-save">
 						<span class="dashicons dashicons-yes" aria-hidden="true"></span>
-						<?php esc_html_e( 'Save Settings', 'micro-erp' ); ?>
+						<?php esc_html_e( 'Save Settings', 'lime-micro-erp' ); ?>
 					</button>
 				</div>
 			</div>

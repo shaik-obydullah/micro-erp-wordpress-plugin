@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $tx_mode   = ( 'expense' === $tx_mode ) ? 'expense' : 'income';
 $tx_page   = 'expense' === $tx_mode ? 'expenses' : 'income'; // Real menu slug (plural for expenses).
-$label   = 'expense' === $tx_mode ? __( 'Expenses', 'micro-erp' ) : __( 'Income', 'micro-erp' );
-$add_btn = 'expense' === $tx_mode ? __( '+ Add Expense', 'micro-erp' ) : __( '+ Add Income', 'micro-erp' );
+$label   = 'expense' === $tx_mode ? __( 'Expenses', 'lime-micro-erp' ) : __( 'Income', 'lime-micro-erp' );
+$add_btn = 'expense' === $tx_mode ? __( '+ Add Expense', 'lime-micro-erp' ) : __( '+ Add Income', 'lime-micro-erp' );
 $acct_type = 'expense' === $tx_mode ? 'expense' : 'income';
 
 global $wpdb;
@@ -82,24 +82,24 @@ $back_url = micro_erp_admin_url( $tx_page );
 						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
-							<label for="entry_date" class="form-label"><?php esc_html_e( 'Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="entry_date" class="form-label"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="date" name="entry_date" id="entry_date" class="form-control" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="description" class="form-label"><?php esc_html_e( 'Description', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="description" class="form-label"><?php esc_html_e( 'Description', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="text" name="description" id="description" class="form-control" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="amount" class="form-label"><?php esc_html_e( 'Amount', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="amount" class="form-label"><?php esc_html_e( 'Amount', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="account" class="form-label"><?php esc_html_e( 'Account', 'micro-erp' ); ?></label>
+							<label for="account" class="form-label"><?php esc_html_e( 'Account', 'lime-micro-erp' ); ?></label>
 							<select name="account_id" id="account" class="form-control">
-								<option value="0"><?php esc_html_e( '— Default —', 'micro-erp' ); ?></option>
+								<option value="0"><?php esc_html_e( '— Default —', 'lime-micro-erp' ); ?></option>
 								<?php foreach ( $accounts as $acct ) : ?>
 									<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
 								<?php endforeach; ?>
@@ -107,8 +107,8 @@ $back_url = micro_erp_admin_url( $tx_page );
 						</div>
 
 						<div class="d-flex mt-4">
-							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-success"><?php esc_html_e( 'Save', 'micro-erp' ); ?></button>
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'lime-micro-erp' ); ?></a>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save', 'lime-micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -119,25 +119,25 @@ $back_url = micro_erp_admin_url( $tx_page );
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( $tx_page, __( 'Search Entries', 'micro-erp' ), __( 'Search by description or account...', 'micro-erp' ), array(), $search ); ?>
+			<?php micro_erp_render_search_bar( $tx_page, __( 'Search Entries', 'lime-micro-erp' ), __( 'Search by description or account...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
 	<div class="row mt-1">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php echo esc_html( $label ); ?> <?php esc_html_e( 'Entries', 'micro-erp' ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php echo esc_html( $label ); ?> <?php esc_html_e( 'Entries', 'lime-micro-erp' ); ?></h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="110"><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Account', 'micro-erp' ); ?></th>
-									<th width="110"><?php esc_html_e( 'Source', 'micro-erp' ); ?></th>
-									<th width="130" class="text-right"><?php esc_html_e( 'Amount', 'micro-erp' ); ?></th>
-									<th width="90" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+									<th width="110"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Description', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Account', 'lime-micro-erp' ); ?></th>
+									<th width="110"><?php esc_html_e( 'Source', 'lime-micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Amount', 'lime-micro-erp' ); ?></th>
+									<th width="90" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
@@ -145,7 +145,7 @@ $back_url = micro_erp_admin_url( $tx_page );
 								$total = 0;
 								if ( empty( $rows ) ) :
 									?>
-									<tr><td colspan="6" class="text-center p-4"><?php esc_html_e( 'No entries yet.', 'micro-erp' ); ?></td></tr>
+									<tr><td colspan="6" class="text-center p-4"><?php esc_html_e( 'No entries yet.', 'lime-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $rows as $row ) :
 									$amount = 'expense' === $tx_mode ? (float) $row->debit : (float) $row->credit;
@@ -157,11 +157,11 @@ $back_url = micro_erp_admin_url( $tx_page );
 										<td><?php echo esc_html( $row->account_code . ' - ' . $row->account_name ); ?></td>
 										<td><?php echo esc_html( $row->reference_type ? strtoupper( $row->reference_type ) : '—' ); ?></td>
 										<td class="text-right"><strong style="color: <?php echo 'expense' === $tx_mode ? '#d63638' : '#00a32a'; ?>;"><?php echo esc_html( micro_erp_format_money( $amount ) ); ?></strong></td>
-										<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->id, 'from' => $tx_mode ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
+										<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->id, 'from' => $tx_mode ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="total-row">
-									<td colspan="4"><strong><?php esc_html_e( 'Total', 'micro-erp' ); ?></strong></td>
+									<td colspan="4"><strong><?php esc_html_e( 'Total', 'lime-micro-erp' ); ?></strong></td>
 									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $grand_total ) ); ?></strong></td>
 									<td></td>
 								</tr>

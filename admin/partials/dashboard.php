@@ -21,11 +21,11 @@ $fy           = micro_erp_get_active_fiscal_year();
 micro_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Dashboard', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Dashboard', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<?php if ( $fy ) : ?>
-		<p class="micro-erp-fy-label"><?php esc_html_e( 'Active Fiscal Year:', 'micro-erp' ); ?> <strong><?php echo esc_html( $fy->name ); ?></strong></p>
+		<p class="micro-erp-fy-label"><?php esc_html_e( 'Active Fiscal Year:', 'lime-micro-erp' ); ?> <strong><?php echo esc_html( $fy->name ); ?></strong></p>
 	<?php endif; ?>
 
 	<!-- Main Metrics Grid -->
@@ -34,12 +34,12 @@ micro_erp_print_admin_notice();
 		<div class="col-lg-3 col-md-6 mb-3">
 			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-success">
 				<h3 class="fs-6 fw-normal text-muted mb-2">
-					<?php esc_html_e( 'Total Income', 'micro-erp' ); ?>
+					<?php esc_html_e( 'Total Income', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-success mb-0">
 					<?php echo esc_html( micro_erp_format_money( $income ) ); ?>
 				</p>
-				<small class="text-muted"><?php esc_html_e( 'All time revenue', 'micro-erp' ); ?></small>
+				<small class="text-muted"><?php esc_html_e( 'All time revenue', 'lime-micro-erp' ); ?></small>
 			</div>
 		</div>
 
@@ -47,12 +47,12 @@ micro_erp_print_admin_notice();
 		<div class="col-lg-3 col-md-6 mb-3">
 			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-danger">
 				<h3 class="fs-6 fw-normal text-muted mb-2">
-					<?php esc_html_e( 'Total Expense', 'micro-erp' ); ?>
+					<?php esc_html_e( 'Total Expense', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-danger mb-0">
 					<?php echo esc_html( micro_erp_format_money( $expense ) ); ?>
 				</p>
-				<small class="text-muted"><?php esc_html_e( 'All time expenses', 'micro-erp' ); ?></small>
+				<small class="text-muted"><?php esc_html_e( 'All time expenses', 'lime-micro-erp' ); ?></small>
 			</div>
 		</div>
 
@@ -60,12 +60,12 @@ micro_erp_print_admin_notice();
 		<div class="col-lg-3 col-md-6 mb-3">
 			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-info">
 				<h3 class="fs-6 fw-normal text-muted mb-2">
-					<?php esc_html_e( 'Total Receivable', 'micro-erp' ); ?>
+					<?php esc_html_e( 'Total Receivable', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-info mb-0">
 					<?php echo esc_html( micro_erp_format_money( $receivable ) ); ?>
 				</p>
-				<small class="text-muted"><?php esc_html_e( 'Money owed to you', 'micro-erp' ); ?></small>
+				<small class="text-muted"><?php esc_html_e( 'Money owed to you', 'lime-micro-erp' ); ?></small>
 			</div>
 		</div>
 
@@ -73,12 +73,12 @@ micro_erp_print_admin_notice();
 		<div class="col-lg-3 col-md-6 mb-3">
 			<div class="bg-light p-4 rounded shadow-sm stock-summary-card border-left border-warning">
 				<h3 class="fs-6 fw-normal text-muted mb-2">
-					<?php esc_html_e( 'Total Payable', 'micro-erp' ); ?>
+					<?php esc_html_e( 'Total Payable', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-warning mb-0">
 					<?php echo esc_html( micro_erp_format_money( $payable ) ); ?>
 				</p>
-				<small class="text-muted"><?php esc_html_e( 'Money you owe', 'micro-erp' ); ?></small>
+				<small class="text-muted"><?php esc_html_e( 'Money you owe', 'lime-micro-erp' ); ?></small>
 			</div>
 		</div>
 	</div>
@@ -89,7 +89,7 @@ micro_erp_print_admin_notice();
 			<div class="bg-light p-4 rounded shadow-sm">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h3 class="fs-6 fw-semibold mb-0">
-						<?php esc_html_e( 'Recent Sales', 'micro-erp' ); ?>
+						<?php esc_html_e( 'Recent Sales', 'lime-micro-erp' ); ?>
 					</h3>
 				</div>
 
@@ -98,11 +98,11 @@ micro_erp_print_admin_notice();
 						<table class="table table-hover mb-0">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Customer', 'micro-erp' ); ?></th>
-									<th class="text-right"><?php esc_html_e( 'Amount', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></th>
+									<th class="text-right"><?php esc_html_e( 'Amount', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -121,7 +121,7 @@ micro_erp_print_admin_notice();
 				<?php else : ?>
 					<div class="text-center py-5">
 						<p class="mb-0 text-muted">
-							<?php esc_html_e( 'No sales yet.', 'micro-erp' ); ?>
+							<?php esc_html_e( 'No sales yet.', 'lime-micro-erp' ); ?>
 						</p>
 					</div>
 				<?php endif; ?>
@@ -135,19 +135,19 @@ micro_erp_print_admin_notice();
 			<div class="bg-light p-4 rounded shadow-sm h-100">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h3 class="fs-6 fw-semibold mb-0">
-						<?php esc_html_e( 'Pending Actions', 'micro-erp' ); ?>
+						<?php esc_html_e( 'Pending Actions', 'lime-micro-erp' ); ?>
 					</h3>
 				</div>
 				<table class="table table-hover mb-0">
 					<tbody>
 						<tr>
-							<td><span class="status-badge status-warning"><?php echo (int) $pending_quo; ?></span> <?php esc_html_e( 'Pending Quotations', 'micro-erp' ); ?></td>
+							<td><span class="status-badge status-warning"><?php echo (int) $pending_quo; ?></span> <?php esc_html_e( 'Pending Quotations', 'lime-micro-erp' ); ?></td>
 						</tr>
 						<tr>
-							<td><span class="status-badge status-warning"><?php echo (int) $pending_leave; ?></span> <?php esc_html_e( 'Leave Requests', 'micro-erp' ); ?></td>
+							<td><span class="status-badge status-warning"><?php echo (int) $pending_leave; ?></span> <?php esc_html_e( 'Leave Requests', 'lime-micro-erp' ); ?></td>
 						</tr>
 						<tr>
-							<td><span class="status-badge status-inactive"><?php echo (int) $unpaid_sales; ?></span> <?php esc_html_e( 'Unpaid Invoices', 'micro-erp' ); ?></td>
+							<td><span class="status-badge status-inactive"><?php echo (int) $unpaid_sales; ?></span> <?php esc_html_e( 'Unpaid Invoices', 'lime-micro-erp' ); ?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -158,22 +158,22 @@ micro_erp_print_admin_notice();
 			<div class="bg-light p-4 rounded shadow-sm h-100">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h3 class="fs-6 fw-semibold mb-0">
-						<?php esc_html_e( 'Recent Employees', 'micro-erp' ); ?>
+						<?php esc_html_e( 'Recent Employees', 'lime-micro-erp' ); ?>
 					</h3>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-hover mb-0">
 						<thead>
 							<tr class="bg-primary text-white">
-								<th><?php esc_html_e( 'ID', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Department', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'ID', 'lime-micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Department', 'lime-micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php if ( empty( $recent_emp ) ) : ?>
-								<tr><td colspan="4"><?php esc_html_e( 'No employees yet.', 'micro-erp' ); ?></td></tr>
+								<tr><td colspan="4"><?php esc_html_e( 'No employees yet.', 'lime-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
 							<?php foreach ( $recent_emp as $emp ) : ?>
 								<tr>
@@ -196,7 +196,7 @@ micro_erp_print_admin_notice();
 			<div class="bg-light p-4 rounded shadow-sm">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h3 class="fs-6 fw-semibold mb-0">
-						<?php esc_html_e( 'Recent Journal Entries', 'micro-erp' ); ?>
+						<?php esc_html_e( 'Recent Journal Entries', 'lime-micro-erp' ); ?>
 					</h3>
 				</div>
 				<div class="table-responsive">
@@ -204,13 +204,13 @@ micro_erp_print_admin_notice();
 						<thead>
 							<tr class="bg-primary text-white">
 								<th>#</th>
-								<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Description', 'lime-micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php if ( empty( $recent_jrnl ) ) : ?>
-								<tr><td colspan="3"><?php esc_html_e( 'No journal entries yet.', 'micro-erp' ); ?></td></tr>
+								<tr><td colspan="3"><?php esc_html_e( 'No journal entries yet.', 'lime-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
 							<?php foreach ( $recent_jrnl as $je ) : ?>
 								<tr>

@@ -59,35 +59,35 @@ if ( $ap_account ) {
 micro_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Payable', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Payable', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
-	<p class="text-muted mt-1"><?php esc_html_e( 'Money you owe to vendors and suppliers', 'micro-erp' ); ?></p>
+	<p class="text-muted mt-1"><?php esc_html_e( 'Money you owe to vendors and suppliers', 'lime-micro-erp' ); ?></p>
 
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'payable', __( 'Search Payables', 'micro-erp' ), __( 'Search by description...', 'micro-erp' ), array(), $search ); ?>
+			<?php micro_erp_render_search_bar( 'payable', __( 'Search Payables', 'lime-micro-erp' ), __( 'Search by description...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
 	<div class="row mt-1">
 		<div class="col-lg-12">
 			<div class="bg-light p-3 rounded shadow-sm border">
-				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Outstanding Payables', 'micro-erp' ); ?></h2>
+				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Outstanding Payables', 'lime-micro-erp' ); ?></h2>
 
 				<div class="table-responsive">
 					<table class="table table-striped table-hover table-bordered mb-2">
 						<thead>
 							<tr class="bg-primary text-white">
-								<th width="110"><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-								<th width="90"><?php esc_html_e( 'Reference', 'micro-erp' ); ?></th>
-								<th><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-								<th width="150" class="text-right"><?php esc_html_e( 'Amount Payable', 'micro-erp' ); ?></th>
-								<th width="110" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+								<th width="110"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
+								<th width="90"><?php esc_html_e( 'Reference', 'lime-micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Description', 'lime-micro-erp' ); ?></th>
+								<th width="150" class="text-right"><?php esc_html_e( 'Amount Payable', 'lime-micro-erp' ); ?></th>
+								<th width="110" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody class="bg-white">
 							<?php if ( empty( $rows ) ) : ?>
-								<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No payables recorded.', 'micro-erp' ); ?></td></tr>
+								<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No payables recorded.', 'lime-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
 							<?php foreach ( $rows as $row ) : ?>
 								<tr>
@@ -95,11 +95,11 @@ micro_erp_print_admin_notice();
 									<td>JE-<?php echo (int) $row->entry_id; ?></td>
 									<td><?php echo esc_html( $row->description ); ?></td>
 									<td class="text-right"><strong style="color:#d63638;"><?php echo esc_html( micro_erp_format_money( $row->payable_amount ) ); ?></strong></td>
-									<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->entry_id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
+									<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->entry_id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
 								</tr>
 							<?php endforeach; ?>
 							<tr class="total-row">
-								<td colspan="3"><strong><?php esc_html_e( 'Total Payable', 'micro-erp' ); ?></strong></td>
+								<td colspan="3"><strong><?php esc_html_e( 'Total Payable', 'lime-micro-erp' ); ?></strong></td>
 								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total ) ); ?></strong></td>
 								<td></td>
 							</tr>

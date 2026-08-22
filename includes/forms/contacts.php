@@ -8,7 +8,7 @@ function micro_erp_handle_contact_form( $action ) {
 
 	$data = array(
 		'type'    => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'customer',
-		'name'    => sanitize_text_field( wp_unslash( $_POST['name'] ) ),
+		'name'    => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
 		'email'   => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
 		'phone'   => isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '',
 		'address' => isset( $_POST['address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['address'] ) ) : '',
@@ -18,7 +18,7 @@ function micro_erp_handle_contact_form( $action ) {
 	);
 
 	if ( ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Contact name is required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Contact name is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -27,13 +27,13 @@ function micro_erp_handle_contact_form( $action ) {
 
 	if ( 'update_contact' === $action ) {
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
-		$wpdb->update( $table, $data, array( 'id' => $id ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
 		$entity_id = $id;
-		$message   = __( 'Contact updated.', 'micro-erp' );
+		$message   = __( 'Contact updated.', 'lime-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data );
+		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
 		$entity_id = (int) $wpdb->insert_id;
-		$message   = __( 'Contact created.', 'micro-erp' );
+		$message   = __( 'Contact created.', 'lime-micro-erp' );
 	}
 
 	micro_erp_audit_log( 'save', 'contact', $entity_id, $data['name'] );
@@ -45,7 +45,7 @@ function micro_erp_handle_delete_contact() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'contacts' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'contacts' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'contact', $id, 'Deleted contact #' . $id );
-	micro_erp_redirect_notice( __( 'Contact deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Contact deleted.', 'lime-micro-erp' ) );
 }

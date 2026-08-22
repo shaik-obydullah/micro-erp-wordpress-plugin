@@ -17,12 +17,12 @@ if ( $pay_id ) {
 	micro_erp_print_admin_notice();
 	?>
 	<div class="wrap micro-erp-page">
-		<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></h1>
+		<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></h1>
 		<hr class="wp-header-end">
 
 		<?php if ( ! $pay_sale ) : ?>
-			<p><?php esc_html_e( 'Sale not found.', 'micro-erp' ); ?></p>
-			<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary"><?php esc_html_e( '← Back', 'micro-erp' ); ?></a>
+			<p><?php esc_html_e( 'Sale not found.', 'lime-micro-erp' ); ?></p>
+			<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary"><?php esc_html_e( '← Back', 'lime-micro-erp' ); ?></a>
 			<?php
 			return;
 		endif;
@@ -31,14 +31,14 @@ if ( $pay_id ) {
 		?>
 		<div class="invoice-info mt-3">
 			<div class="row">
-				<div><div class="label"><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_no ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Customer', 'micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_contact_name( $pay_sale->contact_id ) ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Date', 'micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_date ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_no ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_contact_name( $pay_sale->contact_id ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_date ); ?></div></div>
 			</div>
 			<div class="row">
-				<div><div class="label"><?php esc_html_e( 'Original Amount', 'micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->total ) ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Already Paid', 'micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->amount_paid ) ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Balance Due', 'micro-erp' ); ?></div><div class="balance"><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Original Amount', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->total ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Already Paid', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->amount_paid ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Balance Due', 'lime-micro-erp' ); ?></div><div class="balance"><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></div></div>
 			</div>
 		</div>
 
@@ -51,15 +51,15 @@ if ( $pay_id ) {
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
 					<div class="bg-light p-4 rounded shadow-sm mb-4">
-						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Payment Details', 'micro-erp' ); ?></h2>
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Payment Details', 'lime-micro-erp' ); ?></h2>
 
 						<div class="mb-3">
-							<label for="amount" class="form-label"><?php esc_html_e( 'Amount', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="amount" class="form-label"><?php esc_html_e( 'Amount', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" max="<?php echo esc_attr( $balance ); ?>" value="<?php echo esc_attr( $balance ); ?>" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="method" class="form-label"><?php esc_html_e( 'Payment Method', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="method" class="form-label"><?php esc_html_e( 'Payment Method', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="method" id="method" class="form-control" required>
 								<?php foreach ( array( 'cash', 'bank_transfer', 'check', 'card' ) as $m ) : ?>
 									<option value="<?php echo esc_attr( $m ); ?>"><?php echo esc_html( ucwords( str_replace( '_', ' ', $m ) ) ); ?></option>
@@ -68,14 +68,14 @@ if ( $pay_id ) {
 						</div>
 
 						<div class="mb-3">
-							<label for="reference" class="form-label"><?php esc_html_e( 'Reference #', 'micro-erp' ); ?></label>
-							<input type="text" name="reference" id="reference" class="form-control" placeholder="<?php esc_attr_e( 'Check #, transaction ID, etc.', 'micro-erp' ); ?>">
+							<label for="reference" class="form-label"><?php esc_html_e( 'Reference #', 'lime-micro-erp' ); ?></label>
+							<input type="text" name="reference" id="reference" class="form-control" placeholder="<?php esc_attr_e( 'Check #, transaction ID, etc.', 'lime-micro-erp' ); ?>">
 						</div>
 
 						<div class="mb-3">
-							<label for="deposit_to" class="form-label"><?php esc_html_e( 'Deposit To', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="deposit_to" class="form-label"><?php esc_html_e( 'Deposit To', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="deposit_to" id="deposit_to" class="form-control" required>
-								<option value="0"><?php esc_html_e( '— Default cash account —', 'micro-erp' ); ?></option>
+								<option value="0"><?php esc_html_e( '— Default cash account —', 'lime-micro-erp' ); ?></option>
 								<?php foreach ( $asset_accounts as $acct ) : ?>
 									<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
 								<?php endforeach; ?>
@@ -83,13 +83,13 @@ if ( $pay_id ) {
 						</div>
 
 						<div class="mb-3">
-							<label for="notes" class="form-label"><?php esc_html_e( 'Notes', 'micro-erp' ); ?></label>
+							<label for="notes" class="form-label"><?php esc_html_e( 'Notes', 'lime-micro-erp' ); ?></label>
 							<textarea name="notes" id="notes" rows="3" class="form-control"></textarea>
 						</div>
 
 						<div class="d-flex mt-4">
-							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-success"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></button>
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'lime-micro-erp' ); ?></a>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></button>
 						</div>
 					</div>
 				</div>
@@ -139,9 +139,9 @@ micro_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
-		<?php echo $editing ? esc_html__( 'Edit Sale', 'micro-erp' ) : esc_html__( 'Sales Orders', 'micro-erp' ); ?>
+		<?php echo $editing ? esc_html__( 'Edit Sale', 'lime-micro-erp' ) : esc_html__( 'Sales Orders', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -162,17 +162,17 @@ micro_erp_print_admin_notice();
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
 					<div class="bg-light p-4 rounded shadow-sm mb-4">
-						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Sale Details', 'micro-erp' ); ?></h2>
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Sale Details', 'lime-micro-erp' ); ?></h2>
 
 						<div class="mb-3">
-							<label class="form-label"><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></label>
+							<label class="form-label"><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></label>
 							<input type="text" class="form-control" value="<?php echo $editing ? esc_attr( $editing->sale_no ) : esc_attr( micro_erp_next_sale_no() ); ?>" readonly style="background:#f9f9f9;">
 						</div>
 
 						<div class="mb-3">
-							<label for="contact_id" class="form-label"><?php esc_html_e( 'Customer', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="contact_id" class="form-label"><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="contact_id" id="contact_id" class="form-control" required>
-								<option value="0"><?php esc_html_e( 'Select Customer', 'micro-erp' ); ?></option>
+								<option value="0"><?php esc_html_e( 'Select Customer', 'lime-micro-erp' ); ?></option>
 								<?php foreach ( $contacts as $c ) : ?>
 									<option value="<?php echo (int) $c->id; ?>" <?php selected( $editing ? $editing->contact_id : 0, $c->id ); ?>><?php echo esc_html( $c->name ); ?></option>
 								<?php endforeach; ?>
@@ -180,7 +180,7 @@ micro_erp_print_admin_notice();
 						</div>
 
 						<div class="mb-3">
-							<label for="date" class="form-label"><?php esc_html_e( 'Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="date" class="form-label"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="date" name="date" id="date" class="form-control" value="<?php echo $editing ? esc_attr( $editing->sale_date ) : esc_attr( current_time( 'Y-m-d' ) ); ?>" required>
 						</div>
 					</div>
@@ -190,16 +190,16 @@ micro_erp_print_admin_notice();
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="bg-light p-4 rounded shadow-sm mb-4">
-						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Line Items', 'micro-erp' ); ?></h2>
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Line Items', 'lime-micro-erp' ); ?></h2>
 
 						<table class="items-table table table-striped table-hover table-bordered" id="items-table">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th class="col-desc"><?php esc_html_e( 'Description', 'micro-erp' ); ?></th>
-									<th class="col-qty"><?php esc_html_e( 'Quantity', 'micro-erp' ); ?></th>
-									<th class="col-price"><?php esc_html_e( 'Unit Price', 'micro-erp' ); ?></th>
-									<th class="col-tax"><?php esc_html_e( 'Tax %', 'micro-erp' ); ?></th>
-									<th class="col-total text-right"><?php esc_html_e( 'Total', 'micro-erp' ); ?></th>
+									<th class="col-desc"><?php esc_html_e( 'Description', 'lime-micro-erp' ); ?></th>
+									<th class="col-qty"><?php esc_html_e( 'Quantity', 'lime-micro-erp' ); ?></th>
+									<th class="col-price"><?php esc_html_e( 'Unit Price', 'lime-micro-erp' ); ?></th>
+									<th class="col-tax"><?php esc_html_e( 'Tax %', 'lime-micro-erp' ); ?></th>
+									<th class="col-total text-right"><?php esc_html_e( 'Total', 'lime-micro-erp' ); ?></th>
 									<th class="col-action"></th>
 								</tr>
 							</thead>
@@ -236,24 +236,24 @@ micro_erp_print_admin_notice();
 							</tbody>
 						</table>
 
-						<button type="button" class="btn-primary i-add mt-3"><?php esc_html_e( '+ Add Item', 'micro-erp' ); ?></button>
+						<button type="button" class="btn-primary i-add mt-3"><?php esc_html_e( '+ Add Item', 'lime-micro-erp' ); ?></button>
 
 						<div class="totals">
 							<table>
 								<tr>
-									<td><?php esc_html_e( 'Subtotal:', 'micro-erp' ); ?></td>
+									<td><?php esc_html_e( 'Subtotal:', 'lime-micro-erp' ); ?></td>
 									<td class="t-subtotal">—</td>
 								</tr>
 								<tr>
-									<td><?php esc_html_e( 'Tax:', 'micro-erp' ); ?></td>
+									<td><?php esc_html_e( 'Tax:', 'lime-micro-erp' ); ?></td>
 									<td class="t-tax">—</td>
 								</tr>
 								<tr>
-									<td><?php esc_html_e( 'Discount:', 'micro-erp' ); ?></td>
+									<td><?php esc_html_e( 'Discount:', 'lime-micro-erp' ); ?></td>
 									<td><input type="number" name="discount" value="<?php echo $editing ? esc_attr( $editing->discount ) : '0'; ?>" step="0.01" min="0" class="t-discount-input form-control form-control-sm text-right" style="width:110px;"></td>
 								</tr>
 								<tr class="grand-total">
-									<td><?php esc_html_e( 'Total:', 'micro-erp' ); ?></td>
+									<td><?php esc_html_e( 'Total:', 'lime-micro-erp' ); ?></td>
 									<td class="t-grand">—</td>
 								</tr>
 							</table>
@@ -266,15 +266,15 @@ micro_erp_print_admin_notice();
 			<div class="row">
 				<div class="col-lg-8 col-md-12">
 					<div class="bg-light p-4 rounded shadow-sm mb-4">
-						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Notes', 'micro-erp' ); ?></h2>
+						<h2 class="mb-3 mt-1"><?php esc_html_e( 'Notes', 'lime-micro-erp' ); ?></h2>
 						<textarea name="notes" class="form-control" style="height:80px;resize:vertical;"><?php echo $editing ? esc_textarea( $editing->notes ) : ''; ?></textarea>
 					</div>
 				</div>
 			</div>
 
 			<div class="d-flex mt-2 mb-4">
-				<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-				<button type="submit" class="btn-success"><?php esc_html_e( 'Save Sale', 'micro-erp' ); ?></button>
+				<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'lime-micro-erp' ); ?></a>
+				<button type="submit" class="btn-success"><?php esc_html_e( 'Save Sale', 'lime-micro-erp' ); ?></button>
 			</div>
 		</form>
 
@@ -282,45 +282,45 @@ micro_erp_print_admin_notice();
 
 		<div class="search-section mt-3">
 			<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
-				<span class="form-label mb-0"><?php esc_html_e( 'Payment Status', 'micro-erp' ); ?></span>
+				<span class="form-label mb-0"><?php esc_html_e( 'Payment Status', 'lime-micro-erp' ); ?></span>
 
 				<?php
 				$pill_args = $search ? array( 's' => $search ) : array();
 				$all_url   = micro_erp_admin_url( 'sales', $pill_args );
 				?>
-				<div class="filter-pills" role="group" aria-label="<?php esc_attr_e( 'Filter by payment status', 'micro-erp' ); ?>">
-					<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $status_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All', 'micro-erp' ); ?></a>
+				<div class="filter-pills" role="group" aria-label="<?php esc_attr_e( 'Filter by payment status', 'lime-micro-erp' ); ?>">
+					<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $status_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All', 'lime-micro-erp' ); ?></a>
 					<?php foreach ( array( 'paid', 'unpaid', 'partial' ) as $st ) : ?>
 						<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array_merge( $pill_args, array( 'status' => $st ) ) ) ); ?>" class="<?php echo esc_attr( $status_filter === $st ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $st ) ); ?></a>
 					<?php endforeach; ?>
 				</div>
 
-				<?php micro_erp_render_search_bar( 'sales', __( 'Search Sales', 'micro-erp' ), __( 'Search by sale # or customer...', 'micro-erp' ), array( 'status' => $status_filter ), $search, true ); ?>
+				<?php micro_erp_render_search_bar( 'sales', __( 'Search Sales', 'lime-micro-erp' ), __( 'Search by sale # or customer...', 'lime-micro-erp' ), array( 'status' => $status_filter ), $search, true ); ?>
 			</div>
 		</div>
 
 		<div class="row mt-3">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'All Sales', 'micro-erp' ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'All Sales', 'lime-micro-erp' ); ?></h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="110"><?php esc_html_e( 'Sale #', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Customer', 'micro-erp' ); ?></th>
-									<th width="110"><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-									<th width="120" class="text-right"><?php esc_html_e( 'Total', 'micro-erp' ); ?></th>
-									<th width="120" class="text-right"><?php esc_html_e( 'Paid', 'micro-erp' ); ?></th>
-									<th width="120" class="text-right"><?php esc_html_e( 'Balance', 'micro-erp' ); ?></th>
-									<th width="100"><?php esc_html_e( 'Payment', 'micro-erp' ); ?></th>
-									<th width="200" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+									<th width="110"><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></th>
+									<th width="110"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
+									<th width="120" class="text-right"><?php esc_html_e( 'Total', 'lime-micro-erp' ); ?></th>
+									<th width="120" class="text-right"><?php esc_html_e( 'Paid', 'lime-micro-erp' ); ?></th>
+									<th width="120" class="text-right"><?php esc_html_e( 'Balance', 'lime-micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Payment', 'lime-micro-erp' ); ?></th>
+									<th width="200" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
 								<?php if ( empty( $rows ) ) : ?>
-									<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'No sales found.', 'micro-erp' ); ?></td></tr>
+									<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'No sales found.', 'lime-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $rows as $sale ) :
 									$balance = (float) $sale->total - (float) $sale->amount_paid;
@@ -335,9 +335,9 @@ micro_erp_print_admin_notice();
 										<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $sale->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $sale->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<?php if ( $balance > 0 ) : ?>
-													<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $sale->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></a>
+													<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $sale->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
 												<?php endif; ?>
 											</div>
 										</td>

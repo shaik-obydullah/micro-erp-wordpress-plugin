@@ -13,8 +13,8 @@ if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 $year  = (int) substr( $month, 0, 4 );
 $mnum  = (int) substr( $month, 5, 2 );
 
-$prev = date( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
-$next = date( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
+$prev = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
+$next = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
 
 $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 $where  = ' WHERE 1=1';
@@ -69,13 +69,13 @@ micro_erp_print_admin_notice();
 $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<div class="month-nav mt-3">
-		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'lime-micro-erp' ); ?></a>
 		<strong><?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></strong>
-		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'micro-erp' ); ?> →</a>
+		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'lime-micro-erp' ); ?> →</a>
 		<form method="post" action="" class="inline-form" style="margin-left:auto;">
 			<?php wp_nonce_field( 'micro_erp_salary_paid' ); ?>
 			<input type="hidden" name="micro_erp_action" value="mark_salary_paid">
@@ -83,7 +83,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 			<button type="submit" class="btn-save">
 				<span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
-				<?php esc_html_e( 'Mark All Paid', 'micro-erp' ); ?>
+				<?php esc_html_e( 'Mark All Paid', 'lime-micro-erp' ); ?>
 			</button>
 		</form>
 	</div>
@@ -96,7 +96,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 	$salary_stats = array(
 		array(
 			'key'   => 'employees',
-			'label' => __( 'Total Employees', 'micro-erp' ),
+			'label' => __( 'Total Employees', 'lime-micro-erp' ),
 			'value' => (int) $total_items,
 			'sub'   => $month_label,
 			'icon'  => 'groups',
@@ -104,7 +104,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		),
 		array(
 			'key'   => 'total',
-			'label' => __( 'Total Salary', 'micro-erp' ),
+			'label' => __( 'Total Salary', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_salary ),
 			'sub'   => $month_label,
 			'icon'  => 'chart-line',
@@ -112,17 +112,17 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		),
 		array(
 			'key'   => 'paid',
-			'label' => __( 'Paid', 'micro-erp' ),
+			'label' => __( 'Paid', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_paid ),
-			'sub'   => sprintf( __( '%d%% of total salary', 'micro-erp' ), $pct_paid ),
+			'sub'   => sprintf( __( '%d%% of total salary', 'lime-micro-erp' ), $pct_paid ),
 			'icon'  => 'money-alt',
 			'bar'   => $pct_paid,
 		),
 		array(
 			'key'   => 'due',
-			'label' => __( 'Unpaid', 'micro-erp' ),
+			'label' => __( 'Unpaid', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_unpaid ),
-			'sub'   => sprintf( __( '%d%% of total salary', 'micro-erp' ), $pct_unpaid ),
+			'sub'   => sprintf( __( '%d%% of total salary', 'lime-micro-erp' ), $pct_unpaid ),
 			'icon'  => 'warning',
 			'bar'   => $pct_unpaid,
 		),
@@ -130,7 +130,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 	?>
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'salary', __( 'Search Employees', 'micro-erp' ), __( 'Search by name or employee ID...', 'micro-erp' ), array( 'month' => $month ), $search ); ?>
+			<?php micro_erp_render_search_bar( 'salary', __( 'Search Employees', 'lime-micro-erp' ), __( 'Search by name or employee ID...', 'lime-micro-erp' ), array( 'month' => $month ), $search ); ?>
 		</div>
 	</div>
 
@@ -161,26 +161,26 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Salary Sheet', 'micro-erp' ); ?> — <?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Salary Sheet', 'lime-micro-erp' ); ?> — <?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="90"><?php esc_html_e( 'Emp ID', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Department', 'micro-erp' ); ?></th>
-									<th width="110" class="text-right"><?php esc_html_e( 'Basic Salary', 'micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Allowances', 'micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Deductions', 'micro-erp' ); ?></th>
-									<th width="110" class="text-right"><?php esc_html_e( 'Net Pay', 'micro-erp' ); ?></th>
-									<th width="100"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-									<th width="140" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Emp ID', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Department', 'lime-micro-erp' ); ?></th>
+									<th width="110" class="text-right"><?php esc_html_e( 'Basic Salary', 'lime-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Allowances', 'lime-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Deductions', 'lime-micro-erp' ); ?></th>
+									<th width="110" class="text-right"><?php esc_html_e( 'Net Pay', 'lime-micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
+									<th width="140" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
 								<?php if ( empty( $employees ) ) : ?>
-									<tr><td colspan="9" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'micro-erp' ); ?></td></tr>
+									<tr><td colspan="9" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'lime-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $employees as $emp ) :
 									$payment   = isset( $payments[ $emp->id ] ) ? $payments[ $emp->id ] : null;
@@ -201,7 +201,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 										<td><?php echo micro_erp_status_badge( $is_paid ? 'paid' : 'unpaid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td class="text-right">
 											<?php if ( ! $is_paid ) : ?>
-												<button type="submit" name="employee_id" value="<?php echo (int) $emp->id; ?>" class="btn-success"><?php esc_html_e( 'Mark Paid', 'micro-erp' ); ?></button>
+												<button type="submit" name="employee_id" value="<?php echo (int) $emp->id; ?>" class="btn-success"><?php esc_html_e( 'Mark Paid', 'lime-micro-erp' ); ?></button>
 											<?php else : ?>
 												<em class="text-muted fs-6"><?php echo esc_html( gmdate( 'M d, Y', strtotime( $payment->paid_at ) ) ); ?></em>
 											<?php endif; ?>

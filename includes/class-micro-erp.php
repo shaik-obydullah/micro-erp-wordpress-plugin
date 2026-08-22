@@ -37,8 +37,8 @@ class MicroERP {
 		$cap = 'manage_options';
 
 		add_menu_page(
-			__( 'Micro ERP', 'micro-erp' ),
-			__( 'Micro ERP', 'micro-erp' ),
+			__( 'Micro ERP', 'lime-micro-erp' ),
+			__( 'Micro ERP', 'lime-micro-erp' ),
 			$cap,
 			'micro-erp/dashboard',
 			array( $this, 'render_page' ),
@@ -46,31 +46,31 @@ class MicroERP {
 			25
 		);
 
-		add_submenu_page( 'micro-erp/dashboard', __( 'Dashboard', 'micro-erp' ), __( 'Dashboard', 'micro-erp' ), $cap, 'micro-erp/dashboard', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Contacts', 'micro-erp' ), __( 'Contacts', 'micro-erp' ), $cap, 'micro-erp/contacts', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Dashboard', 'lime-micro-erp' ), __( 'Dashboard', 'lime-micro-erp' ), $cap, 'micro-erp/dashboard', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Contacts', 'lime-micro-erp' ), __( 'Contacts', 'lime-micro-erp' ), $cap, 'micro-erp/contacts', array( $this, 'render_page' ) );
 
-		$this->add_header( __( 'Accounting', 'micro-erp' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Chart of Accounts', 'micro-erp' ), __( 'Chart of Accounts', 'micro-erp' ), $cap, 'micro-erp/accounts', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Journal Entries', 'micro-erp' ), __( 'Journal Entries', 'micro-erp' ), $cap, 'micro-erp/journal', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Income', 'micro-erp' ), __( 'Income', 'micro-erp' ), $cap, 'micro-erp/income', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Expenses', 'micro-erp' ), __( 'Expenses', 'micro-erp' ), $cap, 'micro-erp/expenses', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Payable', 'micro-erp' ), __( 'Payable', 'micro-erp' ), $cap, 'micro-erp/payable', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Receivable', 'micro-erp' ), __( 'Receivable', 'micro-erp' ), $cap, 'micro-erp/receivable', array( $this, 'render_page' ) );
+		$this->add_header( __( 'Accounting', 'lime-micro-erp' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Chart of Accounts', 'lime-micro-erp' ), __( 'Chart of Accounts', 'lime-micro-erp' ), $cap, 'micro-erp/accounts', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Journal Entries', 'lime-micro-erp' ), __( 'Journal Entries', 'lime-micro-erp' ), $cap, 'micro-erp/journal', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Income', 'lime-micro-erp' ), __( 'Income', 'lime-micro-erp' ), $cap, 'micro-erp/income', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Expenses', 'lime-micro-erp' ), __( 'Expenses', 'lime-micro-erp' ), $cap, 'micro-erp/expenses', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Payable', 'lime-micro-erp' ), __( 'Payable', 'lime-micro-erp' ), $cap, 'micro-erp/payable', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Receivable', 'lime-micro-erp' ), __( 'Receivable', 'lime-micro-erp' ), $cap, 'micro-erp/receivable', array( $this, 'render_page' ) );
 
-		$this->add_header( __( 'HRM', 'micro-erp' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Employees', 'micro-erp' ), __( 'Employees', 'micro-erp' ), $cap, 'micro-erp/employees', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Departments', 'micro-erp' ), __( 'Departments', 'micro-erp' ), $cap, 'micro-erp/departments', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Attendance', 'micro-erp' ), __( 'Attendance', 'micro-erp' ), $cap, 'micro-erp/attendance', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Leave', 'micro-erp' ), __( 'Leave', 'micro-erp' ), $cap, 'micro-erp/leave', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Salary', 'micro-erp' ), __( 'Salary', 'micro-erp' ), $cap, 'micro-erp/salary', array( $this, 'render_page' ) );
+		$this->add_header( __( 'HRM', 'lime-micro-erp' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Employees', 'lime-micro-erp' ), __( 'Employees', 'lime-micro-erp' ), $cap, 'micro-erp/employees', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Departments', 'lime-micro-erp' ), __( 'Departments', 'lime-micro-erp' ), $cap, 'micro-erp/departments', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Attendance', 'lime-micro-erp' ), __( 'Attendance', 'lime-micro-erp' ), $cap, 'micro-erp/attendance', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Leave', 'lime-micro-erp' ), __( 'Leave', 'lime-micro-erp' ), $cap, 'micro-erp/leave', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Salary', 'lime-micro-erp' ), __( 'Salary', 'lime-micro-erp' ), $cap, 'micro-erp/salary', array( $this, 'render_page' ) );
 
-		$this->add_header( __( 'Sales', 'micro-erp' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Quotations', 'micro-erp' ), __( 'Quotations', 'micro-erp' ), $cap, 'micro-erp/quotations', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Sales Orders', 'micro-erp' ), __( 'Sales Orders', 'micro-erp' ), $cap, 'micro-erp/sales', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Reports', 'micro-erp' ), __( 'Reports', 'micro-erp' ), $cap, 'micro-erp/sales-reports', array( $this, 'render_page' ) );
+		$this->add_header( __( 'Sales', 'lime-micro-erp' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Quotations', 'lime-micro-erp' ), __( 'Quotations', 'lime-micro-erp' ), $cap, 'micro-erp/quotations', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Sales Orders', 'lime-micro-erp' ), __( 'Sales Orders', 'lime-micro-erp' ), $cap, 'micro-erp/sales', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Reports', 'lime-micro-erp' ), __( 'Reports', 'lime-micro-erp' ), $cap, 'micro-erp/sales-reports', array( $this, 'render_page' ) );
 
-		add_submenu_page( 'micro-erp/dashboard', __( 'Settings', 'micro-erp' ), __( 'Settings', 'micro-erp' ), $cap, 'micro-erp/settings', array( $this, 'render_page' ) );
-		add_submenu_page( 'micro-erp/dashboard', __( 'Fiscal Years', 'micro-erp' ), __( 'Fiscal Years', 'micro-erp' ), $cap, 'micro-erp/fiscal-years', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Settings', 'lime-micro-erp' ), __( 'Settings', 'lime-micro-erp' ), $cap, 'micro-erp/settings', array( $this, 'render_page' ) );
+		add_submenu_page( 'micro-erp/dashboard', __( 'Fiscal Years', 'lime-micro-erp' ), __( 'Fiscal Years', 'lime-micro-erp' ), $cap, 'micro-erp/fiscal-years', array( $this, 'render_page' ) );
 	}
 
 	private function add_header( $text ) {
@@ -227,7 +227,7 @@ class MicroERP {
 		if ( file_exists( $file ) ) {
 			include $file;
 		} else {
-			echo '<div class="wrap"><h1>' . esc_html__( 'Micro ERP', 'micro-erp' ) . '</h1><p>' . esc_html__( 'Page not found.', 'micro-erp' ) . '</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'Micro ERP', 'lime-micro-erp' ) . '</h1><p>' . esc_html__( 'Page not found.', 'lime-micro-erp' ) . '</p></div>';
 		}
 	}
 }

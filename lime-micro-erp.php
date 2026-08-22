@@ -1,21 +1,20 @@
 <?php
 /**
- * Plugin Name:       Micro ERP
- * Plugin URI:        https://example.com/micro-erp
- * Description:       A lightweight ERP system for small businesses — contacts, accounting, HRM, and sales management, all inside WordPress.
- * Version:           1.0.0
- * Author:            Obydullah
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       micro-erp
- * Domain Path:       /languages
- * Requires PHP:      7.4
+ * Plugin Name: Lime Micro ERP
+ * Author URI: https://obydullah.com
+ * Plugin URI: https://obydullah.com/project/micro-erp-wordpress-plugin
+ * Description: Lime Micro ERP — a lightweight ERP system for small businesses: contacts, accounting, HRM, and sales management, all inside WordPress.
+ * Author: obydullah
+ * Text Domain: lime-micro-erp
+ * Version: 1.0.0
+ * Domain Path: /languages
  * Requires at least: 6.0
+ * Requires PHP: 8.0
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 define( 'MICRO_ERP_VERSION', '1.0.0' );
 define( 'MICRO_ERP_FILE', __FILE__ );
@@ -34,3 +33,8 @@ function micro_erp_bootstrap() {
 	new MicroERP();
 }
 add_action( 'plugins_loaded', 'micro_erp_bootstrap' );
+
+function micro_erp_load_textdomain() {
+	load_plugin_textdomain( 'lime-micro-erp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'init', 'micro_erp_load_textdomain' );

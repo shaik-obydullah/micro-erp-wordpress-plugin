@@ -34,11 +34,11 @@ $query = "SELECT * FROM " . micro_erp_table( 'accounts' ) . $where . " ORDER BY 
 $rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 $account_types = array(
-	'asset'      => __( 'Asset', 'micro-erp' ),
-	'liability'  => __( 'Liability', 'micro-erp' ),
-	'equity'     => __( 'Equity', 'micro-erp' ),
-	'income'     => __( 'Income', 'micro-erp' ),
-	'expense'    => __( 'Expense', 'micro-erp' ),
+	'asset'      => __( 'Asset', 'lime-micro-erp' ),
+	'liability'  => __( 'Liability', 'lime-micro-erp' ),
+	'equity'     => __( 'Equity', 'lime-micro-erp' ),
+	'income'     => __( 'Income', 'lime-micro-erp' ),
+	'expense'    => __( 'Expense', 'lime-micro-erp' ),
 );
 
 $type_badges = array(
@@ -55,9 +55,9 @@ $back_url = micro_erp_admin_url( 'accounts' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
-		<?php echo $editing ? esc_html__( 'Edit Account', 'micro-erp' ) : esc_html__( 'Chart of Accounts', 'micro-erp' ); ?>
+		<?php echo $editing ? esc_html__( 'Edit Account', 'lime-micro-erp' ) : esc_html__( 'Chart of Accounts', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -67,7 +67,7 @@ $back_url = micro_erp_admin_url( 'accounts' );
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm">
-					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Account Details', 'micro-erp' ); ?></h2>
+					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Account Details', 'lime-micro-erp' ); ?></h2>
 					<form method="post" action="">
 						<?php
 						$action = $editing ? 'update_account' : 'save_account';
@@ -80,17 +80,17 @@ $back_url = micro_erp_admin_url( 'accounts' );
 						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
-							<label for="code" class="form-label"><?php esc_html_e( 'Code', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="code" class="form-label"><?php esc_html_e( 'Code', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="text" name="code" id="code" class="form-control" value="<?php echo $editing ? esc_attr( $editing->code ) : ''; ?>" placeholder="e.g. 5006" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="text" name="name" id="name" class="form-control" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="type" class="form-label"><?php esc_html_e( 'Type', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="type" class="form-label"><?php esc_html_e( 'Type', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="type" id="type" class="form-control" required>
 								<?php foreach ( $account_types as $key => $label ) : ?>
 									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $editing ? $editing->type : '', $key ); ?>><?php echo esc_html( $label ); ?></option>
@@ -100,12 +100,12 @@ $back_url = micro_erp_admin_url( 'accounts' );
 
 						<div class="form-check">
 							<input type="checkbox" name="is_active" id="is_active" class="form-check-input" <?php checked( $editing ? (int) $editing->is_active : 1 ); ?>>
-							<label for="is_active" class="form-check-label"><?php esc_html_e( 'Active', 'micro-erp' ); ?></label>
+							<label for="is_active" class="form-check-label"><?php esc_html_e( 'Active', 'lime-micro-erp' ); ?></label>
 						</div>
 
 						<div class="d-flex mt-4">
-							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Account', 'micro-erp' ); ?></button>
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'lime-micro-erp' ); ?></a>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Account', 'lime-micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -116,7 +116,7 @@ $back_url = micro_erp_admin_url( 'accounts' );
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'accounts', __( 'Search Accounts', 'micro-erp' ), __( 'Search by code or name...', 'micro-erp' ), array(), $search ); ?>
+			<?php micro_erp_render_search_bar( 'accounts', __( 'Search Accounts', 'lime-micro-erp' ), __( 'Search by code or name...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -124,19 +124,19 @@ $back_url = micro_erp_admin_url( 'accounts' );
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
 					<h2 class="h5 mb-3 fw-semibold">
-						<?php esc_html_e( 'All Accounts', 'micro-erp' ); ?>
+						<?php esc_html_e( 'All Accounts', 'lime-micro-erp' ); ?>
 					</h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="90"><?php esc_html_e( 'Code', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-									<th width="110"><?php esc_html_e( 'Type', 'micro-erp' ); ?></th>
-									<th width="130" class="text-right"><?php esc_html_e( 'Balance', 'micro-erp' ); ?></th>
-									<th width="90"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-									<th width="130" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Code', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
+									<th width="110"><?php esc_html_e( 'Type', 'lime-micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Balance', 'lime-micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
+									<th width="130" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
@@ -155,16 +155,16 @@ $back_url = micro_erp_admin_url( 'accounts' );
 										<td><?php echo esc_html( $row->name ); ?></td>
 										<td><?php echo micro_erp_badge( isset( $account_types[ $row->type ] ) ? $account_types[ $row->type ] : $row->type, $type_badges ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( micro_erp_account_balance( $row->id ) ) ); ?></td>
-										<td><?php echo $row->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Inactive', 'micro-erp' ) . '</span>'; ?></td>
+										<td><?php echo $row->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'lime-micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Inactive', 'lime-micro-erp' ) . '</span>'; ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
-												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this account?', 'micro-erp' ); ?>');">
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this account?', 'lime-micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'micro_erp_account_delete' ); ?>
 													<input type="hidden" name="micro_erp_action" value="delete_account">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
+													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>

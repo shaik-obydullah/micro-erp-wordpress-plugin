@@ -19,9 +19,9 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
-		<?php echo $editing ? esc_html__( 'Edit Fiscal Year', 'micro-erp' ) : esc_html__( 'Fiscal Years', 'micro-erp' ); ?>
+		<?php echo $editing ? esc_html__( 'Edit Fiscal Year', 'lime-micro-erp' ) : esc_html__( 'Fiscal Years', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -31,7 +31,7 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm">
-					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Fiscal Year Details', 'micro-erp' ); ?></h2>
+					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Fiscal Year Details', 'lime-micro-erp' ); ?></h2>
 					<form method="post" action="">
 						<?php
 						$action = $editing ? 'save_fiscal_year' : 'save_fiscal_year';
@@ -44,23 +44,23 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
-							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="text" name="name" id="name" class="form-control" placeholder="e.g. FY 2025-2026" value="<?php echo $editing ? esc_attr( $editing->name ) : ''; ?>" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="start_date" class="form-label"><?php esc_html_e( 'Start Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="start_date" class="form-label"><?php esc_html_e( 'Start Date', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="date" name="start_date" id="start_date" class="form-control" value="<?php echo $editing ? esc_attr( $editing->start_date ) : ''; ?>" required>
 						</div>
 
 						<div class="mb-3">
-							<label for="end_date" class="form-label"><?php esc_html_e( 'End Date', 'micro-erp' ); ?> <span class="text-danger">*</span></label>
+							<label for="end_date" class="form-label"><?php esc_html_e( 'End Date', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<input type="date" name="end_date" id="end_date" class="form-control" value="<?php echo $editing ? esc_attr( $editing->end_date ) : ''; ?>" required>
 						</div>
 
 						<div class="d-flex mt-4">
-							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Fiscal Year', 'micro-erp' ); ?></button>
+							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'lime-micro-erp' ); ?></a>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Fiscal Year', 'lime-micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -73,23 +73,23 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
 					<h2 class="h5 mb-3 fw-semibold">
-						<?php esc_html_e( 'All Fiscal Years', 'micro-erp' ); ?>
+						<?php esc_html_e( 'All Fiscal Years', 'lime-micro-erp' ); ?>
 					</h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th><?php esc_html_e( 'Name', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Start Date', 'micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'End Date', 'micro-erp' ); ?></th>
-									<th width="100"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-									<th width="170" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Start Date', 'lime-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'End Date', 'lime-micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
+									<th width="170" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
 								<?php if ( empty( $rows ) ) : ?>
-									<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No fiscal years found.', 'micro-erp' ); ?></td></tr>
+									<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No fiscal years found.', 'lime-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $rows as $row ) : ?>
 									<tr>
@@ -99,22 +99,22 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 										<td><?php echo $row->is_active ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-neutral">Closed</span>'; // phpcs:ignore ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<?php if ( ! $row->is_active ) : ?>
 													<form method="post" action="" class="inline-form">
 														<?php wp_nonce_field( 'micro_erp_fiscal_year_activate' ); ?>
 														<input type="hidden" name="micro_erp_action" value="activate_fiscal_year">
 														<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-														<button type="submit" class="pos-action activate"><?php esc_html_e( 'Activate', 'micro-erp' ); ?></button>
+														<button type="submit" class="pos-action activate"><?php esc_html_e( 'Activate', 'lime-micro-erp' ); ?></button>
 													</form>
 												<?php endif; ?>
-												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'micro-erp' ); ?>');">
+												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'lime-micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'micro_erp_fiscal_year_delete' ); ?>
 													<input type="hidden" name="micro_erp_action" value="delete_fiscal_year">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
+													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>

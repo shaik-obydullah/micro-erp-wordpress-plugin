@@ -14,7 +14,7 @@ function micro_erp_handle_journal_form() {
 	$line_desc   = isset( $_POST['line_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['line_description'] ) ) : array();
 
 	if ( ! $description ) {
-		micro_erp_redirect_notice( __( 'A description is required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'A description is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -22,7 +22,7 @@ function micro_erp_handle_journal_form() {
 	$total_credit = array_sum( $credits );
 
 	if ( $total_debit <= 0 || abs( $total_debit - $total_credit ) > 0.01 ) {
-		micro_erp_redirect_notice( __( 'Journal must be balanced and have at least one line.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Journal must be balanced and have at least one line.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -41,7 +41,7 @@ function micro_erp_handle_journal_form() {
 
 	$entry_id = micro_erp_create_journal_entry( $date, $description, $lines, 'manual', 0 );
 	micro_erp_audit_log( 'save', 'journal', $entry_id, $description );
-	micro_erp_redirect_notice( __( 'Journal entry saved.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Journal entry saved.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_transaction_form() {
@@ -54,7 +54,7 @@ function micro_erp_handle_transaction_form() {
 	$account_id  = isset( $_POST['account_id'] ) ? (int) $_POST['account_id'] : 0;
 
 	if ( ! $description || $amount <= 0 ) {
-		micro_erp_redirect_notice( __( 'A description and a valid amount are required.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'A description and a valid amount are required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -78,7 +78,7 @@ function micro_erp_handle_transaction_form() {
 
 	do_action( 'micro_erp_expense_created', $entry_id );
 	micro_erp_audit_log( 'save', 'journal', $entry_id, $description );
-	micro_erp_redirect_notice( __( 'Entry saved.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Entry saved.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_delete_journal() {
@@ -86,8 +86,8 @@ function micro_erp_handle_delete_journal() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'journal_lines' ), array( 'entry_id' => $id ) );
-	$wpdb->delete( micro_erp_table( 'journal_entries' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) );
+	$wpdb->delete( micro_erp_table( 'journal_entries' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'journal', $id, 'Deleted journal entry #' . $id );
-	micro_erp_redirect_notice( __( 'Journal entry deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Journal entry deleted.', 'lime-micro-erp' ) );
 }

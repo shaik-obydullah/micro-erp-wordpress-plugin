@@ -23,7 +23,7 @@ function micro_erp_handle_sale_form( $action ) {
 		do_action( 'micro_erp_sale_created', $entity_id );
 	}
 
-	micro_erp_redirect_notice( $created ? __( 'Sale created.', 'micro-erp' ) : __( 'Sale updated.', 'micro-erp' ) );
+	micro_erp_redirect_notice( $created ? __( 'Sale created.', 'lime-micro-erp' ) : __( 'Sale updated.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_delete_sale() {
@@ -31,10 +31,10 @@ function micro_erp_handle_delete_sale() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'sale_items' ), array( 'sale_id' => $id ) );
-	$wpdb->delete( micro_erp_table( 'sales' ), array( 'id' => $id ) );
+	$wpdb->delete( micro_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) );
+	$wpdb->delete( micro_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) );
 	micro_erp_audit_log( 'delete', 'sale', $id, 'Deleted sale #' . $id );
-	micro_erp_redirect_notice( __( 'Sale deleted.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Sale deleted.', 'lime-micro-erp' ) );
 }
 
 function micro_erp_handle_record_payment() {
@@ -50,13 +50,13 @@ function micro_erp_handle_record_payment() {
 	global $wpdb;
 	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $sale_id ) );
 	if ( ! $sale ) {
-		micro_erp_redirect_notice( __( 'Sale not found.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Sale not found.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	$balance = (float) $sale->total - (float) $sale->amount_paid;
 	if ( $amount <= 0 || $amount > $balance + 0.01 ) {
-		micro_erp_redirect_notice( __( 'Payment amount is invalid.', 'micro-erp' ), 'error' );
+		micro_erp_redirect_notice( __( 'Payment amount is invalid.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -73,7 +73,9 @@ function micro_erp_handle_record_payment() {
 			'payment_status' => $status,
 			'payment_method' => $method,
 		),
-		array( 'id' => $sale_id )
+		array( 'id' => $sale_id ),
+		array( '%f', '%s', '%s' ),
+		array( '%d' )
 	);
 
 	if ( ! $deposit ) {
@@ -94,5 +96,5 @@ function micro_erp_handle_record_payment() {
 
 	do_action( 'micro_erp_sale_payment_received', $sale_id, $amount );
 	micro_erp_audit_log( 'payment', 'sale', $sale_id, 'Received ' . $amount . ' payment on ' . $sale->sale_no );
-	micro_erp_redirect_notice( __( 'Payment recorded.', 'micro-erp' ) );
+	micro_erp_redirect_notice( __( 'Payment recorded.', 'lime-micro-erp' ) );
 }

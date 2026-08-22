@@ -29,8 +29,8 @@ $offset      = ( $paged - 1 ) * $per_page;
 $rows = $wpdb->get_results(
 	$wpdb->prepare(
 		"SELECT s.*, c.name AS customer{$from_join}{$where}
-		ORDER BY s.sale_date ASC LIMIT {$per_page} OFFSET {$offset}",
-		$args
+		ORDER BY s.sale_date ASC LIMIT %d OFFSET %d",
+		array_merge( $args, array( $per_page, $offset ) )
 	)
 );
 
@@ -41,7 +41,6 @@ $totals = $wpdb->get_row(
 		$args
 	)
 );
-
 $total_original = (float) ( $totals ? $totals->original : 0 );
 $total_paid     = (float) ( $totals ? $totals->paid : 0 );
 $total_balance  = (float) ( $totals ? $totals->balance : 0 );
@@ -51,38 +50,38 @@ micro_erp_print_admin_notice();
 $back_url = micro_erp_admin_url( 'receivable' );
 ?>
 <div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Receivable', 'micro-erp' ); ?></h1>
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Receivable', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
-	<p class="text-muted mt-1"><?php esc_html_e( 'Money owed to you by customers', 'micro-erp' ); ?></p>
+	<p class="text-muted mt-1"><?php esc_html_e( 'Money owed to you by customers', 'lime-micro-erp' ); ?></p>
 
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'receivable', __( 'Search Receivables', 'micro-erp' ), __( 'Search by customer or invoice #...', 'micro-erp' ), array(), $search ); ?>
+			<?php micro_erp_render_search_bar( 'receivable', __( 'Search Receivables', 'lime-micro-erp' ), __( 'Search by customer or invoice #...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
 	<div class="row mt-1">
 		<div class="col-lg-12">
 			<div class="bg-light p-3 rounded shadow-sm border">
-				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Unpaid Invoices', 'micro-erp' ); ?></h2>
+				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Unpaid Invoices', 'lime-micro-erp' ); ?></h2>
 
 				<div class="table-responsive">
 					<table class="table table-striped table-hover table-bordered mb-2">
 						<thead>
 							<tr class="bg-primary text-white">
-								<th><?php esc_html_e( 'Customer', 'micro-erp' ); ?></th>
-								<th width="120"><?php esc_html_e( 'Invoice/Sale #', 'micro-erp' ); ?></th>
-								<th width="110"><?php esc_html_e( 'Date', 'micro-erp' ); ?></th>
-								<th width="130" class="text-right"><?php esc_html_e( 'Original Amount', 'micro-erp' ); ?></th>
-								<th width="130" class="text-right"><?php esc_html_e( 'Paid', 'micro-erp' ); ?></th>
-								<th width="130" class="text-right"><?php esc_html_e( 'Balance', 'micro-erp' ); ?></th>
-								<th width="100"><?php esc_html_e( 'Status', 'micro-erp' ); ?></th>
-								<th width="160" class="text-right"><?php esc_html_e( 'Actions', 'micro-erp' ); ?></th>
+								<th><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></th>
+								<th width="120"><?php esc_html_e( 'Invoice/Sale #', 'lime-micro-erp' ); ?></th>
+								<th width="110"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></th>
+								<th width="130" class="text-right"><?php esc_html_e( 'Original Amount', 'lime-micro-erp' ); ?></th>
+								<th width="130" class="text-right"><?php esc_html_e( 'Paid', 'lime-micro-erp' ); ?></th>
+								<th width="130" class="text-right"><?php esc_html_e( 'Balance', 'lime-micro-erp' ); ?></th>
+								<th width="100"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
+								<th width="160" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
 							</tr>
 						</thead>
 						<tbody class="bg-white">
 							<?php if ( empty( $rows ) ) : ?>
-								<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'Nothing owed to you. Nice!', 'micro-erp' ); ?></td></tr>
+								<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'Nothing owed to you. Nice!', 'lime-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
 							<?php foreach ( $rows as $row ) :
 								$balance = (float) $row->total - (float) $row->amount_paid;
@@ -98,14 +97,14 @@ $back_url = micro_erp_admin_url( 'receivable' );
 									<td><?php echo micro_erp_status_badge( $row->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 									<td class="text-right">
 										<div class="pos-row-actions">
-											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
-											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $row->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></a>
+											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $row->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
 										</div>
 									</td>
 								</tr>
 							<?php endforeach; ?>
 							<tr class="total-row">
-								<td colspan="3"><strong><?php esc_html_e( 'Total Receivable', 'micro-erp' ); ?></strong></td>
+								<td colspan="3"><strong><?php esc_html_e( 'Total Receivable', 'lime-micro-erp' ); ?></strong></td>
 								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_original ) ); ?></strong></td>
 								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_paid ) ); ?></strong></td>
 								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_balance ) ); ?></strong></td>

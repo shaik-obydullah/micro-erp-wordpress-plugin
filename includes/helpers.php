@@ -56,9 +56,9 @@ function micro_erp_set_setting( $key, $value ) {
 	$table = micro_erp_table( 'settings' );
 	$found = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE option_key = %s", $key ) );
 	if ( $found ) {
-		$wpdb->update( $table, array( 'option_value' => $value ), array( 'option_key' => $key ) );
+		$wpdb->update( $table, array( 'option_value' => $value ), array( 'option_key' => $key ), array( '%s' ), array( '%s' ) );
 	} else {
-		$wpdb->insert( $table, array( 'option_key' => $key, 'option_value' => $value ) );
+		$wpdb->insert( $table, array( 'option_key' => $key, 'option_value' => $value ), array( '%s', '%s' ) );
 	}
 }
 
@@ -122,7 +122,7 @@ function micro_erp_print_admin_notice() {
 
 function micro_erp_verify_nonce( $action, $arg = '_wpnonce' ) {
 	if ( ! isset( $_POST[ $arg ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $arg ] ) ), $action ) ) {
-		wp_die( esc_html__( 'Security check failed.', 'micro-erp' ) );
+		wp_die( esc_html__( 'Security check failed.', 'lime-micro-erp' ) );
 	}
 }
 
@@ -346,17 +346,17 @@ function micro_erp_render_search_bar( $page_slug, $label, $placeholder, $hidden 
 		<?php if ( $inline ) : ?>
 			<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
 			<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
-			<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+			<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'lime-micro-erp' ); ?></button>
 			<?php if ( $current ) : ?>
-				<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'micro-erp' ); ?></a>
+				<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'lime-micro-erp' ); ?></a>
 			<?php endif; ?>
 		<?php else : ?>
 			<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
 				<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
 				<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
-				<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+				<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'lime-micro-erp' ); ?></button>
 				<?php if ( $current ) : ?>
-					<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'micro-erp' ); ?></a>
+					<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'lime-micro-erp' ); ?></a>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
@@ -398,13 +398,13 @@ function micro_erp_render_pagination( $page_slug, $total_items, $per_page = 20 )
 	};
 
 	$out  = '<div class="tablenav-pages">';
-	$out .= '<span class="displaying-num">' . esc_html( sprintf( _n( '%s item', '%s items', $total_items, 'micro-erp' ), number_format_i18n( $total_items ) ) ) . '</span>';
+	$out .= '<span class="displaying-num">' . esc_html( sprintf( _n( '%s item', '%s items', $total_items, 'lime-micro-erp' ), number_format_i18n( $total_items ) ) ) . '</span>';
 	$out .= '<div class="pagination-links">';
 
 	// First / Prev.
 	if ( $paged > 1 ) {
-		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( 1 ) ) . '" aria-label="' . esc_attr__( 'First page', 'micro-erp' ) . '">«</a>';
-		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged - 1 ) ) . '" aria-label="' . esc_attr__( 'Previous page', 'micro-erp' ) . '">‹</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( 1 ) ) . '" aria-label="' . esc_attr__( 'First page', 'lime-micro-erp' ) . '">«</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged - 1 ) ) . '" aria-label="' . esc_attr__( 'Previous page', 'lime-micro-erp' ) . '">‹</a>';
 	} else {
 		$out .= '<span class="btn btn-dark btn-disabled">«</span><span class="btn btn-dark btn-disabled">‹</span>';
 	}
@@ -435,8 +435,8 @@ function micro_erp_render_pagination( $page_slug, $total_items, $per_page = 20 )
 
 	// Next / Last.
 	if ( $paged < $total_pages ) {
-		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged + 1 ) ) . '" aria-label="' . esc_attr__( 'Next page', 'micro-erp' ) . '">›</a>';
-		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $total_pages ) ) . '" aria-label="' . esc_attr__( 'Last page', 'micro-erp' ) . '">»</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged + 1 ) ) . '" aria-label="' . esc_attr__( 'Next page', 'lime-micro-erp' ) . '">›</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $total_pages ) ) . '" aria-label="' . esc_attr__( 'Last page', 'lime-micro-erp' ) . '">»</a>';
 	} else {
 		$out .= '<span class="btn btn-dark btn-disabled">›</span><span class="btn btn-dark btn-disabled">»</span>';
 	}

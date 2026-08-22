@@ -9,7 +9,26 @@ $show_form = isset( $_GET['new'] ) || isset( $_GET['view'] );
 $view_id   = isset( $_GET['view'] ) ? (int) $_GET['view'] : 0;
 $accounts  = micro_erp_get_accounts();
 
-$entries = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . " ORDER BY entry_date DESC, id DESC" );
+$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+$where = '';
+$args  = array();
+if ( $search ) {
+	$where  = ' WHERE description LIKE %s';
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$args[] = $like;
+}
+
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'journal_entries' ) . $where; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query   = "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . $where . " ORDER BY entry_date DESC, id DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$entries = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 $lines_by_entry = array();
 if ( ! empty( $entries ) ) {
@@ -23,7 +42,11 @@ if ( ! empty( $entries ) ) {
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/journal' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'journal' );
+$from     = isset( $_GET['from'] ) && in_array( $_GET['from'], array( 'income', 'expense' ), true ) ? sanitize_key( $_GET['from'] ) : '';
+if ( $from ) {
+	$back_url = micro_erp_admin_url( $from );
+}
 
 if ( $view_id ) {
 	$view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . " WHERE id = %d", $view_id ) );
@@ -32,9 +55,17 @@ if ( $view_id ) {
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
-		<?php echo $show_form ? esc_html__( 'New Journal Entry', 'micro-erp' ) : esc_html__( 'Journal Entries', 'micro-erp' ); ?>
+		<?php
+		if ( $show_form && $view_id ) {
+			esc_html_e( 'View Journal Entry', 'micro-erp' );
+		} elseif ( $show_form ) {
+			esc_html_e( 'New Journal Entry', 'micro-erp' );
+		} else {
+			esc_html_e( 'Journal Entries', 'micro-erp' );
+		}
+		?>
 		<?php if ( ! $show_form ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -78,7 +109,7 @@ if ( $view_id ) {
 							</tbody>
 						</table>
 					</div>
-					<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mt-2 d-inline-block">← <?php esc_html_e( 'Back to Journal', 'micro-erp' ); ?></a>
+					<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mt-2 d-inline-block">← <?php echo esc_html( $from ? __( 'Back to ', 'micro-erp' ) . ( 'expense' === $from ? __( 'Expenses', 'micro-erp' ) : __( 'Income', 'micro-erp' ) ) : __( 'Back to Journal', 'micro-erp' ) ); ?></a>
 				</div>
 			</div>
 		</div>
@@ -178,6 +209,12 @@ if ( $view_id ) {
 	<?php else : ?>
 
 		<div class="row mt-3">
+		<div class="col-lg-12">
+			<?php micro_erp_render_search_bar( 'journal', __( 'Search Entries', 'micro-erp' ), __( 'Search by description...', 'micro-erp' ), array(), $search ); ?>
+		</div>
+	</div>
+
+	<div class="row mt-1">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
 					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'All Entries', 'micro-erp' ); ?></h2>
@@ -217,13 +254,13 @@ if ( $view_id ) {
 										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_c ) ); ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'view', $entry->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'View', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $entry->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this entry?', 'micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'micro_erp_journal_delete' ); ?>
 													<input type="hidden" name="micro_erp_action" value="delete_journal">
 													<input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+													<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>
@@ -232,6 +269,9 @@ if ( $view_id ) {
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'journal', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

@@ -16,11 +16,28 @@ $mnum  = (int) substr( $month, 5, 2 );
 $prev = date( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
 $next = date( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
 
-$employees = $wpdb->get_results(
-	"SELECT e.*, d.name AS department_name FROM " . micro_erp_table( 'employees' ) . " e
-	LEFT JOIN " . micro_erp_table( 'departments' ) . " d ON d.id = e.department_id
-	ORDER BY e.employee_id ASC"
-);
+$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$where  = ' WHERE 1=1';
+$args   = array();
+if ( $search ) {
+	$where .= ' AND (e.name LIKE %s OR e.employee_id LIKE %s)';
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$args[] = $like;
+	$args[] = $like;
+}
+
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'employees' ) . " e{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query     = "SELECT e.*, d.name AS department_name FROM " . micro_erp_table( 'employees' ) . " e
+	LEFT JOIN " . micro_erp_table( 'departments' ) . " d ON d.id = e.department_id{$where}
+	ORDER BY e.employee_id ASC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$employees = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 $payments = array();
 if ( $employees ) {
@@ -30,57 +47,109 @@ if ( $employees ) {
 	}
 }
 
-$total_salary = 0;
-$total_paid   = 0;
-$total_unpaid = 0;
+// Summary totals across ALL matching employees (cards must not change with paging).
+$net_expr = '(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))';
+$totals   = $wpdb->get_row(
+	$wpdb->prepare(
+		"SELECT COALESCE(SUM({$net_expr}),0) AS salary,
+			COALESCE(SUM(IF(p.status = 'paid', {$net_expr}, 0)),0) AS paid,
+			COALESCE(SUM(IF(p.status = 'paid', 0, {$net_expr})),0) AS unpaid
+		FROM " . micro_erp_table( 'employees' ) . " e
+		LEFT JOIN " . micro_erp_table( 'salary_payments' ) . " p ON p.employee_id = e.id AND p.month = %s{$where}",
+		array_merge( array( $month ), $args )
+	)
+);
+
+$total_salary = (float) ( $totals ? $totals->salary : 0 );
+$total_paid   = (float) ( $totals ? $totals->paid : 0 );
+$total_unpaid = (float) ( $totals ? $totals->unpaid : 0 );
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/salary', 'month' => $month ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<div class="month-nav mt-3">
-		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'micro-erp/salary', 'month' => $prev ), admin_url( 'admin.php' ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'micro-erp' ); ?></a>
 		<strong><?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></strong>
-		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'micro-erp/salary', 'month' => $next ), admin_url( 'admin.php' ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'micro-erp' ); ?> →</a>
-		<span style="margin-left:auto;"></span>
-		<form method="post" action="" class="inline-form">
+		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'micro-erp' ); ?> →</a>
+		<form method="post" action="" class="inline-form" style="margin-left:auto;">
 			<?php wp_nonce_field( 'micro_erp_salary_paid' ); ?>
 			<input type="hidden" name="micro_erp_action" value="mark_salary_paid">
 			<input type="hidden" name="month" value="<?php echo esc_attr( $month ); ?>">
 			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-			<button type="submit" class="btn-success"><?php esc_html_e( 'Mark All Paid', 'micro-erp' ); ?></button>
+			<button type="submit" class="btn-save">
+				<span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
+				<?php esc_html_e( 'Mark All Paid', 'micro-erp' ); ?>
+			</button>
 		</form>
 	</div>
 
-	<div class="row mt-3 mb-3">
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-info">
-				<h4><?php echo count( $employees ); ?></h4>
-				<p><?php esc_html_e( 'Total Employees', 'micro-erp' ); ?></p>
-			</div>
+	<?php
+	$month_label = date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) );
+	$pct_paid    = $total_salary > 0 ? round( ( $total_paid / $total_salary ) * 100 ) : 0;
+	$pct_unpaid  = max( 0, 100 - $pct_paid );
+
+	$salary_stats = array(
+		array(
+			'key'   => 'employees',
+			'label' => __( 'Total Employees', 'micro-erp' ),
+			'value' => (int) $total_items,
+			'sub'   => $month_label,
+			'icon'  => 'groups',
+			'bar'   => null,
+		),
+		array(
+			'key'   => 'total',
+			'label' => __( 'Total Salary', 'micro-erp' ),
+			'value' => micro_erp_format_money( $total_salary ),
+			'sub'   => $month_label,
+			'icon'  => 'chart-line',
+			'bar'   => null,
+		),
+		array(
+			'key'   => 'paid',
+			'label' => __( 'Paid', 'micro-erp' ),
+			'value' => micro_erp_format_money( $total_paid ),
+			'sub'   => sprintf( __( '%d%% of total salary', 'micro-erp' ), $pct_paid ),
+			'icon'  => 'money-alt',
+			'bar'   => $pct_paid,
+		),
+		array(
+			'key'   => 'due',
+			'label' => __( 'Unpaid', 'micro-erp' ),
+			'value' => micro_erp_format_money( $total_unpaid ),
+			'sub'   => sprintf( __( '%d%% of total salary', 'micro-erp' ), $pct_unpaid ),
+			'icon'  => 'warning',
+			'bar'   => $pct_unpaid,
+		),
+	);
+	?>
+	<div class="row mt-3">
+		<div class="col-lg-12">
+			<?php micro_erp_render_search_bar( 'salary', __( 'Search Employees', 'micro-erp' ), __( 'Search by name or employee ID...', 'micro-erp' ), array( 'month' => $month ), $search ); ?>
 		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-primary">
-				<h4><?php echo esc_html( micro_erp_format_money( $total_salary ) ); ?></h4>
-				<p><?php esc_html_e( 'Total Salary', 'micro-erp' ); ?></p>
+	</div>
+
+	<div class="stat-cards">
+		<?php foreach ( $salary_stats as $stat ) : ?>
+			<div class="stat-card stat-card--<?php echo esc_attr( $stat['key'] ); ?>">
+				<div class="stat-icon">
+					<span class="dashicons dashicons-<?php echo esc_attr( $stat['icon'] ); ?>"></span>
+				</div>
+				<div class="stat-body">
+					<span class="stat-value"><?php echo esc_html( $stat['value'] ); ?></span>
+					<span class="stat-label"><?php echo esc_html( $stat['label'] ); ?></span>
+					<span class="stat-sub"><?php echo esc_html( $stat['sub'] ); ?></span>
+					<?php if ( null !== $stat['bar'] ) : ?>
+						<div class="stat-bar" role="presentation"><span style="width:<?php echo (int) $stat['bar']; ?>%;"></span></div>
+					<?php endif; ?>
+				</div>
 			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-success">
-				<h4><?php echo esc_html( micro_erp_format_money( $total_paid ) ); ?></h4>
-				<p><?php esc_html_e( 'Paid', 'micro-erp' ); ?></p>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-danger">
-				<h4><?php echo esc_html( micro_erp_format_money( $total_unpaid ) ); ?></h4>
-				<p><?php esc_html_e( 'Unpaid', 'micro-erp' ); ?></p>
-			</div>
-		</div>
+		<?php endforeach; ?>
 	</div>
 
 	<form method="post" action="">
@@ -120,13 +189,6 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/salary', 'month' => $mont
 									$deduct    = $payment ? (float) $payment->deductions : 0;
 									$net       = $basic + $allow - $deduct;
 									$is_paid   = $payment && 'paid' === $payment->status;
-
-									$total_salary += $net;
-									if ( $is_paid ) {
-										$total_paid += $net;
-									} else {
-										$total_unpaid += $net;
-									}
 									?>
 									<tr>
 										<td><?php echo esc_html( $emp->employee_id ); ?></td>
@@ -149,6 +211,9 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/salary', 'month' => $mont
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'salary', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

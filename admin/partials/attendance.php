@@ -32,7 +32,7 @@ $unmarked = count( $employees ) - count( $existing );
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/attendance', 'date' => $date ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Attendance', 'micro-erp' ); ?></h1>
@@ -40,36 +40,56 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/attendance', 'date' => $d
 
 	<form method="get" action="" class="date-nav mt-3">
 		<input type="hidden" name="page" value="micro-erp/attendance">
-		<a href="<?php echo esc_url( add_query_arg( 'date', current_time( 'Y-m-d' ), add_query_arg( 'page', 'micro-erp/attendance', admin_url( 'admin.php' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( micro_erp_admin_url( 'attendance', array( 'date' => current_time( 'Y-m-d' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'micro-erp' ); ?></a>
 		<input type="date" name="date" value="<?php echo esc_attr( $date ); ?>" class="form-control form-control-sm">
 		<button class="btn-primary"><?php esc_html_e( 'Load', 'micro-erp' ); ?></button>
 	</form>
 
-	<div class="row mt-3 mb-3">
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-success">
-				<h4><?php echo (int) $summary['present']; ?></h4>
-				<p><?php esc_html_e( 'Present', 'micro-erp' ); ?></p>
+	<?php
+	$total_emp = count( $employees );
+	$stats     = array(
+		array(
+			'key'   => 'present',
+			'label' => __( 'Present', 'micro-erp' ),
+			'value' => (int) $summary['present'],
+			'icon'  => 'yes-alt',
+		),
+		array(
+			'key'   => 'absent',
+			'label' => __( 'Absent', 'micro-erp' ),
+			'value' => (int) $summary['absent'],
+			'icon'  => 'no-alt',
+		),
+		array(
+			'key'   => 'late',
+			'label' => __( 'Late', 'micro-erp' ),
+			'value' => (int) $summary['late'],
+			'icon'  => 'clock',
+		),
+		array(
+			'key'   => 'unmarked',
+			'label' => __( 'Unmarked', 'micro-erp' ),
+			'value' => (int) $unmarked,
+			'icon'  => 'editor-help',
+		),
+	);
+	?>
+	<div class="stat-cards">
+		<?php foreach ( $stats as $stat ) :
+			$pct = $total_emp ? round( ( $stat['value'] / $total_emp ) * 100 ) : 0;
+			?>
+			<div class="stat-card stat-card--<?php echo esc_attr( $stat['key'] ); ?>">
+				<div class="stat-icon">
+					<span class="dashicons dashicons-<?php echo esc_attr( $stat['icon'] ); ?>"></span>
+				</div>
+				<div class="stat-body">
+					<span class="stat-value"><?php echo (int) $stat['value']; ?></span>
+					<span class="stat-label"><?php echo esc_html( $stat['label'] ); ?></span>
+					<span class="stat-sub"><?php echo esc_html( sprintf( __( '%d%% of %d employees', 'micro-erp' ), $pct, $total_emp ) ); ?></span>
+					<div class="stat-bar" role="presentation"><span style="width:<?php echo (int) $pct; ?>%;"></span></div>
+				</div>
 			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-danger">
-				<h4><?php echo (int) $summary['absent']; ?></h4>
-				<p><?php esc_html_e( 'Absent', 'micro-erp' ); ?></p>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-warning">
-				<h4><?php echo (int) $summary['late']; ?></h4>
-				<p><?php esc_html_e( 'Late', 'micro-erp' ); ?></p>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-info">
-				<h4><?php echo (int) $unmarked; ?></h4>
-				<p><?php esc_html_e( 'Unmarked', 'micro-erp' ); ?></p>
-			</div>
-		</div>
+		<?php endforeach; ?>
 	</div>
 
 	<form method="post" action="">
@@ -123,7 +143,17 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/attendance', 'date' => $d
 						</table>
 					</div>
 
-					<button type="submit" class="btn-success"><?php esc_html_e( 'Save Attendance', 'micro-erp' ); ?></button>
+					<div class="form-actions-bar">
+						<?php if ( $employees && $unmarked > 0 ) : ?>
+							<span class="form-actions-note">
+								<?php echo esc_html( sprintf( __( '%d of %d employees unmarked.', 'micro-erp' ), $unmarked, count( $employees ) ) ); ?>
+							</span>
+						<?php endif; ?>
+						<button type="submit" class="btn-save">
+							<span class="dashicons dashicons-yes" aria-hidden="true"></span>
+							<?php esc_html_e( 'Save Attendance', 'micro-erp' ); ?>
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

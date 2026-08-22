@@ -28,18 +28,26 @@ if ( $search ) {
 	$args[] = $like;
 }
 
-$query = "SELECT * FROM " . micro_erp_table( 'contacts' ) . $where . " ORDER BY name ASC";
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'contacts' ) . $where;
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query = "SELECT * FROM " . micro_erp_table( 'contacts' ) . $where . " ORDER BY name ASC LIMIT {$per_page} OFFSET {$offset}";
 $rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'contacts' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Contact', 'micro-erp' ) : esc_html__( 'Contacts', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Contact', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Contact', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -112,7 +120,7 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( '
 
 						<div class="d-flex mt-4">
 							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-primary"><?php esc_html_e( 'Save Contact', 'micro-erp' ); ?></button>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Contact', 'micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -131,20 +139,24 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( '
 					<!-- Search Box -->
 					<form method="get" action="" class="search-section mb-3">
 						<input type="hidden" name="page" value="micro-erp/contacts">
-						<div class="d-flex flex-wrap align-items-center gap-2">
-							<div class="search-group flex-grow-1">
-								<label for="contact-search" class="form-label mb-1"><?php esc_html_e( 'Search Contacts', 'micro-erp' ); ?></label>
-								<div class="d-flex align-items-center gap-2">
-									<select name="type" class="form-control form-control-sm" style="max-width:160px;">
-										<option value=""><?php esc_html_e( 'All Types', 'micro-erp' ); ?></option>
-										<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
-											<option value="<?php echo esc_attr( $t ); ?>" <?php selected( $type_filter, $t ); ?>><?php echo esc_html( ucfirst( $t ) ); ?></option>
-										<?php endforeach; ?>
-									</select>
-									<input type="text" name="s" id="contact-search" class="form-control form-control-sm" placeholder="<?php esc_attr_e( 'Search contacts...', 'micro-erp' ); ?>" value="<?php echo esc_attr( $search ); ?>">
-									<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
-								</div>
-								<div class="form-text"><?php esc_html_e( 'Search by name, email or company', 'micro-erp' ); ?></div>
+						<input type="hidden" name="type" value="<?php echo esc_attr( $type_filter ); ?>">
+						<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
+							<label for="contact-search" class="form-label mb-0"><?php esc_html_e( 'Search Contacts', 'micro-erp' ); ?></label>
+							<input type="text" name="s" id="contact-search" class="form-control form-control-sm search-field" placeholder="<?php esc_attr_e( 'Search contacts...', 'micro-erp' ); ?>" value="<?php echo esc_attr( $search ); ?>">
+							<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+
+							<?php
+							$pill_args = array();
+							if ( $search ) {
+								$pill_args['s'] = $search;
+							}
+							$all_url = micro_erp_admin_url( 'contacts', $pill_args );
+							?>
+							<div class="filter-pills ml-auto" role="group" aria-label="<?php esc_attr_e( 'Filter by contact type', 'micro-erp' ); ?>">
+								<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $type_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All Types', 'micro-erp' ); ?></a>
+								<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
+									<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array_merge( $pill_args, array( 'type' => $t ) ) ) ); ?>" class="<?php echo esc_attr( $type_filter === $t ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $t ) ); ?></a>
+								<?php endforeach; ?>
 							</div>
 						</div>
 					</form>
@@ -177,13 +189,13 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( '
 										<td><?php echo micro_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this contact?', 'micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'micro_erp_contact_delete' ); ?>
 													<input type="hidden" name="micro_erp_action" value="delete_contact">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button type="submit" class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>
@@ -192,6 +204,9 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/contacts' ), admin_url( '
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'contacts', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

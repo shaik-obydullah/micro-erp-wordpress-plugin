@@ -7,7 +7,31 @@ global $wpdb;
 
 $leave_types = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'leave_types' ) . " ORDER BY name ASC" );
 $employees   = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'employees' ) . " WHERE status = 'active' ORDER BY name ASC" );
-$requests    = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'leave_requests' ) . " ORDER BY created_at DESC" );
+
+$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+$req_join  = " FROM " . micro_erp_table( 'leave_requests' ) . " lr
+	LEFT JOIN " . micro_erp_table( 'employees' ) . " e ON e.id = lr.employee_id";
+$req_where = ' WHERE 1=1';
+$req_args  = array();
+if ( $search ) {
+	$like       = '%' . $wpdb->esc_like( $search ) . '%';
+	$req_where .= ' AND (lr.reason LIKE %s OR e.name LIKE %s OR e.employee_id LIKE %s)';
+	$req_args[] = $like;
+	$req_args[] = $like;
+	$req_args[] = $like;
+}
+
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*){$req_join}{$req_where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $req_args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $req_args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query    = "SELECT lr.*{$req_join}{$req_where} ORDER BY lr.created_at DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$requests = $req_args ? $wpdb->get_results( $wpdb->prepare( $query, $req_args ) ) : $wpdb->get_results( $query );
 
 $edit_type_id = isset( $_GET['edit_type'] ) ? (int) $_GET['edit_type'] : 0;
 $editing_type = null;
@@ -15,7 +39,7 @@ if ( $edit_type_id ) {
 	$editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'leave_types' ) . " WHERE id = %d", $edit_type_id ) );
 }
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/leave' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'leave' );
 
 micro_erp_print_admin_notice();
 ?>
@@ -23,14 +47,36 @@ micro_erp_print_admin_notice();
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Leave Management', 'micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
-	<?php if ( ! empty( $leave_types ) ) : ?>
-		<div class="row mt-3">
-			<?php foreach ( $leave_types as $lt ) : ?>
-				<div class="col-lg-3 col-md-6 mb-3">
-					<div class="leave-type-card">
-						<h3><?php echo (int) $lt->days_per_year; ?></h3>
-						<p><?php echo esc_html( $lt->name ); ?></p>
-						<small><?php esc_html_e( 'per year', 'micro-erp' ); ?></small>
+	<?php if ( ! empty( $leave_types ) ) :
+		$leave_styles = array(
+			array( 'icon' => 'palmtree',       'tone' => 'green', 'match' => array( 'annual', 'earned', 'vacation' ) ),
+			array( 'icon' => 'smiley',         'tone' => 'blue',  'match' => array( 'casual', 'personal' ) ),
+			array( 'icon' => 'shield-alt2',    'tone' => 'red',   'match' => array( 'sick', 'medical' ) ),
+			array( 'icon' => 'admin-users',    'tone' => 'amber', 'match' => array( 'matern', 'patern', 'parent' ) ),
+		);
+		$default_style = array( 'icon' => 'calendar-alt', 'tone' => 'blue', 'match' => array() );
+		?>
+		<div class="stat-cards">
+			<?php foreach ( $leave_types as $lt ) :
+				$name_lower = strtolower( $lt->name );
+				$style      = $default_style;
+				foreach ( $leave_styles as $ls ) {
+					foreach ( $ls['match'] as $needle ) {
+						if ( false !== strpos( $name_lower, $needle ) ) {
+							$style = $ls;
+							break 2;
+						}
+					}
+				}
+				?>
+				<div class="stat-card stat-card--<?php echo esc_attr( $style['tone'] ); ?>">
+					<div class="stat-icon">
+						<span class="dashicons dashicons-<?php echo esc_attr( $style['icon'] ); ?>"></span>
+					</div>
+					<div class="stat-body">
+						<span class="stat-value"><?php echo (int) $lt->days_per_year; ?></span>
+						<span class="stat-label"><?php echo esc_html( $lt->name ); ?></span>
+						<span class="stat-sub"><?php esc_html_e( 'days per year', 'micro-erp' ); ?></span>
 					</div>
 				</div>
 			<?php endforeach; ?>
@@ -81,7 +127,7 @@ micro_erp_print_admin_notice();
 						<textarea name="reason" id="reason" rows="2" class="form-control"></textarea>
 					</div>
 
-					<button type="submit" class="btn-primary"><?php esc_html_e( 'Submit Request', 'micro-erp' ); ?></button>
+					<button type="submit" class="btn-success"><?php esc_html_e( 'Submit Request', 'micro-erp' ); ?></button>
 				</form>
 			</div>
 		</div>
@@ -119,7 +165,10 @@ micro_erp_print_admin_notice();
 						<?php if ( $editing_type ) : ?>
 							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
 						<?php endif; ?>
-						<button type="submit" class="btn-success"><?php esc_html_e( 'Save Type', 'micro-erp' ); ?></button>
+						<button type="submit" class="btn-save">
+							<span class="dashicons dashicons-yes" aria-hidden="true"></span>
+							<?php esc_html_e( 'Save Type', 'micro-erp' ); ?>
+						</button>
 					</div>
 				</form>
 
@@ -132,13 +181,13 @@ micro_erp_print_admin_notice();
 								<td><?php echo $lt->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Off', 'micro-erp' ) . '</span>'; // phpcs:ignore ?></td>
 								<td width="130">
 									<div class="pos-row-actions">
-										<a href="<?php echo esc_url( add_query_arg( 'edit_type', $lt->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+										<a href="<?php echo esc_url( micro_erp_admin_url( 'leave', array( 'edit_type' => $lt->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 										<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this leave type?', 'micro-erp' ); ?>');">
 											<?php wp_nonce_field( 'micro_erp_leave_type_delete' ); ?>
 											<input type="hidden" name="micro_erp_action" value="delete_leave_type">
 											<input type="hidden" name="id" value="<?php echo (int) $lt->id; ?>">
 											<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-											<button class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+											<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 										</form>
 									</div>
 								</td>
@@ -152,6 +201,7 @@ micro_erp_print_admin_notice();
 
 	<div class="row mt-1">
 		<div class="col-lg-12">
+			<?php micro_erp_render_search_bar( 'leave', __( 'Search Leave Requests', 'micro-erp' ), __( 'Search by employee, ID or reason...', 'micro-erp' ), array(), $search ); ?>
 			<div class="bg-light p-3 rounded shadow-sm border">
 				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Leave Requests', 'micro-erp' ); ?></h2>
 
@@ -207,6 +257,9 @@ micro_erp_print_admin_notice();
 						</tbody>
 					</table>
 				</div>
+
+				<?php micro_erp_render_pagination( 'leave', $total_items, $per_page ); ?>
+
 			</div>
 		</div>
 	</div>

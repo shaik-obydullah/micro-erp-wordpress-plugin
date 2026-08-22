@@ -42,6 +42,10 @@ Micro ERP turns your existing WordPress installation into a full-featured busine
 | **CRM**        | Customer/vendor/supplier directory with filtering and search                         |
 | **Dashboard**  | KPI cards, recent transactions, pending actions, quick overview                      |
 
+## User Manual
+
+Complete documentation with screenshots for every module — installation, quick start, feature guides, FAQ, and troubleshooting — is available in [User-Manual.md](User-Manual.md).
+
 ## Quick Start
 
 ```bash

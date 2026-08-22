@@ -11,7 +11,27 @@ if ( $edit_id ) {
 	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE id = %d", $edit_id ) );
 }
 
-$rows = micro_erp_get_accounts();
+$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+$where = ' WHERE 1=1';
+$args  = array();
+if ( $search ) {
+	$where .= ' AND (code LIKE %s OR name LIKE %s)';
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$args[] = $like;
+	$args[] = $like;
+}
+
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'accounts' ) . $where; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query = "SELECT * FROM " . micro_erp_table( 'accounts' ) . $where . " ORDER BY code ASC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 $account_types = array(
 	'asset'      => __( 'Asset', 'micro-erp' ),
@@ -31,13 +51,13 @@ $type_badges = array(
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/accounts' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'accounts' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Account', 'micro-erp' ) : esc_html__( 'Chart of Accounts', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -85,7 +105,7 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/accounts' ), admin_url( '
 
 						<div class="d-flex mt-4">
 							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-primary"><?php esc_html_e( 'Save Account', 'micro-erp' ); ?></button>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Account', 'micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -95,6 +115,12 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/accounts' ), admin_url( '
 	<?php else : ?>
 
 		<div class="row mt-3">
+		<div class="col-lg-12">
+			<?php micro_erp_render_search_bar( 'accounts', __( 'Search Accounts', 'micro-erp' ), __( 'Search by code or name...', 'micro-erp' ), array(), $search ); ?>
+		</div>
+	</div>
+
+	<div class="row mt-1">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
 					<h2 class="h5 mb-3 fw-semibold">
@@ -132,13 +158,13 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/accounts' ), admin_url( '
 										<td><?php echo $row->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Inactive', 'micro-erp' ) . '</span>'; ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this account?', 'micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'micro_erp_account_delete' ); ?>
 													<input type="hidden" name="micro_erp_action" value="delete_account">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button type="submit" class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>
@@ -147,6 +173,9 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/accounts' ), admin_url( '
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'accounts', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

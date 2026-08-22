@@ -13,7 +13,7 @@ $asset_accounts    = micro_erp_get_accounts( 'asset' );
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/settings' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'settings' );
 
 $currency = micro_erp_get_currency_symbol();
 $company  = micro_erp_get_setting( 'company_name', '' );
@@ -31,7 +31,10 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 			<strong><?php esc_html_e( 'Active Fiscal Year:', 'micro-erp' ); ?></strong>
 			<?php echo esc_html( $fy->name ); ?> (<?php echo esc_html( $fy->start_date ); ?> - <?php echo esc_html( $fy->end_date ); ?>)
 			<span class="status-badge status-active"><?php esc_html_e( 'Active', 'micro-erp' ); ?></span>
-			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_url( 'admin.php' ) ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Manage Fiscal Years', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years' ) ); ?>" class="btn-secondary ml-auto">
+				<?php esc_html_e( 'Manage Fiscal Years', 'micro-erp' ); ?>
+				<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+			</a>
 		</div>
 	<?php endif; ?>
 
@@ -125,6 +128,15 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 			</div>
 		</div>
 
-		<button type="submit" class="btn-success mb-4"><?php esc_html_e( 'Save Settings', 'micro-erp' ); ?></button>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="bg-light p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-end gap-2 flex-wrap">
+					<button type="submit" class="btn-save">
+						<span class="dashicons dashicons-yes" aria-hidden="true"></span>
+						<?php esc_html_e( 'Save Settings', 'micro-erp' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
 	</form>
 </div>

@@ -7,7 +7,7 @@ global $wpdb;
 
 $contacts = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'contacts' ) . " WHERE type = 'customer' AND status = 'active' ORDER BY name ASC" );
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/sales' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'sales' );
 
 // Record payment view.
 $pay_id = isset( $_GET['pay'] ) ? (int) $_GET['pay'] : 0;
@@ -109,14 +109,30 @@ if ( $edit_id ) {
 }
 
 $status_filter = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+$search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 
 $where = ' WHERE 1=1';
 $args  = array();
 if ( $status_filter ) {
-	$where .= ' AND payment_status = %s';
+	$where .= ' AND s.payment_status = %s';
 	$args[] = $status_filter;
 }
-$query = "SELECT s.*, c.name AS customer FROM " . micro_erp_table( 'sales' ) . " s INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id" . $where . " ORDER BY s.sale_date DESC, s.id DESC";
+if ( $search ) {
+	$where .= ' AND (s.sale_no LIKE %s OR c.name LIKE %s)';
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$args[] = $like;
+	$args[] = $like;
+}
+$count_join  = " FROM " . micro_erp_table( 'sales' ) . " s INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id";
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*){$count_join}{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query = "SELECT s.*, c.name AS customer FROM " . micro_erp_table( 'sales' ) . " s INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id" . $where . " ORDER BY s.sale_date DESC, s.id DESC LIMIT {$per_page} OFFSET {$offset}";
 $rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
 
 micro_erp_print_admin_notice();
@@ -125,7 +141,7 @@ micro_erp_print_admin_notice();
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Sale', 'micro-erp' ) : esc_html__( 'Sales Orders', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -264,23 +280,24 @@ micro_erp_print_admin_notice();
 
 	<?php else : ?>
 
-		<form method="get" action="" class="search-section mt-3">
-			<input type="hidden" name="page" value="micro-erp/sales">
-			<div class="d-flex flex-wrap align-items-center gap-2">
-				<div class="search-group">
-					<label for="status-filter" class="form-label mb-1"><?php esc_html_e( 'Payment Status', 'micro-erp' ); ?></label>
-					<div class="d-flex align-items-center gap-2">
-						<select name="status" id="status-filter" class="form-control form-control-sm" style="max-width:200px;">
-							<option value=""><?php esc_html_e( 'All Payment Status', 'micro-erp' ); ?></option>
-							<?php foreach ( array( 'paid', 'unpaid', 'partial' ) as $st ) : ?>
-								<option value="<?php echo esc_attr( $st ); ?>" <?php selected( $status_filter, $st ); ?>><?php echo esc_html( ucfirst( $st ) ); ?></option>
-							<?php endforeach; ?>
-						</select>
-						<button class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
-					</div>
+		<div class="search-section mt-3">
+			<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
+				<span class="form-label mb-0"><?php esc_html_e( 'Payment Status', 'micro-erp' ); ?></span>
+
+				<?php
+				$pill_args = $search ? array( 's' => $search ) : array();
+				$all_url   = micro_erp_admin_url( 'sales', $pill_args );
+				?>
+				<div class="filter-pills" role="group" aria-label="<?php esc_attr_e( 'Filter by payment status', 'micro-erp' ); ?>">
+					<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $status_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All', 'micro-erp' ); ?></a>
+					<?php foreach ( array( 'paid', 'unpaid', 'partial' ) as $st ) : ?>
+						<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array_merge( $pill_args, array( 'status' => $st ) ) ) ); ?>" class="<?php echo esc_attr( $status_filter === $st ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $st ) ); ?></a>
+					<?php endforeach; ?>
 				</div>
+
+				<?php micro_erp_render_search_bar( 'sales', __( 'Search Sales', 'micro-erp' ), __( 'Search by sale # or customer...', 'micro-erp' ), array( 'status' => $status_filter ), $search, true ); ?>
 			</div>
-		</form>
+		</div>
 
 		<div class="row mt-3">
 			<div class="col-lg-12">
@@ -318,9 +335,9 @@ micro_erp_print_admin_notice();
 										<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'edit', $sale->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'View', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $sale->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<?php if ( $balance > 0 ) : ?>
-													<a href="<?php echo esc_url( add_query_arg( 'pay', $sale->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></a>
+													<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $sale->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'micro-erp' ); ?></a>
 												<?php endif; ?>
 											</div>
 										</td>
@@ -329,6 +346,9 @@ micro_erp_print_admin_notice();
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'sales', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

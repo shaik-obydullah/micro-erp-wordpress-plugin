@@ -19,31 +19,63 @@ micro_erp_print_admin_notice();
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Sales Reports', 'micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
-	<div class="row mt-3">
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-primary">
-				<h4><?php echo esc_html( micro_erp_format_money( micro_erp_sum( $rows, 'total_sales' ) ) ); ?></h4>
-				<p><?php esc_html_e( 'Total Sales (12 months)', 'micro-erp' ); ?></p>
+	<?php
+	$total_sales_all = micro_erp_sum( $rows, 'total_sales' );
+	$total_paid_all  = micro_erp_sum( $rows, 'total_paid' );
+	$invoice_count   = (int) micro_erp_sum( $rows, 'invoice_count' );
+	$pct_collected   = $total_sales_all > 0 ? round( ( $total_paid_all / $total_sales_all ) * 100 ) : 0;
+
+	$report_stats = array(
+		array(
+			'key'   => 'sales',
+			'label' => __( 'Total Sales (12 months)', 'micro-erp' ),
+			'value' => micro_erp_format_money( $total_sales_all ),
+			'sub'   => __( 'Gross invoiced amount', 'micro-erp' ),
+			'icon'  => 'chart-area',
+			'bar'   => null,
+		),
+		array(
+			'key'   => 'invoices',
+			'label' => __( 'Invoices (12 months)', 'micro-erp' ),
+			'value' => number_format_i18n( $invoice_count ),
+			'sub'   => __( 'Sales orders created', 'micro-erp' ),
+			'icon'  => 'analytics',
+			'bar'   => null,
+		),
+		array(
+			'key'   => 'collected',
+			'label' => __( 'Collected', 'micro-erp' ),
+			'value' => micro_erp_format_money( $total_paid_all ),
+			'sub'   => sprintf( __( '%d%% of total sales', 'micro-erp' ), $pct_collected ),
+			'icon'  => 'money-alt',
+			'bar'   => $pct_collected,
+		),
+		array(
+			'key'   => 'fiscal',
+			'label' => __( 'Active Fiscal Year', 'micro-erp' ),
+			'value' => $fiscal ? esc_html( $fiscal->name ) : '—',
+			'sub'   => $fiscal ? esc_html( $fiscal->start_date . ' — ' . $fiscal->end_date ) : '',
+			'icon'  => 'calendar-alt',
+			'bar'   => null,
+		),
+	);
+	?>
+	<div class="stat-cards">
+		<?php foreach ( $report_stats as $stat ) : ?>
+			<div class="stat-card stat-card--<?php echo esc_attr( $stat['key'] ); ?>">
+				<div class="stat-icon">
+					<span class="dashicons dashicons-<?php echo esc_attr( $stat['icon'] ); ?>"></span>
+				</div>
+				<div class="stat-body">
+					<span class="stat-value"><?php echo esc_html( $stat['value'] ); ?></span>
+					<span class="stat-label"><?php echo esc_html( $stat['label'] ); ?></span>
+					<span class="stat-sub"><?php echo esc_html( $stat['sub'] ); ?></span>
+					<?php if ( null !== $stat['bar'] ) : ?>
+						<div class="stat-bar" role="presentation"><span style="width:<?php echo (int) $stat['bar']; ?>%;"></span></div>
+					<?php endif; ?>
+				</div>
 			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-info">
-				<h4><?php echo esc_html( micro_erp_sum( $rows, 'invoice_count' ) ); ?></h4>
-				<p><?php esc_html_e( 'Invoices (12 months)', 'micro-erp' ); ?></p>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-success">
-				<h4><?php echo esc_html( micro_erp_format_money( micro_erp_sum( $rows, 'total_paid' ) ) ); ?></h4>
-				<p><?php esc_html_e( 'Collected', 'micro-erp' ); ?></p>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-6 mb-3">
-			<div class="stock-summary-card border-left-warning">
-				<h4><?php echo $fiscal ? esc_html( $fiscal->name ) : '—'; ?></h4>
-				<p><?php esc_html_e( 'Active Fiscal Year', 'micro-erp' ); ?></p>
-			</div>
-		</div>
+		<?php endforeach; ?>
 	</div>
 
 	<div class="row mt-1">

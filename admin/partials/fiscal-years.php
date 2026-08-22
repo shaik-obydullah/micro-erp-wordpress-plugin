@@ -15,13 +15,13 @@ $rows = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'fiscal_years' )
 
 micro_erp_print_admin_notice();
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_url( 'admin.php' ) );
+$back_url = micro_erp_admin_url( 'fiscal-years' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Fiscal Year', 'micro-erp' ) : esc_html__( 'Fiscal Years', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -60,7 +60,7 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_ur
 
 						<div class="d-flex mt-4">
 							<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'micro-erp' ); ?></a>
-							<button type="submit" class="btn-primary"><?php esc_html_e( 'Save Fiscal Year', 'micro-erp' ); ?></button>
+							<button type="submit" class="btn-success"><?php esc_html_e( 'Save Fiscal Year', 'micro-erp' ); ?></button>
 						</div>
 					</form>
 				</div>
@@ -99,14 +99,14 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_ur
 										<td><?php echo $row->is_active ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-neutral">Closed</span>'; // phpcs:ignore ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'edit', $row->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<?php if ( ! $row->is_active ) : ?>
 													<form method="post" action="" class="inline-form">
 														<?php wp_nonce_field( 'micro_erp_fiscal_year_activate' ); ?>
 														<input type="hidden" name="micro_erp_action" value="activate_fiscal_year">
 														<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-														<button type="submit" class="pos-action edit"><?php esc_html_e( 'Activate', 'micro-erp' ); ?></button>
+														<button type="submit" class="pos-action activate"><?php esc_html_e( 'Activate', 'micro-erp' ); ?></button>
 													</form>
 												<?php endif; ?>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'micro-erp' ); ?>');">
@@ -114,7 +114,7 @@ $back_url = add_query_arg( array( 'page' => 'micro-erp/fiscal-years' ), admin_ur
 													<input type="hidden" name="micro_erp_action" value="delete_fiscal_year">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
 													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-													<button type="submit" class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
 										</td>

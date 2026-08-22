@@ -22,6 +22,15 @@ class MicroERP {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_init', array( $this, 'handle_forms' ) );
+		add_filter( 'wp_admin_canonical_url', array( $this, 'fix_canonical_url' ) );
+	}
+
+	/**
+	 * WP core re-encodes "/" as "%2F" in the admin canonical URL, whose JS
+	 * then rewrites the browser address bar. Keep slashes readable.
+	 */
+	public function fix_canonical_url( $url ) {
+		return str_replace( '%2F', '/', $url );
 	}
 
 	public function register_menu() {
@@ -80,8 +89,9 @@ class MicroERP {
 		if ( ! $screen || strpos( $screen->id, 'micro-erp' ) === false ) {
 			return;
 		}
-		wp_enqueue_style( 'micro-erp-base', MICRO_ERP_URL . 'assets/css/base.css', array(), MICRO_ERP_VERSION );
-		wp_enqueue_style( 'micro-erp-admin', MICRO_ERP_URL . 'assets/css/micro-erp-admin.css', array( 'micro-erp-base' ), MICRO_ERP_VERSION );
+		$css_ver = MICRO_ERP_VERSION . '.' . (int) filemtime( MICRO_ERP_PATH . 'assets/css/micro-erp-admin.css' );
+		wp_enqueue_style( 'micro-erp-base', MICRO_ERP_URL . 'assets/css/base.css', array(), $css_ver );
+		wp_enqueue_style( 'micro-erp-admin', MICRO_ERP_URL . 'assets/css/micro-erp-admin.css', array( 'micro-erp-base' ), $css_ver );
 		wp_enqueue_script( 'micro-erp-admin', MICRO_ERP_URL . 'assets/js/micro-erp-admin.js', array( 'jquery' ), MICRO_ERP_VERSION, true );
 	}
 

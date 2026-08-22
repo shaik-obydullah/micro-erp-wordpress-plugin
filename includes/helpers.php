@@ -7,6 +7,24 @@ function micro_erp_table( $name ) {
 	return MICRO_ERP_TABLE . $name;
 }
 
+/**
+ * Build a plugin admin URL without re-encoding slashes in the page slug.
+ * Unlike chained add_query_arg() calls, this never turns "/" into "%2F".
+ */
+function micro_erp_admin_url( $page, $args = array() ) {
+	$args = array_merge( array( 'page' => 'micro-erp/' . $page ), $args );
+
+	$pairs = array();
+	foreach ( $args as $key => $value ) {
+		if ( null === $value || false === $value || '' === $value ) {
+			continue;
+		}
+		$pairs[] = str_replace( '%2F', '/', rawurlencode( (string) $key ) ) . '=' . str_replace( '%2F', '/', rawurlencode( (string) $value ) );
+	}
+
+	return admin_url( 'admin.php' ) . '?' . implode( '&', $pairs );
+}
+
 function micro_erp_get_currency_symbol() {
 	return get_option( 'micro_erp_currency_symbol', '$' );
 }
@@ -299,5 +317,131 @@ function micro_erp_get_account_balances_by_type() {
 		$types[ $account->type ] += micro_erp_account_balance( $account->id );
 	}
 
-	return $types;
+		return $types;
+}
+
+/**
+ * Render the shared search bar used by plugin list tables.
+ * Preserves any extra query args as hidden inputs so existing filters survive a new search.
+ *
+ * @param string $page_slug Plugin page slug (e.g. 'journal').
+ * @param string $label     Field label.
+ * @param string $placeholder Input placeholder text.
+ * @param array  $hidden    Extra args to persist (e.g. array( 'type' => 'asset' )).
+ * @param string $current   Current search term.
+ * @param bool   $inline    True to render a borderless variant for embedding inside an existing toolbar.
+ */
+function micro_erp_render_search_bar( $page_slug, $label, $placeholder, $hidden = array(), $current = '', $inline = false ) {
+	$form_class = $inline ? 'inline-search' : 'search-section mb-3';
+	?>
+	<form method="get" action="" class="<?php echo esc_attr( $form_class ); ?>">
+		<input type="hidden" name="page" value="micro-erp/<?php echo esc_attr( $page_slug ); ?>">
+		<?php foreach ( $hidden as $h_key => $h_val ) :
+			if ( '' === $h_val || null === $h_val ) {
+				continue;
+			}
+			?>
+			<input type="hidden" name="<?php echo esc_attr( $h_key ); ?>" value="<?php echo esc_attr( (string) $h_val ); ?>">
+		<?php endforeach; ?>
+		<?php if ( $inline ) : ?>
+			<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
+			<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
+			<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+			<?php if ( $current ) : ?>
+				<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'micro-erp' ); ?></a>
+			<?php endif; ?>
+		<?php else : ?>
+			<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
+				<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
+				<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
+				<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'micro-erp' ); ?></button>
+				<?php if ( $current ) : ?>
+					<a href="<?php echo esc_url( micro_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'micro-erp' ); ?></a>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+	</form>
+	<?php
+}
+
+/**
+ * Render a pagination bar for plugin list tables.
+ * Styled via the bundled .tablenav-pages CSS; hidden when everything fits on one page.
+ *
+ * @param string $page_slug   Plugin page slug (e.g. 'contacts').
+ * @param int    $total_items Total rows matching the current query.
+ * @param int    $per_page    Rows shown per page.
+ */
+function micro_erp_render_pagination( $page_slug, $total_items, $per_page = 20 ) {
+	$total_items = (int) $total_items;
+	$per_page    = max( 1, (int) $per_page );
+
+	if ( $total_items <= $per_page ) {
+		return;
+	}
+
+	$total_pages = (int) ceil( $total_items / $per_page );
+	$paged       = isset( $_GET['paged'] ) ? (int) $_GET['paged'] : 1;
+	$paged       = min( max( 1, $paged ), $total_pages );
+
+	// Preserve known filter args across page links.
+	$filter_keys = array( 's', 'type', 'status', 'department_id', 'month', 'date' );
+	$args        = array();
+	foreach ( $filter_keys as $key ) {
+		if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
+			$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+		}
+	}
+
+	$page_url = function ( $n ) use ( $page_slug, $args ) {
+		return micro_erp_admin_url( $page_slug, array_merge( $args, array( 'paged' => $n > 1 ? $n : '' ) ) );
+	};
+
+	$out  = '<div class="tablenav-pages">';
+	$out .= '<span class="displaying-num">' . esc_html( sprintf( _n( '%s item', '%s items', $total_items, 'micro-erp' ), number_format_i18n( $total_items ) ) ) . '</span>';
+	$out .= '<div class="pagination-links">';
+
+	// First / Prev.
+	if ( $paged > 1 ) {
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( 1 ) ) . '" aria-label="' . esc_attr__( 'First page', 'micro-erp' ) . '">«</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged - 1 ) ) . '" aria-label="' . esc_attr__( 'Previous page', 'micro-erp' ) . '">‹</a>';
+	} else {
+		$out .= '<span class="btn btn-dark btn-disabled">«</span><span class="btn btn-dark btn-disabled">‹</span>';
+	}
+
+	// Page number window: up to five numbers centred on the current one.
+	$start = max( 1, $paged - 2 );
+	$end   = min( $total_pages, $paged + 2 );
+
+	if ( $start > 1 ) {
+		$out .= '<a class="btn btn-white" href="' . esc_url( $page_url( 1 ) ) . '">1</a>';
+		if ( $start > 2 ) {
+			$out .= '<span class="tablenav-dots">…</span>';
+		}
+	}
+	for ( $i = $start; $i <= $end; $i++ ) {
+		if ( $i === $paged ) {
+			$out .= '<span class="btn current-page" aria-current="page">' . (int) $i . '</span>';
+		} else {
+			$out .= '<a class="btn btn-white" href="' . esc_url( $page_url( $i ) ) . '">' . (int) $i . '</a>';
+		}
+	}
+	if ( $end < $total_pages ) {
+		if ( $end < $total_pages - 1 ) {
+			$out .= '<span class="tablenav-dots">…</span>';
+		}
+		$out .= '<a class="btn btn-white" href="' . esc_url( $page_url( $total_pages ) ) . '">' . (int) $total_pages . '</a>';
+	}
+
+	// Next / Last.
+	if ( $paged < $total_pages ) {
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $paged + 1 ) ) . '" aria-label="' . esc_attr__( 'Next page', 'micro-erp' ) . '">›</a>';
+		$out .= '<a class="btn btn-dark" href="' . esc_url( $page_url( $total_pages ) ) . '" aria-label="' . esc_attr__( 'Last page', 'micro-erp' ) . '">»</a>';
+	} else {
+		$out .= '<span class="btn btn-dark btn-disabled">›</span><span class="btn btn-dark btn-disabled">»</span>';
+	}
+
+	$out .= '</div></div>';
+
+	echo wp_kses_post( $out ); // phpcs:ignore WordPress.Security.EscapeOutput -- all values escaped above.
 }

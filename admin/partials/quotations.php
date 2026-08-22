@@ -16,9 +16,31 @@ if ( $edit_id ) {
 	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'quotation_items' ) . " WHERE quotation_id = %d ORDER BY id ASC", $edit_id ) );
 }
 
-$rows = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'quotations' ) . " ORDER BY quotation_date DESC, id DESC" );
+$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$where  = ' WHERE 1=1';
+$args   = array();
+if ( $search ) {
+	$where .= ' AND (q.quotation_no LIKE %s OR c.name LIKE %s)';
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$args[] = $like;
+	$args[] = $like;
+}
 
-$back_url = add_query_arg( array( 'page' => 'micro-erp/quotations' ), admin_url( 'admin.php' ) );
+$from_join = " FROM " . micro_erp_table( 'quotations' ) . " q
+	INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = q.contact_id";
+
+$per_page    = 20;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$count_query = "SELECT COUNT(*){$from_join}{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
+$paged       = min( $paged, $total_pages );
+$offset      = ( $paged - 1 ) * $per_page;
+
+$query = "SELECT q.*{$from_join}{$where} ORDER BY q.quotation_date DESC, q.id DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+
+$back_url = micro_erp_admin_url( 'quotations' );
 
 micro_erp_print_admin_notice();
 ?>
@@ -26,7 +48,7 @@ micro_erp_print_admin_notice();
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Quotation', 'micro-erp' ) : esc_html__( 'Quotations', 'micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'new', '1', $back_url ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Quotation', 'micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( micro_erp_admin_url( 'quotations', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Quotation', 'micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -171,8 +193,14 @@ micro_erp_print_admin_notice();
 
 	<?php else : ?>
 
-		<div class="row mt-3">
-			<div class="col-lg-12">
+	<div class="row mt-3">
+		<div class="col-lg-12">
+			<?php micro_erp_render_search_bar( 'quotations', __( 'Search Quotations', 'micro-erp' ), __( 'Search by quotation # or customer...', 'micro-erp' ), array(), $search ); ?>
+		</div>
+	</div>
+
+	<div class="row mt-1">
+		<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
 					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'All Quotations', 'micro-erp' ); ?></h2>
 
@@ -203,7 +231,7 @@ micro_erp_print_admin_notice();
 										<td><?php echo micro_erp_status_badge( $q->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( add_query_arg( 'edit', $q->id, $back_url ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Edit', 'micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( micro_erp_admin_url( 'quotations', array( 'edit' => $q->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<?php if ( 'draft' === $q->status ) : ?>
 													<form method="post" action="" class="inline-form">
 														<?php wp_nonce_field( 'micro_erp_quotation_status' ); ?>
@@ -229,7 +257,7 @@ micro_erp_print_admin_notice();
 														<input type="hidden" name="micro_erp_action" value="delete_quotation">
 														<input type="hidden" name="id" value="<?php echo (int) $q->id; ?>">
 														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
-														<button class="pos-action delete"><?php esc_html_e( 'Delete', 'micro-erp' ); ?></button>
+														<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 													</form>
 												<?php endif; ?>
 											</div>
@@ -239,6 +267,9 @@ micro_erp_print_admin_notice();
 							</tbody>
 						</table>
 					</div>
+
+					<?php micro_erp_render_pagination( 'quotations', $total_items, $per_page ); ?>
+
 				</div>
 			</div>
 		</div>

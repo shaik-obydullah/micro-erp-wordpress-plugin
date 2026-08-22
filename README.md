@@ -4,27 +4,27 @@
 
 Accounting, HRM, CRM, and Sales management, all inside your WordPress admin dashboard.
 
-![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)
-![WordPress 6.0+](https://img.shields.io/badge/WordPress-6.0%2B-21759B?style=for-the-badge&logo=wordpress&logoColor=white)
-![MySQL 8.0](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![jQuery 3.x](https://img.shields.io/badge/jQuery-3.x-0769AD?style=for-the-badge&logo=jquery&logoColor=white)
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php)](https://www.php.net/)
+[![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759B?logo=wordpress)](https://wordpress.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)](https://www.mysql.com/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)](https://www.docker.com/)
+[![jQuery](https://img.shields.io/badge/jQuery-3.x-0769AD?logo=jquery)](https://jquery.com/)
 
-![License GPL-2.0](https://img.shields.io/badge/License-GPL--2.0-blue?style=for-the-badge)
-![Version 1.0.0](https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge)
-![18 DB Tables](https://img.shields.io/badge/Tables-18-orange?style=for-the-badge)
-![3500+ PHP Lines](https://img.shields.io/badge/PHP_Lines-3500+-6C5CE7?style=for-the-badge)
-![788 CSS Lines](https://img.shields.io/badge/CSS-788_lines-0984E3?style=for-the-badge)
+[![License](https://img.shields.io/badge/License-GPL--2.0-blue)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)](https://github.com/shaik-obydullah)
+[![Tables](https://img.shields.io/badge/Tables-18-orange)]()
+[![PHP Lines](https://img.shields.io/badge/PHP_Lines-3500%2B-6C5CE7)]()
+[![CSS Lines](https://img.shields.io/badge/CSS-788_lines-0984E3)]()
 
-![Double-Entry Accounting](https://img.shields.io/badge/Accounting-Double--Entry-00B894?style=for-the-badge)
-![HRM Module](https://img.shields.io/badge/HRM-Employees%20%7C%20Attendance%20%7C%20Payroll-E17055?style=for-the-badge)
-![Sales Module](https://img.shields.io/badge/Sales-Quotations%20%7C%20Invoices-0984E3?style=for-the-badge)
-![CRM Module](https://img.shields.io/badge/CRM-Contacts-6C5CE7?style=for-the-badge)
+[![Accounting](https://img.shields.io/badge/Accounting-Double--Entry-00B894)]()
+[![HRM](https://img.shields.io/badge/HRM-Employees%20%7C%20Attendance%20%7C%20Payroll-E17055)]()
+[![Sales](https://img.shields.io/badge/Sales-Quotations%20%7C%20Invoices-0984E3)]()
+[![CRM](https://img.shields.io/badge/CRM-Contacts-6C5CE7)]()
 
-![19 Admin Pages](https://img.shields.io/badge/Admin_Pages-19-2D3436?style=for-the-badge)
-![116 JS Lines](https://img.shields.io/badge/JS-116_lines-F39C12?style=for-the-badge)
-![Security](https://img.shields.io/badge/Security-Nonces%20%7C%20Prepared%20Queries%20%7C%20Sanitization-red?style=for-the-badge)
-![Auto Journal Entries](https://img.shields.io/badge/Automatic-Journal%20Entries-00cec9?style=for-the-badge)
+[![Admin Pages](https://img.shields.io/badge/Admin_Pages-19-2D3436)]()
+[![JS Lines](https://img.shields.io/badge/JS-116_lines-F39C12)]()
+[![Security](https://img.shields.io/badge/Security-Nonces%20%7C%20Prepared%20Queries%20%7C%20Sanitization-red)]()
+[![Automatic Journal Entries](https://img.shields.io/badge/Automatic-Journal%20Entries-00cec9)]()
 
 ---
 

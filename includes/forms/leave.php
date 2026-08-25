@@ -98,5 +98,6 @@ function micro_erp_handle_leave_status( $status ) {
 		array( '%d' )
 	);
 	micro_erp_audit_log( 'approve', 'leave_request', $id, 'Leave request ' . $status );
+	/* translators: %s: leave request status (approved or rejected). */
 	micro_erp_redirect_notice( sprintf( __( 'Leave request %s.', 'lime-micro-erp' ), $status ) );
 }

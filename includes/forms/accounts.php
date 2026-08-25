@@ -48,8 +48,15 @@ function micro_erp_handle_delete_account() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$table = micro_erp_table( 'accounts' );
-	$used  = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . micro_erp_table( 'journal_lines' ) . " WHERE account_id = %d", $id ) );
+	$table       = micro_erp_table( 'accounts' );
+	$lines_table = micro_erp_table( 'journal_lines' );
+
+	$used = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$lines_table} WHERE account_id = %d",
+			$id
+		)
+	);
 	if ( $used ) {
 		micro_erp_redirect_notice( __( 'This account is used by journal entries and cannot be deleted.', 'lime-micro-erp' ), 'error' );
 		return;

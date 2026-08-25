@@ -5,36 +5,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$show_form = isset( $_GET['new'] ) || isset( $_GET['view'] );
-$view_id   = isset( $_GET['view'] ) ? (int) $_GET['view'] : 0;
+$show_form = micro_erp_query_has( 'new' ) || micro_erp_query_has( 'view' );
+$view_id   = micro_erp_query_int( 'view' );
 $accounts  = micro_erp_get_accounts();
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$search = micro_erp_query_text( 's' );
 
-$where = '';
-$args  = array();
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$where  = ' WHERE description LIKE %s';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_journal_entries WHERE description LIKE %s",
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_journal_entries WHERE 1 = %d",
+			1
+		)
+	);
 }
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'journal_entries' ) . $where; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query   = "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . $where . " ORDER BY entry_date DESC, id DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$entries = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $search ) {
+	$like   = '%' . $wpdb->esc_like( $search ) . '%';
+	$entries = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_journal_entries WHERE description LIKE %s ORDER BY entry_date DESC, id DESC LIMIT %d OFFSET %d",
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$entries = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_journal_entries ORDER BY entry_date DESC, id DESC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 $lines_by_entry = array();
 if ( ! empty( $entries ) ) {
-	$ids   = array_column( $entries, 'id' );
-	$in    = implode( ',', array_map( 'intval', $ids ) );
-	$lines = $wpdb->get_results( "SELECT l.*, a.code, a.name FROM " . micro_erp_table( 'journal_lines' ) . " l INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id WHERE l.entry_id IN ({$in}) ORDER BY l.id ASC" );
+	$ids            = array_map( 'intval', array_column( $entries, 'id' ) );
+	$in_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+	$lines          = $wpdb->get_results( $wpdb->prepare( "SELECT l.*, a.code, a.name FROM {$wpdb->prefix}micro_erp_journal_lines l INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id WHERE l.entry_id IN ({$in_placeholders}) ORDER BY l.id ASC", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	foreach ( $lines as $line ) {
 		$lines_by_entry[ $line->entry_id ][] = $line;
 	}
@@ -43,13 +68,16 @@ if ( ! empty( $entries ) ) {
 micro_erp_print_admin_notice();
 
 $back_url = micro_erp_admin_url( 'journal' );
-$from     = isset( $_GET['from'] ) && in_array( $_GET['from'], array( 'income', 'expense' ), true ) ? sanitize_key( $_GET['from'] ) : '';
+$from     = micro_erp_query_key( 'from' );
+if ( $from && ! in_array( $from, array( 'income', 'expense' ), true ) ) {
+	$from = '';
+}
 if ( $from ) {
 	$back_url = micro_erp_admin_url( $from );
 }
 
 if ( $view_id ) {
-	$view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . " WHERE id = %d", $view_id ) );
+	$view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_journal_entries WHERE id = %d", $view_id ) );
 	$view_lines = isset( $lines_by_entry[ $view_id ] ) ? $lines_by_entry[ $view_id ] : array();
 }
 ?>

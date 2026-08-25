@@ -7,15 +7,15 @@ global $wpdb;
 
 $income    = micro_erp_total_income();
 $expense   = micro_erp_total_expense();
-$receivable = (float) $wpdb->get_var( "SELECT COALESCE(SUM(total - amount_paid),0) FROM " . micro_erp_table( 'sales' ) . " WHERE payment_status != 'paid'" );
-$payable   = (float) $wpdb->get_var( "SELECT COALESCE(SUM(credit - debit),0) FROM " . micro_erp_table( 'journal_lines' ) . " WHERE account_id = (SELECT id FROM " . micro_erp_table( 'accounts' ) . " WHERE code = '2001' LIMIT 1)" );
+$receivable = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total - amount_paid),0) FROM {$wpdb->prefix}micro_erp_sales WHERE payment_status != %s", 'paid' ) );
+$payable   = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit - debit),0) FROM {$wpdb->prefix}micro_erp_journal_lines WHERE account_id = (SELECT id FROM {$wpdb->prefix}micro_erp_accounts WHERE code = %s LIMIT 1)", '2001' ) );
 
-$recent_sales = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'sales' ) . " ORDER BY id DESC LIMIT 5" );
-$pending_quo  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . micro_erp_table( 'quotations' ) . " WHERE status IN ('draft','sent')" );
-$pending_leave= (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . micro_erp_table( 'leave_requests' ) . " WHERE status = 'pending'" );
-$unpaid_sales = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . micro_erp_table( 'sales' ) . " WHERE payment_status != 'paid'" );
-$recent_emp   = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'employees' ) . " ORDER BY id DESC LIMIT 5" );
-$recent_jrnl  = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'journal_entries' ) . " ORDER BY id DESC LIMIT 5" );
+$recent_sales = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales ORDER BY id DESC LIMIT %d", 5 ) );
+$pending_quo  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_quotations WHERE status IN (%s,%s)", 'draft', 'sent' ) );
+$pending_leave= (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_leave_requests WHERE status = %s", 'pending' ) );
+$unpaid_sales = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales WHERE payment_status != %s", 'paid' ) );
+$recent_emp   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees ORDER BY id DESC LIMIT %d", 5 ) );
+$recent_jrnl  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_journal_entries ORDER BY id DESC LIMIT %d", 5 ) );
 $fy           = micro_erp_get_active_fiscal_year();
 
 micro_erp_print_admin_notice();

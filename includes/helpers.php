@@ -4,7 +4,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function micro_erp_table( $name ) {
-	return MICRO_ERP_TABLE . $name;
+	global $wpdb;
+	return $wpdb->prefix . MICRO_ERP_TABLE . $name;
+}
+
+/**
+ * Centralized read-only $_GET accessors for admin list filters.
+ *
+ * These query vars drive search boxes, pagination and view state on
+ * manage_options-gated admin screens only. They carry no side effects, so
+ * nonce verification is intentionally not required; all access is funneled
+ * through these helpers to keep that decision documented in one place.
+ */
+
+function micro_erp_query_has( $key ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
+	return isset( $_GET[ $key ] );
+}
+
+function micro_erp_query_text( $key, $default = '' ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
+	return isset( $_GET[ $key ] ) ? sanitize_text_field( wp_unslash( $_GET[ $key ] ) ) : $default;
+}
+
+function micro_erp_query_key( $key, $default = '' ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
+	return isset( $_GET[ $key ] ) ? sanitize_key( wp_unslash( $_GET[ $key ] ) ) : $default;
+}
+
+function micro_erp_query_int( $key, $default = 0 ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
+	return isset( $_GET[ $key ] ) ? absint( wp_unslash( $_GET[ $key ] ) ) : $default;
 }
 
 /**
@@ -37,7 +67,7 @@ function micro_erp_format_money( $amount ) {
 
 function micro_erp_get_active_fiscal_year() {
 	global $wpdb;
-	return $wpdb->get_row( "SELECT * FROM " . micro_erp_table( 'fiscal_years' ) . " WHERE is_active = 1 ORDER BY id DESC LIMIT 1" );
+	return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_fiscal_years WHERE is_active = %d ORDER BY id DESC LIMIT 1", 1 ) );
 }
 
 function micro_erp_get_fiscal_year_id() {
@@ -47,7 +77,7 @@ function micro_erp_get_fiscal_year_id() {
 
 function micro_erp_get_setting( $key, $default = '' ) {
 	global $wpdb;
-	$val = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM " . micro_erp_table( 'settings' ) . " WHERE option_key = %s", $key ) );
+	$val = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->prefix}micro_erp_settings WHERE option_key = %s", $key ) );
 	return null !== $val ? $val : $default;
 }
 
@@ -85,14 +115,20 @@ function micro_erp_audit_log( $action, $entity_type, $entity_id, $description = 
 
 function micro_erp_next_employee_id() {
 	global $wpdb;
-	$max = (int) $wpdb->get_var( "SELECT MAX(CAST(SUBSTRING(employee_id, 5) AS UNSIGNED)) FROM " . micro_erp_table( 'employees' ) . " WHERE employee_id LIKE 'EMP-%'" );
+	$max = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING(employee_id, %d) AS UNSIGNED)) FROM {$wpdb->prefix}micro_erp_employees WHERE employee_id LIKE %s", 5, 'EMP-%' ) );
 	return 'EMP-' . str_pad( $max + 1, 3, '0', STR_PAD_LEFT );
 }
 
 function micro_erp_next_number( $table, $column, $prefix ) {
 	global $wpdb;
 	$year = current_time( 'Y' );
-	$max  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING({$column}, %d) AS UNSIGNED)) FROM " . $table . " WHERE {$column} LIKE %s", strlen( $prefix . $year . '-' ) + 1, $prefix . $year . '-%' ) );
+	$max  = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT MAX(CAST(SUBSTRING({$column}, %d) AS UNSIGNED)) FROM {$table} WHERE {$column} LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted internal identifiers
+			strlen( $prefix . $year . '-' ) + 1,
+			$prefix . $year . '-%'
+		)
+	);
 	return $prefix . $year . '-' . str_pad( $max + 1, 4, '0', STR_PAD_LEFT );
 }
 
@@ -129,9 +165,9 @@ function micro_erp_verify_nonce( $action, $arg = '_wpnonce' ) {
 function micro_erp_get_accounts( $type = '' ) {
 	global $wpdb;
 	if ( $type ) {
-		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE type = %s ORDER BY code ASC", $type ) );
+		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE type = %s ORDER BY code ASC", $type ) );
 	}
-	return $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " ORDER BY code ASC" );
+	return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts ORDER BY code ASC" );
 }
 
 function micro_erp_account_balance( $account_id ) {
@@ -141,7 +177,7 @@ function micro_erp_account_balance( $account_id ) {
 	$debit      = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(debit),0) FROM {$table} WHERE account_id = %d", $account_id ) );
 	$credit     = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit),0) FROM {$table} WHERE account_id = %d", $account_id ) );
 
-	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE id = %d", $account_id ) );
+	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE id = %d", $account_id ) );
 	if ( ! $account ) {
 		return 0;
 	}
@@ -155,41 +191,45 @@ function micro_erp_account_balance( $account_id ) {
 
 function micro_erp_total_income() {
 	global $wpdb;
-	$t = micro_erp_table( 'journal_lines' );
 	return (float) $wpdb->get_var(
-		"SELECT SUM(credit) FROM {$t} l INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id WHERE a.type = 'income'"
+		$wpdb->prepare(
+			"SELECT SUM(credit) FROM {$wpdb->prefix}micro_erp_journal_lines l INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
+			'income'
+		)
 	);
 }
 
 function micro_erp_total_expense() {
 	global $wpdb;
-	$t = micro_erp_table( 'journal_lines' );
 	return (float) $wpdb->get_var(
-		"SELECT SUM(debit) FROM {$t} l INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id WHERE a.type = 'expense'"
+		$wpdb->prepare(
+			"SELECT SUM(debit) FROM {$wpdb->prefix}micro_erp_journal_lines l INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
+			'expense'
+		)
 	);
 }
 
 function micro_erp_contact_name( $id ) {
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM " . micro_erp_table( 'contacts' ) . " WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}micro_erp_contacts WHERE id = %d", $id ) );
 	return $name ? $name : '—';
 }
 
 function micro_erp_employee_name( $id ) {
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM " . micro_erp_table( 'employees' ) . " WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}micro_erp_employees WHERE id = %d", $id ) );
 	return $name ? $name : '—';
 }
 
 function micro_erp_department_name( $id ) {
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM " . micro_erp_table( 'departments' ) . " WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}micro_erp_departments WHERE id = %d", $id ) );
 	return $name ? $name : '—';
 }
 
 function micro_erp_leave_type_name( $id ) {
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM " . micro_erp_table( 'leave_types' ) . " WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}micro_erp_leave_types WHERE id = %d", $id ) );
 	return $name ? $name : '—';
 }
 
@@ -250,6 +290,10 @@ function micro_erp_create_journal_entry( $date, $description, $lines, $reference
 
 	$entry_id = (int) $wpdb->insert_id;
 
+	if ( ! $entry_id ) {
+		return 0;
+	}
+
 	foreach ( $lines as $line ) {
 		$wpdb->insert(
 			micro_erp_table( 'journal_lines' ),
@@ -268,6 +312,10 @@ function micro_erp_create_journal_entry( $date, $description, $lines, $reference
 }
 
 function micro_erp_create_sale_journal( $sale ) {
+	if ( ! $sale || empty( $sale->id ) ) {
+		return 0;
+	}
+
 	$ar_account     = micro_erp_default_account( 'asset', '1003' );
 	$income_account = micro_erp_default_account( 'income', '4001' );
 
@@ -285,12 +333,12 @@ function micro_erp_create_sale_journal( $sale ) {
 
 function micro_erp_default_account( $type, $fallback_code ) {
 	global $wpdb;
-	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE type = %s AND code = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type, $fallback_code ) );
+	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE type = %s AND code = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type, $fallback_code ) );
 	if ( ! $account ) {
-		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE type = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type ) );
+		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE type = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type ) );
 	}
 	if ( ! $account ) {
-		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE code = %s LIMIT 1", $fallback_code ) );
+		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE code = %s LIMIT 1", $fallback_code ) );
 	}
 	return $account ? (int) $account->id : 0;
 }
@@ -307,7 +355,7 @@ function micro_erp_sum( $rows, $key ) {
 
 function micro_erp_get_account_balances_by_type() {
 	global $wpdb;
-	$accounts = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " ORDER BY id ASC" );
+	$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts ORDER BY id ASC" );
 	$types    = array( 'asset' => 0, 'liability' => 0, 'equity' => 0, 'income' => 0, 'expense' => 0 );
 
 	foreach ( $accounts as $account ) {
@@ -381,15 +429,15 @@ function micro_erp_render_pagination( $page_slug, $total_items, $per_page = 20 )
 	}
 
 	$total_pages = (int) ceil( $total_items / $per_page );
-	$paged       = isset( $_GET['paged'] ) ? (int) $_GET['paged'] : 1;
+	$paged       = micro_erp_query_int( 'paged', 1 );
 	$paged       = min( max( 1, $paged ), $total_pages );
 
 	// Preserve known filter args across page links.
 	$filter_keys = array( 's', 'type', 'status', 'department_id', 'month', 'date' );
 	$args        = array();
 	foreach ( $filter_keys as $key ) {
-		if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
-			$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+		if ( micro_erp_query_has( $key ) && '' !== micro_erp_query_text( $key ) ) {
+			$args[ $key ] = micro_erp_query_text( $key );
 		}
 	}
 
@@ -398,6 +446,7 @@ function micro_erp_render_pagination( $page_slug, $total_items, $per_page = 20 )
 	};
 
 	$out  = '<div class="tablenav-pages">';
+	/* translators: %s: number of items. */
 	$out .= '<span class="displaying-num">' . esc_html( sprintf( _n( '%s item', '%s items', $total_items, 'lime-micro-erp' ), number_format_i18n( $total_items ) ) ) . '</span>';
 	$out .= '<div class="pagination-links">';
 

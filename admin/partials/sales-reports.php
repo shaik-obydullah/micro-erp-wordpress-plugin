@@ -5,11 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$sales_tbl = micro_erp_table( 'sales' );
-$rows      = $wpdb->get_results(
-	"SELECT DATE_FORMAT(sale_date, '%Y-%m') AS ym, DATE_FORMAT(sale_date, '%Y-%m') AS month_label,
-	        COUNT(*) AS invoice_count, SUM(total) AS total_sales, SUM(amount_paid) AS total_paid
-	 FROM {$sales_tbl} GROUP BY ym ORDER BY ym DESC LIMIT 12"
+$rows = $wpdb->get_results(
+	$wpdb->prepare(
+		"SELECT
+			DATE_FORMAT(sale_date, %s) AS ym,
+			DATE_FORMAT(sale_date, %s) AS month_label,
+			COUNT(*) AS invoice_count,
+			SUM(total) AS total_sales,
+			SUM(amount_paid) AS total_paid
+		FROM {$wpdb->prefix}micro_erp_sales
+		GROUP BY ym
+		ORDER BY ym DESC
+		LIMIT %d",
+		'%Y-%m',
+		'%Y-%m',
+		12
+	)
 );
 
 $fiscal = micro_erp_get_active_fiscal_year();
@@ -46,7 +57,11 @@ micro_erp_print_admin_notice();
 			'key'   => 'collected',
 			'label' => __( 'Collected', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_paid_all ),
-			'sub'   => sprintf( __( '%d%% of total sales', 'lime-micro-erp' ), $pct_collected ),
+			'sub'   => sprintf(
+				/* translators: %d: percentage of total sales collected. */
+				__( '%d%% of total sales', 'lime-micro-erp' ),
+				$pct_collected
+			),
 			'icon'  => 'money-alt',
 			'bar'   => $pct_collected,
 		),

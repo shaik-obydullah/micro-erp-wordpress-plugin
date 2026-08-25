@@ -208,6 +208,7 @@ class MicroERP {
 	}
 
 	public function render_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Menu page slug from WP core routing, read-only.
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'micro-erp/dashboard';
 
 		if ( strpos( $page, 'micro-erp-header-' ) === 0 ) {

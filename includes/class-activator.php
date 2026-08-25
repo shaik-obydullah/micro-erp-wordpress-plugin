@@ -11,7 +11,7 @@ class MicroERP_Activator {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$charset = $wpdb->get_charset_collate();
-		$t       = MICRO_ERP_TABLE;
+		$t       = $wpdb->prefix . MICRO_ERP_TABLE;
 
 		$sql = array();
 
@@ -280,36 +280,59 @@ class MicroERP_Activator {
 		}
 
 		// Default Chart of Accounts.
-		$account_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$t}accounts" );
+		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) );
 		if ( ! $account_count ) {
-			$wpdb->query( "INSERT INTO {$t}accounts (code, name, type) VALUES
-				('1001', 'Cash', 'asset'),
-				('1002', 'Bank Account', 'asset'),
-				('1003', 'Accounts Receivable', 'asset'),
-				('2001', 'Accounts Payable', 'liability'),
-				('2002', 'Tax Payable', 'liability'),
-				('3001', 'Owner Equity', 'equity'),
-				('4001', 'Sales Income', 'income'),
-				('4002', 'Service Income', 'income'),
-				('5001', 'Salary Expense', 'expense'),
-				('5002', 'Rent Expense', 'expense'),
-				('5003', 'Utilities Expense', 'expense'),
-				('5004', 'Office Supplies', 'expense'),
-				('5005', 'Marketing Expense', 'expense');" );
+			$default_accounts = array(
+				array( '1001', 'Cash', 'asset' ),
+				array( '1002', 'Bank Account', 'asset' ),
+				array( '1003', 'Accounts Receivable', 'asset' ),
+				array( '2001', 'Accounts Payable', 'liability' ),
+				array( '2002', 'Tax Payable', 'liability' ),
+				array( '3001', 'Owner Equity', 'equity' ),
+				array( '4001', 'Sales Income', 'income' ),
+				array( '4002', 'Service Income', 'income' ),
+				array( '5001', 'Salary Expense', 'expense' ),
+				array( '5002', 'Rent Expense', 'expense' ),
+				array( '5003', 'Utilities Expense', 'expense' ),
+				array( '5004', 'Office Supplies', 'expense' ),
+				array( '5005', 'Marketing Expense', 'expense' ),
+			);
+			foreach ( $default_accounts as $account ) {
+				$wpdb->insert(
+					"{$t}accounts",
+					array(
+						'code' => $account[0],
+						'name' => $account[1],
+						'type' => $account[2],
+					),
+					array( '%s', '%s', '%s' )
+				);
+			}
 		}
 
 		// Default leave types.
-		$lt_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$t}leave_types" );
+		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) );
 		if ( ! $lt_count ) {
-			$wpdb->query( "INSERT INTO {$t}leave_types (name, days_per_year) VALUES
-				('Annual Leave', 12),
-				('Sick Leave', 10),
-				('Casual Leave', 7),
-				('Maternity Leave', 90);" );
+			$default_leave_types = array(
+				array( 'Annual Leave', 12 ),
+				array( 'Sick Leave', 10 ),
+				array( 'Casual Leave', 7 ),
+				array( 'Maternity Leave', 90 ),
+			);
+			foreach ( $default_leave_types as $leave_type ) {
+				$wpdb->insert(
+					"{$t}leave_types",
+					array(
+						'name'          => $leave_type[0],
+						'days_per_year' => $leave_type[1],
+					),
+					array( '%s', '%d' )
+				);
+			}
 		}
 
 		// Default fiscal year covering the current calendar year.
-		$fy_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$t}fiscal_years" );
+		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) );
 		if ( ! $fy_count ) {
 			$year  = (int) date_i18n( 'Y' );
 			$wpdb->insert(

@@ -5,42 +5,92 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-$where  = ' WHERE s.payment_status != %s';
-$args   = array( 'paid' );
+$search = micro_erp_query_text( 's' );
+
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$where .= ' AND (s.sale_no LIKE %s OR c.name LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s AND (s.sale_no LIKE %s OR c.name LIKE %s)",
+			'paid',
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s",
+			'paid'
+		)
+	);
 }
 
-$from_join = " FROM " . micro_erp_table( 'sales' ) . " s
-	INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id";
-
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*){$from_join}{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$rows = $wpdb->get_results(
-	$wpdb->prepare(
-		"SELECT s.*, c.name AS customer{$from_join}{$where}
-		ORDER BY s.sale_date ASC LIMIT %d OFFSET %d",
-		array_merge( $args, array( $per_page, $offset ) )
-	)
-);
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s AND (s.sale_no LIKE %s OR c.name LIKE %s)
+			ORDER BY s.sale_date ASC LIMIT %d OFFSET %d",
+			'paid',
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s
+			ORDER BY s.sale_date ASC LIMIT %d OFFSET %d",
+			'paid',
+			$per_page,
+			$offset
+		)
+	);
+}
 
 // Grand totals across ALL unpaid invoices matching the filter (footer row must not change with paging).
-$totals = $wpdb->get_row(
-	$wpdb->prepare(
-		"SELECT COALESCE(SUM(s.total),0) AS original, COALESCE(SUM(s.amount_paid),0) AS paid, COALESCE(SUM(s.total - s.amount_paid),0) AS balance{$from_join}{$where}",
-		$args
-	)
-);
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$totals = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(s.total),0) AS original, COALESCE(SUM(s.amount_paid),0) AS paid, COALESCE(SUM(s.total - s.amount_paid),0) AS balance
+			FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s AND (s.sale_no LIKE %s OR c.name LIKE %s)",
+			'paid',
+			$like,
+			$like
+		)
+	);
+} else {
+	$totals = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(s.total),0) AS original, COALESCE(SUM(s.amount_paid),0) AS paid, COALESCE(SUM(s.total - s.amount_paid),0) AS balance
+			FROM {$wpdb->prefix}micro_erp_sales s
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id
+			WHERE s.payment_status != %s",
+			'paid'
+		)
+	);
+}
 $total_original = (float) ( $totals ? $totals->original : 0 );
 $total_paid     = (float) ( $totals ? $totals->paid : 0 );
 $total_balance  = (float) ( $totals ? $totals->balance : 0 );

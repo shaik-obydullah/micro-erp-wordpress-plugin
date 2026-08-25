@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = isset( $_GET['edit'] ) ? (int) $_GET['edit'] : 0;
+$edit_id = micro_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
-	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'fiscal_years' ) . " WHERE id = %d", $edit_id ) );
+	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_fiscal_years WHERE id = %d", $edit_id ) );
 }
 
-$rows = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'fiscal_years' ) . " ORDER BY start_date DESC" );
+$rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_fiscal_years ORDER BY start_date DESC" );
 
 micro_erp_print_admin_notice();
 
@@ -26,7 +26,7 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
+	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">

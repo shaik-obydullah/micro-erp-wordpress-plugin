@@ -18,14 +18,14 @@ function micro_erp_handle_salary_paid() {
 	if ( isset( $_POST['employee_id'] ) && (int) $_POST['employee_id'] ) {
 		$employees[] = (int) $_POST['employee_id'];
 	} else {
-		$employees = $wpdb->get_col( "SELECT id FROM " . micro_erp_table( 'employees' ) . " WHERE status = 'active'" );
+		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}micro_erp_employees WHERE status = 'active'" );
 	}
 
 	$spt   = micro_erp_table( 'salary_payments' );
 	$count = 0;
 
 	foreach ( $employees as $employee_id ) {
-		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'employees' ) . " WHERE id = %d", $employee_id ) );
+		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE id = %d", $employee_id ) );
 		if ( ! $emp ) {
 			continue;
 		}
@@ -76,5 +76,6 @@ function micro_erp_handle_salary_paid() {
 	}
 
 	micro_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
+	/* translators: %d: number of salary payments marked as paid. */
 	micro_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'lime-micro-erp' ), $count ) );
 }

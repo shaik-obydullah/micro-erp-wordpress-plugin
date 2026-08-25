@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$month = isset( $_GET['month'] ) ? sanitize_text_field( wp_unslash( $_GET['month'] ) ) : current_time( 'Y-m' );
+$month = micro_erp_query_text( 'month', current_time( 'Y-m' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 	$month = current_time( 'Y-m' );
 }
@@ -16,49 +16,95 @@ $mnum  = (int) substr( $month, 5, 2 );
 $prev = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
 $next = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-$where  = ' WHERE 1=1';
-$args   = array();
+$search = micro_erp_query_text( 's' );
+
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$where .= ' AND (e.name LIKE %s OR e.employee_id LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees e WHERE e.name LIKE %s OR e.employee_id LIKE %s",
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees e WHERE 1 = %d",
+			1
+		)
+	);
 }
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'employees' ) . " e{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query     = "SELECT e.*, d.name AS department_name FROM " . micro_erp_table( 'employees' ) . " e
-	LEFT JOIN " . micro_erp_table( 'departments' ) . " d ON d.id = e.department_id{$where}
-	ORDER BY e.employee_id ASC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$employees = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$employees = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}micro_erp_employees e
+			LEFT JOIN {$wpdb->prefix}micro_erp_departments d ON d.id = e.department_id
+			WHERE e.name LIKE %s OR e.employee_id LIKE %s
+			ORDER BY e.employee_id ASC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$employees = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}micro_erp_employees e
+			LEFT JOIN {$wpdb->prefix}micro_erp_departments d ON d.id = e.department_id
+			ORDER BY e.employee_id ASC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 $payments = array();
 if ( $employees ) {
-	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'salary_payments' ) . " WHERE month = %s", $month ) );
+	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_salary_payments WHERE month = %s", $month ) );
 	foreach ( $rows as $r ) {
 		$payments[ $r->employee_id ] = $r;
 	}
 }
 
 // Summary totals across ALL matching employees (cards must not change with paging).
-$net_expr = '(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))';
-$totals   = $wpdb->get_row(
-	$wpdb->prepare(
-		"SELECT COALESCE(SUM({$net_expr}),0) AS salary,
-			COALESCE(SUM(IF(p.status = 'paid', {$net_expr}, 0)),0) AS paid,
-			COALESCE(SUM(IF(p.status = 'paid', 0, {$net_expr})),0) AS unpaid
-		FROM " . micro_erp_table( 'employees' ) . " e
-		LEFT JOIN " . micro_erp_table( 'salary_payments' ) . " p ON p.employee_id = e.id AND p.month = %s{$where}",
-		array_merge( array( $month ), $args )
-	)
-);
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$totals = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
+				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
+				COALESCE(SUM(IF(p.status = 'paid', 0, e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))),0) AS unpaid
+			FROM {$wpdb->prefix}micro_erp_employees e
+			LEFT JOIN {$wpdb->prefix}micro_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s
+			WHERE e.name LIKE %s OR e.employee_id LIKE %s",
+			$month,
+			$like,
+			$like
+		)
+	);
+} else {
+	$totals = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
+				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
+				COALESCE(SUM(IF(p.status = 'paid', 0, e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))),0) AS unpaid
+			FROM {$wpdb->prefix}micro_erp_employees e
+			LEFT JOIN {$wpdb->prefix}micro_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s",
+			$month
+		)
+	);
+}
 
 $total_salary = (float) ( $totals ? $totals->salary : 0 );
 $total_paid   = (float) ( $totals ? $totals->paid : 0 );
@@ -114,7 +160,11 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 			'key'   => 'paid',
 			'label' => __( 'Paid', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_paid ),
-			'sub'   => sprintf( __( '%d%% of total salary', 'lime-micro-erp' ), $pct_paid ),
+			'sub'   => sprintf(
+				/* translators: %d: percentage of total salary already paid. */
+				__( '%d%% of total salary', 'lime-micro-erp' ),
+				$pct_paid
+			),
 			'icon'  => 'money-alt',
 			'bar'   => $pct_paid,
 		),
@@ -122,7 +172,11 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 			'key'   => 'due',
 			'label' => __( 'Unpaid', 'lime-micro-erp' ),
 			'value' => micro_erp_format_money( $total_unpaid ),
-			'sub'   => sprintf( __( '%d%% of total salary', 'lime-micro-erp' ), $pct_unpaid ),
+			'sub'   => sprintf(
+				/* translators: %d: percentage of total salary still unpaid. */
+				__( '%d%% of total salary', 'lime-micro-erp' ),
+				$pct_unpaid
+			),
 			'icon'  => 'warning',
 			'bar'   => $pct_unpaid,
 		),

@@ -5,14 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$contacts = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'contacts' ) . " WHERE type = 'customer' AND status = 'active' ORDER BY name ASC" );
+$contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
 
 $back_url = micro_erp_admin_url( 'sales' );
 
 // Record payment view.
-$pay_id = isset( $_GET['pay'] ) ? (int) $_GET['pay'] : 0;
+$pay_id = micro_erp_query_int( 'pay' );
 if ( $pay_id ) {
-	$pay_sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $pay_id ) );
+	$pay_sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $pay_id ) );
 	$asset_accounts = micro_erp_get_accounts( 'asset' );
 	micro_erp_print_admin_notice();
 	?>
@@ -100,40 +100,100 @@ if ( $pay_id ) {
 	return;
 }
 
-$edit_id = isset( $_GET['edit'] ) ? (int) $_GET['edit'] : 0;
+$edit_id = micro_erp_query_int( 'edit' );
 $editing = null;
 $edit_items = array();
 if ( $edit_id ) {
-	$editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $edit_id ) );
-	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sale_items' ) . " WHERE sale_id = %d ORDER BY id ASC", $edit_id ) );
+	$editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $edit_id ) );
+	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sale_items WHERE sale_id = %d ORDER BY id ASC", $edit_id ) );
 }
 
-$status_filter = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
-$search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$status_filter = micro_erp_query_key( 'status' );
+$search        = micro_erp_query_text( 's' );
 
-$where = ' WHERE 1=1';
-$args  = array();
-if ( $status_filter ) {
-	$where .= ' AND s.payment_status = %s';
-	$args[] = $status_filter;
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
+if ( $status_filter && $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s AND (s.sale_no LIKE %s OR c.name LIKE %s)",
+			$status_filter,
+			$like,
+			$like
+		)
+	);
+} elseif ( $status_filter ) {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s",
+			$status_filter
+		)
+	);
+} elseif ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.sale_no LIKE %s OR c.name LIKE %s",
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE 1 = %d",
+			1
+		)
+	);
 }
-if ( $search ) {
-	$where .= ' AND (s.sale_no LIKE %s OR c.name LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
-}
-$count_join  = " FROM " . micro_erp_table( 'sales' ) . " s INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id";
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*){$count_join}{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
+
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query = "SELECT s.*, c.name AS customer FROM " . micro_erp_table( 'sales' ) . " s INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = s.contact_id" . $where . " ORDER BY s.sale_date DESC, s.id DESC LIMIT {$per_page} OFFSET {$offset}";
-$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $status_filter && $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s AND (s.sale_no LIKE %s OR c.name LIKE %s) ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
+			$status_filter,
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} elseif ( $status_filter ) {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
+			$status_filter,
+			$per_page,
+			$offset
+		)
+	);
+} elseif ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id WHERE s.sale_no LIKE %s OR c.name LIKE %s ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}micro_erp_sales s INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = s.contact_id ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 micro_erp_print_admin_notice();
 ?>
@@ -146,7 +206,7 @@ micro_erp_print_admin_notice();
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
+	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php

@@ -5,40 +5,73 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$contacts = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'contacts' ) . " WHERE type = 'customer' AND status = 'active' ORDER BY name ASC" );
+$contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
 $accounts = micro_erp_get_accounts();
 
-$edit_id = isset( $_GET['edit'] ) ? (int) $_GET['edit'] : 0;
+$edit_id = micro_erp_query_int( 'edit' );
 $editing = null;
 $edit_items = array();
 if ( $edit_id ) {
-	$editing   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'quotations' ) . " WHERE id = %d", $edit_id ) );
-	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'quotation_items' ) . " WHERE quotation_id = %d ORDER BY id ASC", $edit_id ) );
+	$editing   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotations WHERE id = %d", $edit_id ) );
+	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotation_items WHERE quotation_id = %d ORDER BY id ASC", $edit_id ) );
 }
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-$where  = ' WHERE 1=1';
-$args   = array();
+$search = micro_erp_query_text( 's' );
+
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$where .= ' AND (q.quotation_no LIKE %s OR c.name LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_quotations q
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = q.contact_id
+			WHERE q.quotation_no LIKE %s OR c.name LIKE %s",
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_quotations q
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = q.contact_id
+			WHERE 1 = %d",
+			1
+		)
+	);
 }
 
-$from_join = " FROM " . micro_erp_table( 'quotations' ) . " q
-	INNER JOIN " . micro_erp_table( 'contacts' ) . " c ON c.id = q.contact_id";
-
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*){$from_join}{$where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query = "SELECT q.*{$from_join}{$where} ORDER BY q.quotation_date DESC, q.id DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT q.* FROM {$wpdb->prefix}micro_erp_quotations q
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = q.contact_id
+			WHERE q.quotation_no LIKE %s OR c.name LIKE %s
+			ORDER BY q.quotation_date DESC, q.id DESC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT q.* FROM {$wpdb->prefix}micro_erp_quotations q
+			INNER JOIN {$wpdb->prefix}micro_erp_contacts c ON c.id = q.contact_id
+			ORDER BY q.quotation_date DESC, q.id DESC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 $back_url = micro_erp_admin_url( 'quotations' );
 
@@ -53,7 +86,7 @@ micro_erp_print_admin_notice();
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
+	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php

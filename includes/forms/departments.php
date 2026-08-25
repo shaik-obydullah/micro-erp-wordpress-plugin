@@ -40,7 +40,7 @@ function micro_erp_handle_delete_department() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$used = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . micro_erp_table( 'employees' ) . " WHERE department_id = %d", $id ) );
+	$used = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees WHERE department_id = %d", $id ) );
 	if ( $used ) {
 		micro_erp_redirect_notice( __( 'This department has employees and cannot be deleted.', 'lime-micro-erp' ), 'error' );
 		return;

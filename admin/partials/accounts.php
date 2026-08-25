@@ -5,33 +5,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = isset( $_GET['edit'] ) ? (int) $_GET['edit'] : 0;
+$edit_id = micro_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
-	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE id = %d", $edit_id ) );
+	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE id = %d", $edit_id ) );
 }
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$search = micro_erp_query_text( 's' );
 
-$where = ' WHERE 1=1';
-$args  = array();
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$where .= ' AND (code LIKE %s OR name LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_accounts WHERE code LIKE %s OR name LIKE %s",
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_accounts WHERE 1 = %d",
+			1
+		)
+	);
 }
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'accounts' ) . $where; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query = "SELECT * FROM " . micro_erp_table( 'accounts' ) . $where . " ORDER BY code ASC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE code LIKE %s OR name LIKE %s ORDER BY code ASC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_accounts ORDER BY code ASC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 $account_types = array(
 	'asset'      => __( 'Asset', 'lime-micro-erp' ),
@@ -62,7 +88,7 @@ $back_url = micro_erp_admin_url( 'accounts' );
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
+	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">

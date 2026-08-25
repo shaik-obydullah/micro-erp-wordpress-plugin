@@ -5,18 +5,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$date = isset( $_GET['date'] ) ? sanitize_text_field( wp_unslash( $_GET['date'] ) ) : current_time( 'Y-m-d' );
+$date = micro_erp_query_text( 'date', current_time( 'Y-m-d' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 	$date = current_time( 'Y-m-d' );
 }
 
-$employees = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'employees' ) . " WHERE status = 'active' ORDER BY employee_id ASC" );
+$employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE status = %s ORDER BY employee_id ASC", 'active' ) );
 
 $existing = array();
 if ( $employees ) {
-	$ids = wp_list_pluck( $employees, 'id' );
-	$in  = implode( ',', array_map( 'intval', $ids ) );
-	$att = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'attendance' ) . " WHERE date = %s AND employee_id IN ({$in})", $date ) );
+	$ids            = array_map( 'intval', wp_list_pluck( $employees, 'id' ) );
+	$in_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+	$att            = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_attendance WHERE date = %s AND employee_id IN ({$in_placeholders})", array_merge( array( $date ), $ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	foreach ( $att as $a ) {
 		$existing[ $a->employee_id ] = $a;
 	}
@@ -85,7 +85,13 @@ $back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 				<div class="stat-body">
 					<span class="stat-value"><?php echo (int) $stat['value']; ?></span>
 					<span class="stat-label"><?php echo esc_html( $stat['label'] ); ?></span>
-					<span class="stat-sub"><?php echo esc_html( sprintf( __( '%d%% of %d employees', 'lime-micro-erp' ), $pct, $total_emp ) ); ?></span>
+					<?php $stat_sub = sprintf(
+					/* translators: 1: percentage, 2: total number of employees. */
+					__( '%1$d%% of %2$d employees', 'lime-micro-erp' ),
+					$pct,
+					$total_emp
+				); ?>
+				<span class="stat-sub"><?php echo esc_html( $stat_sub ); ?></span>
 					<div class="stat-bar" role="presentation"><span style="width:<?php echo (int) $pct; ?>%;"></span></div>
 				</div>
 			</div>
@@ -145,8 +151,14 @@ $back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 
 					<div class="form-actions-bar">
 						<?php if ( $employees && $unmarked > 0 ) : ?>
+							<?php $unmarked_note = sprintf(
+								/* translators: 1: number of unmarked employees, 2: total number of employees. */
+								__( '%1$d of %2$d employees unmarked.', 'lime-micro-erp' ),
+								$unmarked,
+								count( $employees )
+							); ?>
 							<span class="form-actions-note">
-								<?php echo esc_html( sprintf( __( '%d of %d employees unmarked.', 'lime-micro-erp' ), $unmarked, count( $employees ) ) ); ?>
+								<?php echo esc_html( $unmarked_note ); ?>
 							</span>
 						<?php endif; ?>
 						<button type="submit" class="btn-save">

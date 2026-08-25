@@ -12,49 +12,107 @@ $acct_type = 'expense' === $tx_mode ? 'expense' : 'income';
 global $wpdb;
 $accounts = micro_erp_get_accounts( $acct_type );
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$search   = micro_erp_query_text( 's' );
 
-$search_where = '';
 if ( $search ) {
-	$like        = '%' . $wpdb->esc_like( $search ) . '%';
-	$search_where = $wpdb->prepare( ' AND (j.description LIKE %s OR a.name LIKE %s OR a.code LIKE %s)', $like, $like, $like ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(DISTINCT j.id)
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s AND (j.description LIKE %s OR a.name LIKE %s OR a.code LIKE %s)",
+			$acct_type,
+			$like,
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(DISTINCT j.id)
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s",
+			$acct_type
+		)
+	);
 }
 
-$count_sql   = "SELECT COUNT(DISTINCT j.id)
-		FROM " . micro_erp_table( 'journal_entries' ) . " j
-		INNER JOIN " . micro_erp_table( 'journal_lines' ) . " l ON l.entry_id = j.id
-		INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id
-		WHERE a.type = %s{$search_where}";
-$total_items = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $acct_type ) );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$rows = $wpdb->get_results(
-	$wpdb->prepare(
-		"SELECT j.*, l.debit, l.credit, l.account_id, a.code AS account_code, a.name AS account_name
-		FROM " . micro_erp_table( 'journal_entries' ) . " j
-		INNER JOIN " . micro_erp_table( 'journal_lines' ) . " l ON l.entry_id = j.id
-		INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id
-		WHERE a.type = %s{$search_where} ORDER BY j.entry_date DESC, j.id DESC LIMIT {$per_page} OFFSET {$offset}",
-		$acct_type
-	)
-);
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT j.*, l.debit, l.credit, l.account_id, a.code AS account_code, a.name AS account_name
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s AND (j.description LIKE %s OR a.name LIKE %s OR a.code LIKE %s)
+			ORDER BY j.entry_date DESC, j.id DESC LIMIT %d OFFSET %d",
+			$acct_type,
+			$like,
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT j.*, l.debit, l.credit, l.account_id, a.code AS account_code, a.name AS account_name
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s
+			ORDER BY j.entry_date DESC, j.id DESC LIMIT %d OFFSET %d",
+			$acct_type,
+			$per_page,
+			$offset
+		)
+	);
+}
 
 // Grand total across ALL matching entries (footer row must not change with paging).
-$amount_col  = 'expense' === $tx_mode ? 'l.debit' : 'l.credit';
-$grand_total = (float) $wpdb->get_var(
-	$wpdb->prepare(
-		"SELECT COALESCE(SUM({$amount_col}),0)
-		FROM " . micro_erp_table( 'journal_entries' ) . " j
-		INNER JOIN " . micro_erp_table( 'journal_lines' ) . " l ON l.entry_id = j.id
-		INNER JOIN " . micro_erp_table( 'accounts' ) . " a ON a.id = l.account_id
-		WHERE a.type = %s{$search_where}",
-		$acct_type
-	)
-);
+// Both columns are summed and the mode picks one in PHP — no dynamic column names in SQL.
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$sums = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(l.debit),0) AS debit_total, COALESCE(SUM(l.credit),0) AS credit_total
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s AND (j.description LIKE %s OR a.name LIKE %s OR a.code LIKE %s)",
+			$acct_type,
+			$like,
+			$like,
+			$like
+		)
+	);
+} else {
+	$sums = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(l.debit),0) AS debit_total, COALESCE(SUM(l.credit),0) AS credit_total
+			FROM {$wpdb->prefix}micro_erp_journal_entries j
+			INNER JOIN {$wpdb->prefix}micro_erp_journal_lines l ON l.entry_id = j.id
+			INNER JOIN {$wpdb->prefix}micro_erp_accounts a ON a.id = l.account_id
+			WHERE a.type = %s",
+			$acct_type
+		)
+	);
+}
+
+$grand_total = 'expense' === $tx_mode ? (float) $sums->debit_total : (float) $sums->credit_total;
 
 micro_erp_print_admin_notice();
 
@@ -63,13 +121,13 @@ $back_url = micro_erp_admin_url( $tx_page );
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo esc_html( $label ); ?>
-		<?php if ( ! isset( $_GET['new'] ) ) : ?>
+		<?php if ( ! micro_erp_query_has( 'new' ) ) : ?>
 			<a href="<?php echo esc_url( micro_erp_admin_url( $tx_page, array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php echo esc_html( $add_btn ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( isset( $_GET['new'] ) ) : ?>
+	<?php if ( micro_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">

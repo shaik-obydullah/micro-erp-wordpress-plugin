@@ -54,7 +54,7 @@ function micro_erp_handle_activate_fiscal_year() {
 
 	global $wpdb;
 	$table = micro_erp_table( 'fiscal_years' );
-	$wpdb->query( "UPDATE {$table} SET is_active = 0" );
+	$wpdb->update( $table, array( 'is_active' => 0 ), null, array( '%d' ) );
 	$wpdb->update( $table, array( 'is_active' => 1 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
 	micro_erp_audit_log( 'activate', 'fiscal_year', $id, 'Activated fiscal year #' . $id );
 	micro_erp_redirect_notice( __( 'Fiscal year activated.', 'lime-micro-erp' ) );

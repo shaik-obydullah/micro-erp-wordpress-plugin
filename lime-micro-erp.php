@@ -4,13 +4,13 @@
  * Author URI: https://obydullah.com
  * Plugin URI: https://obydullah.com/project/micro-erp-wordpress-plugin
  * Description: Lime Micro ERP — a lightweight ERP system for small businesses: contacts, accounting, HRM, and sales management, all inside WordPress.
- * Author: obydullah
+ * Author: Shaik Obydullah
  * Text Domain: lime-micro-erp
  * Version: 1.0.0
  * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 8.0
- * License: GPL-2.0-or-later
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 

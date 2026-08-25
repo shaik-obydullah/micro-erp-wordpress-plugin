@@ -5,40 +5,100 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = isset( $_GET['edit'] ) ? (int) $_GET['edit'] : 0;
+$edit_id = micro_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
-	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'employees' ) . " WHERE id = %d", $edit_id ) );
+	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE id = %d", $edit_id ) );
 }
 
-$departments = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'departments' ) . " WHERE status = 'active' ORDER BY name ASC" );
+$departments = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_departments WHERE status = %s ORDER BY name ASC", 'active' ) );
 
-$dept_filter = isset( $_GET['department_id'] ) ? (int) $_GET['department_id'] : 0;
-$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$dept_filter = micro_erp_query_int( 'department_id' );
+$search      = micro_erp_query_text( 's' );
 
-$where = ' WHERE 1=1';
-$args  = array();
-if ( $dept_filter ) {
-	$where .= ' AND department_id = %d';
-	$args[] = $dept_filter;
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
+if ( $dept_filter && $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees WHERE department_id = %d AND (name LIKE %s OR employee_id LIKE %s)",
+			$dept_filter,
+			$like,
+			$like
+		)
+	);
+} elseif ( $dept_filter ) {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees WHERE department_id = %d",
+			$dept_filter
+		)
+	);
+} elseif ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees WHERE name LIKE %s OR employee_id LIKE %s",
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees WHERE 1 = %d",
+			1
+		)
+	);
 }
-if ( $search ) {
-	$where .= ' AND (name LIKE %s OR employee_id LIKE %s)';
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$args[] = $like;
-	$args[] = $like;
-}
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*) FROM " . micro_erp_table( 'employees' ) . $where;
-$total_items = $args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query = "SELECT * FROM " . micro_erp_table( 'employees' ) . $where . " ORDER BY employee_id ASC LIMIT {$per_page} OFFSET {$offset}";
-$rows  = $args ? $wpdb->get_results( $wpdb->prepare( $query, $args ) ) : $wpdb->get_results( $query );
+if ( $dept_filter && $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE department_id = %d AND (name LIKE %s OR employee_id LIKE %s) ORDER BY employee_id ASC LIMIT %d OFFSET %d",
+			$dept_filter,
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} elseif ( $dept_filter ) {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE department_id = %d ORDER BY employee_id ASC LIMIT %d OFFSET %d",
+			$dept_filter,
+			$per_page,
+			$offset
+		)
+	);
+} elseif ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE name LIKE %s OR employee_id LIKE %s ORDER BY employee_id ASC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}micro_erp_employees ORDER BY employee_id ASC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
 micro_erp_print_admin_notice();
 
@@ -53,7 +113,7 @@ $back_url = micro_erp_admin_url( 'employees' );
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || isset( $_GET['new'] ) ) : ?>
+	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php

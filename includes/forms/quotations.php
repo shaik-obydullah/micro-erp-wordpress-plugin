@@ -147,13 +147,13 @@ function micro_erp_handle_convert_quotation() {
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$q = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'quotations' ) . " WHERE id = %d", $id ) );
+	$q = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotations WHERE id = %d", $id ) );
 	if ( ! $q ) {
 		micro_erp_redirect_notice( __( 'Quotation not found.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
-	$items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'quotation_items' ) . " WHERE quotation_id = %d", $id ) );
+	$items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotation_items WHERE quotation_id = %d", $id ) );
 
 	$sale_no = micro_erp_next_sale_no();
 	$wpdb->insert(
@@ -193,7 +193,7 @@ function micro_erp_handle_convert_quotation() {
 
 	$wpdb->update( micro_erp_table( 'quotations' ), array( 'status' => 'converted' ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
 
-	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $sale_id ) );
+	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $sale_id ) );
 	micro_erp_create_sale_journal( $sale );
 
 	do_action( 'micro_erp_quotation_converted', $id, $sale_id );

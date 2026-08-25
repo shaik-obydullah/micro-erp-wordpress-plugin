@@ -6,53 +6,95 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $wpdb;
 
 // Payable = amounts owed to vendors, tracked via the Accounts Payable account.
-$ap_account = $wpdb->get_row( "SELECT * FROM " . micro_erp_table( 'accounts' ) . " WHERE code = '2001' LIMIT 1" );
+$ap_account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE code = %s LIMIT %d", '2001', 1 ) );
 
 $rows = array();
 $total_items = 0;
 $total = 0;
 if ( $ap_account ) {
-	$search      = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-	$search_where = '';
+	$search = micro_erp_query_text( 's' );
+
+	$per_page = 20;
+	$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 	if ( $search ) {
-		$like         = '%' . $wpdb->esc_like( $search ) . '%';
-		$search_where = $wpdb->prepare( ' AND j.description LIKE %s', $like ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$like = '%' . $wpdb->esc_like( $search ) . '%';
+		$total_items = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0 AND j.description LIKE %s",
+				$ap_account->id,
+				$like
+			)
+		);
+	} else {
+		$total_items = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0",
+				$ap_account->id
+			)
+		);
 	}
 
-	$per_page    = 20;
-	$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-	$total_items = (int) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COUNT(*) FROM " . micro_erp_table( 'journal_lines' ) . " l
-			INNER JOIN " . micro_erp_table( 'journal_entries' ) . " j ON j.id = l.entry_id
-			WHERE l.account_id = %d AND l.credit > 0{$search_where}",
-			$ap_account->id
-		)
-	);
 	$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 	$paged       = min( $paged, $total_pages );
 	$offset      = ( $paged - 1 ) * $per_page;
 
 	// Grand total across ALL payable entries (footer row must not change with paging).
-	$total = (float) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COALESCE(SUM(l.credit),0) FROM " . micro_erp_table( 'journal_lines' ) . " l
-			INNER JOIN " . micro_erp_table( 'journal_entries' ) . " j ON j.id = l.entry_id
-			WHERE l.account_id = %d AND l.credit > 0{$search_where}",
-			$ap_account->id
-		)
-	);
+	if ( $search ) {
+		$like = '%' . $wpdb->esc_like( $search ) . '%';
+		$total = (float) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COALESCE(SUM(l.credit),0) FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0 AND j.description LIKE %s",
+				$ap_account->id,
+				$like
+			)
+		);
+	} else {
+		$total = (float) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COALESCE(SUM(l.credit),0) FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0",
+				$ap_account->id
+			)
+		);
+	}
 
-	$rows = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT j.entry_date, j.description, j.id AS entry_id, l.credit AS payable_amount
-			FROM " . micro_erp_table( 'journal_lines' ) . " l
-			INNER JOIN " . micro_erp_table( 'journal_entries' ) . " j ON j.id = l.entry_id
-			WHERE l.account_id = %d AND l.credit > 0{$search_where}
-			ORDER BY j.entry_date DESC LIMIT {$per_page} OFFSET {$offset}",
-			$ap_account->id
-		)
-	);
+	if ( $search ) {
+		$like = '%' . $wpdb->esc_like( $search ) . '%';
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT j.entry_date, j.description, j.id AS entry_id, l.credit AS payable_amount
+				FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0 AND j.description LIKE %s
+				ORDER BY j.entry_date DESC LIMIT %d OFFSET %d",
+				$ap_account->id,
+				$like,
+				$per_page,
+				$offset
+			)
+		);
+	} else {
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT j.entry_date, j.description, j.id AS entry_id, l.credit AS payable_amount
+				FROM {$wpdb->prefix}micro_erp_journal_lines l
+				INNER JOIN {$wpdb->prefix}micro_erp_journal_entries j ON j.id = l.entry_id
+				WHERE l.account_id = %d AND l.credit > 0
+				ORDER BY j.entry_date DESC LIMIT %d OFFSET %d",
+				$ap_account->id,
+				$per_page,
+				$offset
+			)
+		);
+	}
 } else {
 	$search = '';
 }

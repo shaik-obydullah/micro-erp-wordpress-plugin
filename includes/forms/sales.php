@@ -17,7 +17,7 @@ function micro_erp_handle_sale_form( $action ) {
 
 	// Credit sale: Dr Accounts Receivable / Cr Sales Income.
 	if ( $created ) {
-		$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $entity_id ) );
+		$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $entity_id ) );
 		micro_erp_create_sale_journal( $sale );
 
 		do_action( 'micro_erp_sale_created', $entity_id );
@@ -48,7 +48,7 @@ function micro_erp_handle_record_payment() {
 	$notes   = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['notes'] ) ) : '';
 
 	global $wpdb;
-	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'sales' ) . " WHERE id = %d", $sale_id ) );
+	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $sale_id ) );
 	if ( ! $sale ) {
 		micro_erp_redirect_notice( __( 'Sale not found.', 'lime-micro-erp' ), 'error' );
 		return;

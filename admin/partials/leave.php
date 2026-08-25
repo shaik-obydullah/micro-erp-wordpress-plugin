@@ -5,38 +5,72 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$leave_types = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'leave_types' ) . " ORDER BY name ASC" );
-$employees   = $wpdb->get_results( "SELECT * FROM " . micro_erp_table( 'employees' ) . " WHERE status = 'active' ORDER BY name ASC" );
+$leave_types = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_leave_types ORDER BY name ASC" );
+$employees   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE status = %s ORDER BY name ASC", 'active' ) );
 
-$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$search = micro_erp_query_text( 's' );
 
-$req_join  = " FROM " . micro_erp_table( 'leave_requests' ) . " lr
-	LEFT JOIN " . micro_erp_table( 'employees' ) . " e ON e.id = lr.employee_id";
-$req_where = ' WHERE 1=1';
-$req_args  = array();
+$per_page = 20;
+$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+
 if ( $search ) {
-	$like       = '%' . $wpdb->esc_like( $search ) . '%';
-	$req_where .= ' AND (lr.reason LIKE %s OR e.name LIKE %s OR e.employee_id LIKE %s)';
-	$req_args[] = $like;
-	$req_args[] = $like;
-	$req_args[] = $like;
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_leave_requests lr
+			LEFT JOIN {$wpdb->prefix}micro_erp_employees e ON e.id = lr.employee_id
+			WHERE lr.reason LIKE %s OR e.name LIKE %s OR e.employee_id LIKE %s",
+			$like,
+			$like,
+			$like
+		)
+	);
+} else {
+	$total_items = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_leave_requests lr
+			LEFT JOIN {$wpdb->prefix}micro_erp_employees e ON e.id = lr.employee_id
+			WHERE 1 = %d",
+			1
+		)
+	);
 }
 
-$per_page    = 20;
-$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
-$count_query = "SELECT COUNT(*){$req_join}{$req_where}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$total_items = $req_args ? (int) $wpdb->get_var( $wpdb->prepare( $count_query, $req_args ) ) : (int) $wpdb->get_var( $count_query );
 $total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
 $paged       = min( $paged, $total_pages );
 $offset      = ( $paged - 1 ) * $per_page;
 
-$query    = "SELECT lr.*{$req_join}{$req_where} ORDER BY lr.created_at DESC LIMIT {$per_page} OFFSET {$offset}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$requests = $req_args ? $wpdb->get_results( $wpdb->prepare( $query, $req_args ) ) : $wpdb->get_results( $query );
+if ( $search ) {
+	$like = '%' . $wpdb->esc_like( $search ) . '%';
+	$requests = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT lr.* FROM {$wpdb->prefix}micro_erp_leave_requests lr
+			LEFT JOIN {$wpdb->prefix}micro_erp_employees e ON e.id = lr.employee_id
+			WHERE lr.reason LIKE %s OR e.name LIKE %s OR e.employee_id LIKE %s
+			ORDER BY lr.created_at DESC LIMIT %d OFFSET %d",
+			$like,
+			$like,
+			$like,
+			$per_page,
+			$offset
+		)
+	);
+} else {
+	$requests = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT lr.* FROM {$wpdb->prefix}micro_erp_leave_requests lr
+			LEFT JOIN {$wpdb->prefix}micro_erp_employees e ON e.id = lr.employee_id
+			ORDER BY lr.created_at DESC LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		)
+	);
+}
 
-$edit_type_id = isset( $_GET['edit_type'] ) ? (int) $_GET['edit_type'] : 0;
+$edit_type_id = micro_erp_query_int( 'edit_type' );
 $editing_type = null;
 if ( $edit_type_id ) {
-	$editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . micro_erp_table( 'leave_types' ) . " WHERE id = %d", $edit_type_id ) );
+	$editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_leave_types WHERE id = %d", $edit_type_id ) );
 }
 
 $back_url = micro_erp_admin_url( 'leave' );

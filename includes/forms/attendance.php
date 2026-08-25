@@ -3,19 +3,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_attendance_form() {
-	micro_erp_verify_nonce( 'micro_erp_attendance_save' );
+function li_mi_erp_handle_attendance_form() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_attendance_save' );
 
 	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- every row value is sanitized individually in the loop below.
 	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
 
 	if ( ! $date ) {
-		micro_erp_redirect_notice( __( 'A date is required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'A date is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = micro_erp_table( 'attendance' );
+	$table = li_mi_erp_table( 'attendance' );
 
 	foreach ( $employees as $employee_id => $row ) {
 		$employee_id = (int) $employee_id;
@@ -50,16 +50,16 @@ function micro_erp_handle_attendance_form() {
 		}
 	}
 
-	micro_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
-	micro_erp_redirect_notice( __( 'Attendance saved.', 'lime-micro-erp' ) );
+	li_mi_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
+	li_mi_erp_redirect_notice( __( 'Attendance saved.', 'lime-micro-erp' ) );
 }
 
-function micro_erp_handle_delete_attendance() {
-	micro_erp_verify_nonce( 'micro_erp_attendance_delete' );
+function li_mi_erp_handle_delete_attendance() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_attendance_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
-	micro_erp_redirect_notice( __( 'Attendance record deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( li_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
+	li_mi_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
+	li_mi_erp_redirect_notice( __( 'Attendance record deleted.', 'lime-micro-erp' ) );
 }

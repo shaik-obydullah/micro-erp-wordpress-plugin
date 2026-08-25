@@ -10,11 +10,11 @@ $add_btn = 'expense' === $tx_mode ? __( '+ Add Expense', 'lime-micro-erp' ) : __
 $acct_type = 'expense' === $tx_mode ? 'expense' : 'income';
 
 global $wpdb;
-$accounts = micro_erp_get_accounts( $acct_type );
+$accounts = li_mi_erp_get_accounts( $acct_type );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
-$search   = micro_erp_query_text( 's' );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
+$search   = li_mi_erp_query_text( 's' );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -114,30 +114,30 @@ if ( $search ) {
 
 $grand_total = 'expense' === $tx_mode ? (float) $sums->debit_total : (float) $sums->credit_total;
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( $tx_page );
+$back_url = li_mi_erp_admin_url( $tx_page );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo esc_html( $label ); ?>
-		<?php if ( ! micro_erp_query_has( 'new' ) ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( $tx_page, array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php echo esc_html( $add_btn ); ?></a>
+		<?php if ( ! li_mi_erp_query_has( 'new' ) ) : ?>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( $tx_page, array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php echo esc_html( $add_btn ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
 				<div class="bg-light p-4 rounded shadow-sm">
 					<h2 class="mb-3 mt-1"><?php echo esc_html( $add_btn ); ?></h2>
 					<form method="post" action="">
-						<?php wp_nonce_field( 'micro_erp_journal_save' ); ?>
-						<input type="hidden" name="micro_erp_action" value="save_transaction">
+						<?php wp_nonce_field( 'li_mi_erp_journal_save' ); ?>
+						<input type="hidden" name="li_mi_erp_action" value="save_transaction">
 						<input type="hidden" name="tx_mode" value="<?php echo esc_attr( $tx_mode ); ?>">
-						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+						<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
 							<label for="entry_date" class="form-label"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -177,7 +177,7 @@ $back_url = micro_erp_admin_url( $tx_page );
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( $tx_page, __( 'Search Entries', 'lime-micro-erp' ), __( 'Search by description or account...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( $tx_page, __( 'Search Entries', 'lime-micro-erp' ), __( 'Search by description or account...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -214,20 +214,20 @@ $back_url = micro_erp_admin_url( $tx_page );
 										<td><?php echo esc_html( $row->description ); ?></td>
 										<td><?php echo esc_html( $row->account_code . ' - ' . $row->account_name ); ?></td>
 										<td><?php echo esc_html( $row->reference_type ? strtoupper( $row->reference_type ) : '—' ); ?></td>
-										<td class="text-right"><strong style="color: <?php echo 'expense' === $tx_mode ? '#d63638' : '#00a32a'; ?>;"><?php echo esc_html( micro_erp_format_money( $amount ) ); ?></strong></td>
-										<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->id, 'from' => $tx_mode ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
+										<td class="text-right"><strong style="color: <?php echo 'expense' === $tx_mode ? '#d63638' : '#00a32a'; ?>;"><?php echo esc_html( li_mi_erp_format_money( $amount ) ); ?></strong></td>
+										<td class="text-right"><a href="<?php echo esc_url( li_mi_erp_admin_url( 'journal', array( 'view' => $row->id, 'from' => $tx_mode ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="total-row">
 									<td colspan="4"><strong><?php esc_html_e( 'Total', 'lime-micro-erp' ); ?></strong></td>
-									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $grand_total ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $grand_total ) ); ?></strong></td>
 									<td></td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( $tx_page, $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( $tx_page, $total_items, $per_page ); ?>
 
 				</div>
 			</div>

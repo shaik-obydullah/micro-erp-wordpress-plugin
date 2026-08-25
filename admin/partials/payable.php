@@ -12,10 +12,10 @@ $rows = array();
 $total_items = 0;
 $total = 0;
 if ( $ap_account ) {
-	$search = micro_erp_query_text( 's' );
+	$search = li_mi_erp_query_text( 's' );
 
 	$per_page = 20;
-	$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+	$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 	if ( $search ) {
 		$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -98,7 +98,7 @@ if ( $ap_account ) {
 } else {
 	$search = '';
 }
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Payable', 'lime-micro-erp' ); ?></h1>
@@ -107,7 +107,7 @@ micro_erp_print_admin_notice();
 
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'payable', __( 'Search Payables', 'lime-micro-erp' ), __( 'Search by description...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'payable', __( 'Search Payables', 'lime-micro-erp' ), __( 'Search by description...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -136,20 +136,20 @@ micro_erp_print_admin_notice();
 									<td><?php echo esc_html( $row->entry_date ); ?></td>
 									<td>JE-<?php echo (int) $row->entry_id; ?></td>
 									<td><?php echo esc_html( $row->description ); ?></td>
-									<td class="text-right"><strong style="color:#d63638;"><?php echo esc_html( micro_erp_format_money( $row->payable_amount ) ); ?></strong></td>
-									<td class="text-right"><a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $row->entry_id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
+									<td class="text-right"><strong style="color:#d63638;"><?php echo esc_html( li_mi_erp_format_money( $row->payable_amount ) ); ?></strong></td>
+									<td class="text-right"><a href="<?php echo esc_url( li_mi_erp_admin_url( 'journal', array( 'view' => $row->entry_id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
 								</tr>
 							<?php endforeach; ?>
 							<tr class="total-row">
 								<td colspan="3"><strong><?php esc_html_e( 'Total Payable', 'lime-micro-erp' ); ?></strong></td>
-								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total ) ); ?></strong></td>
+								<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $total ) ); ?></strong></td>
 								<td></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 
-				<?php micro_erp_render_pagination( 'payable', $total_items, $per_page ); ?>
+				<?php li_mi_erp_render_pagination( 'payable', $total_items, $per_page ); ?>
 
 			</div>
 		</div>

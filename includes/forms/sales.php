@@ -3,14 +3,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_sale_form( $action ) {
-	micro_erp_verify_nonce( 'micro_erp_sale_save' );
+function li_mi_erp_handle_sale_form( $action ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_sale_save' );
 
 	global $wpdb;
-	list( $entity_id, $created ) = micro_erp_save_quote_sale(
+	list( $entity_id, $created ) = li_mi_erp_save_quote_sale(
 		'SALE-',
-		micro_erp_table( 'sales' ),
-		micro_erp_table( 'sale_items' ),
+		li_mi_erp_table( 'sales' ),
+		li_mi_erp_table( 'sale_items' ),
 		'sale_id',
 		'sale'
 	);
@@ -18,27 +18,27 @@ function micro_erp_handle_sale_form( $action ) {
 	// Credit sale: Dr Accounts Receivable / Cr Sales Income.
 	if ( $created ) {
 		$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $entity_id ) );
-		micro_erp_create_sale_journal( $sale );
+		li_mi_erp_create_sale_journal( $sale );
 
-		do_action( 'micro_erp_sale_created', $entity_id );
+		do_action( 'li_mi_erp_sale_created', $entity_id );
 	}
 
-	micro_erp_redirect_notice( $created ? __( 'Sale created.', 'lime-micro-erp' ) : __( 'Sale updated.', 'lime-micro-erp' ) );
+	li_mi_erp_redirect_notice( $created ? __( 'Sale created.', 'lime-micro-erp' ) : __( 'Sale updated.', 'lime-micro-erp' ) );
 }
 
-function micro_erp_handle_delete_sale() {
-	micro_erp_verify_nonce( 'micro_erp_sale_delete' );
+function li_mi_erp_handle_delete_sale() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_sale_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) );
-	$wpdb->delete( micro_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'sale', $id, 'Deleted sale #' . $id );
-	micro_erp_redirect_notice( __( 'Sale deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( li_mi_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) );
+	$wpdb->delete( li_mi_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) );
+	li_mi_erp_audit_log( 'delete', 'sale', $id, 'Deleted sale #' . $id );
+	li_mi_erp_redirect_notice( __( 'Sale deleted.', 'lime-micro-erp' ) );
 }
 
-function micro_erp_handle_record_payment() {
-	micro_erp_verify_nonce( 'micro_erp_payment_save' );
+function li_mi_erp_handle_record_payment() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_payment_save' );
 
 	$sale_id = isset( $_POST['sale_id'] ) ? (int) $_POST['sale_id'] : 0;
 	$amount  = isset( $_POST['amount'] ) ? (float) $_POST['amount'] : 0;
@@ -50,13 +50,13 @@ function micro_erp_handle_record_payment() {
 	global $wpdb;
 	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $sale_id ) );
 	if ( ! $sale ) {
-		micro_erp_redirect_notice( __( 'Sale not found.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Sale not found.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	$balance = (float) $sale->total - (float) $sale->amount_paid;
 	if ( $amount <= 0 || $amount > $balance + 0.01 ) {
-		micro_erp_redirect_notice( __( 'Payment amount is invalid.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Payment amount is invalid.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -67,7 +67,7 @@ function micro_erp_handle_record_payment() {
 	}
 
 	$wpdb->update(
-		micro_erp_table( 'sales' ),
+		li_mi_erp_table( 'sales' ),
 		array(
 			'amount_paid'   => $new_paid,
 			'payment_status' => $status,
@@ -79,11 +79,11 @@ function micro_erp_handle_record_payment() {
 	);
 
 	if ( ! $deposit ) {
-		$deposit = micro_erp_default_account( 'asset', '1001' );
+		$deposit = li_mi_erp_default_account( 'asset', '1001' );
 	}
-	$ar_account = micro_erp_default_account( 'asset', '1003' );
+	$ar_account = li_mi_erp_default_account( 'asset', '1003' );
 
-	$entry_id = micro_erp_create_journal_entry(
+	$entry_id = li_mi_erp_create_journal_entry(
 		current_time( 'Y-m-d' ),
 		sprintf( 'Sale Payment - %s (%s)', $sale->sale_no, $ref ),
 		array(
@@ -94,7 +94,7 @@ function micro_erp_handle_record_payment() {
 		$sale_id
 	);
 
-	do_action( 'micro_erp_sale_payment_received', $sale_id, $amount );
-	micro_erp_audit_log( 'payment', 'sale', $sale_id, 'Received ' . $amount . ' payment on ' . $sale->sale_no );
-	micro_erp_redirect_notice( __( 'Payment recorded.', 'lime-micro-erp' ) );
+	do_action( 'li_mi_erp_sale_payment_received', $sale_id, $amount );
+	li_mi_erp_audit_log( 'payment', 'sale', $sale_id, 'Received ' . $amount . ' payment on ' . $sale->sale_no );
+	li_mi_erp_redirect_notice( __( 'Payment recorded.', 'lime-micro-erp' ) );
 }

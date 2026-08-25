@@ -16,25 +16,25 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MICRO_ERP_VERSION', '1.0.0' );
-define( 'MICRO_ERP_FILE', __FILE__ );
-define( 'MICRO_ERP_PATH', plugin_dir_path( __FILE__ ) );
-define( 'MICRO_ERP_URL', plugin_dir_url( __FILE__ ) );
-define( 'MICRO_ERP_TABLE', 'micro_erp_' );
+define( 'LI_MI_ERP_VERSION', '1.0.0' );
+define( 'LI_MI_ERP_FILE', __FILE__ );
+define( 'LI_MI_ERP_PATH', plugin_dir_path( __FILE__ ) );
+define( 'LI_MI_ERP_URL', plugin_dir_url( __FILE__ ) );
+define( 'LI_MI_ERP_TABLE', 'micro_erp_' );
 
-require_once MICRO_ERP_PATH . 'includes/helpers.php';
-require_once MICRO_ERP_PATH . 'includes/class-activator.php';
-require_once MICRO_ERP_PATH . 'includes/class-micro-erp.php';
+require_once LI_MI_ERP_PATH . 'includes/helpers.php';
+require_once LI_MI_ERP_PATH . 'includes/class-li-mi-erp-activator.php';
+require_once LI_MI_ERP_PATH . 'includes/class-li-mi-erp.php';
 
-register_activation_hook( __FILE__, array( 'MicroERP_Activator', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'MicroERP_Activator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( 'LiMiErp_Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'LiMiErp_Activator', 'deactivate' ) );
 
-function micro_erp_bootstrap() {
-	new MicroERP();
+function li_mi_erp_bootstrap() {
+	new LiMiErp();
 }
-add_action( 'plugins_loaded', 'micro_erp_bootstrap' );
+add_action( 'plugins_loaded', 'li_mi_erp_bootstrap' );
 
-function micro_erp_load_textdomain() {
+function li_mi_erp_load_textdomain() {
 	load_plugin_textdomain( 'lime-micro-erp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
-add_action( 'init', 'micro_erp_load_textdomain' );
+add_action( 'init', 'li_mi_erp_load_textdomain' );

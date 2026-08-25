@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_contact_form( $action ) {
-	micro_erp_verify_nonce( 'micro_erp_contact_save' );
+function li_mi_erp_handle_contact_form( $action ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_contact_save' );
 
 	$data = array(
 		'type'    => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'customer',
@@ -18,12 +18,12 @@ function micro_erp_handle_contact_form( $action ) {
 	);
 
 	if ( ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Contact name is required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Contact name is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = micro_erp_table( 'contacts' );
+	$table = li_mi_erp_table( 'contacts' );
 
 	if ( 'update_contact' === $action ) {
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
@@ -36,16 +36,16 @@ function micro_erp_handle_contact_form( $action ) {
 		$message   = __( 'Contact created.', 'lime-micro-erp' );
 	}
 
-	micro_erp_audit_log( 'save', 'contact', $entity_id, $data['name'] );
-	micro_erp_redirect_notice( $message );
+	li_mi_erp_audit_log( 'save', 'contact', $entity_id, $data['name'] );
+	li_mi_erp_redirect_notice( $message );
 }
 
-function micro_erp_handle_delete_contact() {
-	micro_erp_verify_nonce( 'micro_erp_contact_delete' );
+function li_mi_erp_handle_delete_contact() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_contact_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'contacts' ), array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'contact', $id, 'Deleted contact #' . $id );
-	micro_erp_redirect_notice( __( 'Contact deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( li_mi_erp_table( 'contacts' ), array( 'id' => $id ), array( '%d' ) );
+	li_mi_erp_audit_log( 'delete', 'contact', $id, 'Deleted contact #' . $id );
+	li_mi_erp_redirect_notice( __( 'Contact deleted.', 'lime-micro-erp' ) );
 }

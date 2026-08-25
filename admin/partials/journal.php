@@ -5,14 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$show_form = micro_erp_query_has( 'new' ) || micro_erp_query_has( 'view' );
-$view_id   = micro_erp_query_int( 'view' );
-$accounts  = micro_erp_get_accounts();
+$show_form = li_mi_erp_query_has( 'new' ) || li_mi_erp_query_has( 'view' );
+$view_id   = li_mi_erp_query_int( 'view' );
+$accounts  = li_mi_erp_get_accounts();
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -65,15 +65,15 @@ if ( ! empty( $entries ) ) {
 	}
 }
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'journal' );
-$from     = micro_erp_query_key( 'from' );
+$back_url = li_mi_erp_admin_url( 'journal' );
+$from     = li_mi_erp_query_key( 'from' );
 if ( $from && ! in_array( $from, array( 'income', 'expense' ), true ) ) {
 	$from = '';
 }
 if ( $from ) {
-	$back_url = micro_erp_admin_url( $from );
+	$back_url = li_mi_erp_admin_url( $from );
 }
 
 if ( $view_id ) {
@@ -93,7 +93,7 @@ if ( $view_id ) {
 		}
 		?>
 		<?php if ( ! $show_form ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'journal', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
@@ -125,14 +125,14 @@ if ( $view_id ) {
 									<tr>
 										<td><?php echo esc_html( $line->code . ' - ' . $line->name ); ?></td>
 										<td><?php echo esc_html( $line->description ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->debit ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $line->credit ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $line->debit ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $line->credit ) ); ?></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="total-row">
 									<td colspan="2"><strong><?php esc_html_e( 'Total', 'lime-micro-erp' ); ?></strong></td>
-									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $td ) ); ?></strong></td>
-									<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $tc ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $td ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $tc ) ); ?></strong></td>
 								</tr>
 							</tbody>
 						</table>
@@ -145,9 +145,9 @@ if ( $view_id ) {
 	<?php elseif ( $show_form ) : ?>
 
 		<form method="post" action="">
-			<?php wp_nonce_field( 'micro_erp_journal_save' ); ?>
-			<input type="hidden" name="micro_erp_action" value="save_journal">
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<?php wp_nonce_field( 'li_mi_erp_journal_save' ); ?>
+			<input type="hidden" name="li_mi_erp_action" value="save_journal">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -238,7 +238,7 @@ if ( $view_id ) {
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'journal', __( 'Search Entries', 'lime-micro-erp' ), __( 'Search by description...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'journal', __( 'Search Entries', 'lime-micro-erp' ), __( 'Search by description...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -278,16 +278,16 @@ if ( $view_id ) {
 										<td>JE-<?php echo (int) $entry->id; ?></td>
 										<td><strong><?php echo esc_html( $entry->description ); ?></strong></td>
 										<td><?php echo esc_html( $entry->reference_type ? ucwords( str_replace( '_', ' ', $entry->reference_type ) ) : '—' ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_d ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $t_c ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $t_d ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $t_c ) ); ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'journal', array( 'view' => $entry->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'journal', array( 'view' => $entry->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this entry?', 'lime-micro-erp' ); ?>');">
-													<?php wp_nonce_field( 'micro_erp_journal_delete' ); ?>
-													<input type="hidden" name="micro_erp_action" value="delete_journal">
+													<?php wp_nonce_field( 'li_mi_erp_journal_delete' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="delete_journal">
 													<input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
@@ -298,7 +298,7 @@ if ( $view_id ) {
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'journal', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'journal', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

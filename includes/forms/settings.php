@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_settings_form() {
-	micro_erp_verify_nonce( 'micro_erp_settings_save' );
+function li_mi_erp_handle_settings_form() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_settings_save' );
 
 	$settings = array(
 		'company_name'            => isset( $_POST['company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['company_name'] ) ) : '',
@@ -19,9 +19,9 @@ function micro_erp_handle_settings_form() {
 	);
 
 	foreach ( $settings as $key => $value ) {
-		micro_erp_set_setting( $key, $value );
+		li_mi_erp_set_setting( $key, $value );
 	}
 
-	micro_erp_audit_log( 'save', 'settings', 0, 'Updated plugin settings' );
-	micro_erp_redirect_notice( __( 'Settings saved.', 'lime-micro-erp' ) );
+	li_mi_erp_audit_log( 'save', 'settings', 0, 'Updated plugin settings' );
+	li_mi_erp_redirect_notice( __( 'Settings saved.', 'lime-micro-erp' ) );
 }

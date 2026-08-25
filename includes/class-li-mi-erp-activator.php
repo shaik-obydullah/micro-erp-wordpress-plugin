@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class MicroERP_Activator {
+class LiMiErp_Activator {
 
 	public static function activate() {
 		global $wpdb;
@@ -11,7 +11,7 @@ class MicroERP_Activator {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$charset = $wpdb->get_charset_collate();
-		$t       = $wpdb->prefix . MICRO_ERP_TABLE;
+		$t       = $wpdb->prefix . LI_MI_ERP_TABLE;
 
 		$sql = array();
 
@@ -347,7 +347,7 @@ class MicroERP_Activator {
 			);
 		}
 
-		update_option( 'micro_erp_version', MICRO_ERP_VERSION );
+		update_option( 'li_mi_erp_version', LI_MI_ERP_VERSION );
 	}
 
 	public static function deactivate() {

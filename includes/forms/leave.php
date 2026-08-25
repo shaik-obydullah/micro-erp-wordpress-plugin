@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_leave_type_form( $action ) {
-	micro_erp_verify_nonce( 'micro_erp_leave_type_save' );
+function li_mi_erp_handle_leave_type_form( $action ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_leave_type_save' );
 
 	$data = array(
 		'name'         => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
@@ -13,12 +13,12 @@ function micro_erp_handle_leave_type_form( $action ) {
 	);
 
 	if ( ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Leave type name is required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Leave type name is required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = micro_erp_table( 'leave_types' );
+	$table = li_mi_erp_table( 'leave_types' );
 
 	if ( 'update_leave_type' === $action ) {
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
@@ -31,22 +31,22 @@ function micro_erp_handle_leave_type_form( $action ) {
 		$message   = __( 'Leave type created.', 'lime-micro-erp' );
 	}
 
-	micro_erp_audit_log( 'save', 'leave_type', $entity_id, $data['name'] );
-	micro_erp_redirect_notice( $message );
+	li_mi_erp_audit_log( 'save', 'leave_type', $entity_id, $data['name'] );
+	li_mi_erp_redirect_notice( $message );
 }
 
-function micro_erp_handle_delete_leave_type() {
-	micro_erp_verify_nonce( 'micro_erp_leave_type_delete' );
+function li_mi_erp_handle_delete_leave_type() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_leave_type_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'leave_types' ), array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'leave_type', $id, 'Deleted leave type #' . $id );
-	micro_erp_redirect_notice( __( 'Leave type deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( li_mi_erp_table( 'leave_types' ), array( 'id' => $id ), array( '%d' ) );
+	li_mi_erp_audit_log( 'delete', 'leave_type', $id, 'Deleted leave type #' . $id );
+	li_mi_erp_redirect_notice( __( 'Leave type deleted.', 'lime-micro-erp' ) );
 }
 
-function micro_erp_handle_leave_request_form() {
-	micro_erp_verify_nonce( 'micro_erp_leave_request_save' );
+function li_mi_erp_handle_leave_request_form() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_leave_request_save' );
 
 	$employee_id = isset( $_POST['employee_id'] ) ? (int) $_POST['employee_id'] : 0;
 	$leave_type  = isset( $_POST['leave_type_id'] ) ? (int) $_POST['leave_type_id'] : 0;
@@ -55,19 +55,19 @@ function micro_erp_handle_leave_request_form() {
 	$reason      = isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '';
 
 	if ( ! $employee_id || ! $leave_type || ! $start || ! $end ) {
-		micro_erp_redirect_notice( __( 'Employee, leave type, start and end dates are required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Employee, leave type, start and end dates are required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	$total_days = (int) ceil( ( strtotime( $end ) - strtotime( $start ) ) / DAY_IN_SECONDS ) + 1;
 	if ( $total_days < 1 ) {
-		micro_erp_redirect_notice( __( 'End date must be after start date.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'End date must be after start date.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
 	$wpdb->insert(
-		micro_erp_table( 'leave_requests' ),
+		li_mi_erp_table( 'leave_requests' ),
 		array(
 			'employee_id'  => $employee_id,
 			'leave_type_id'=> $leave_type,
@@ -81,23 +81,23 @@ function micro_erp_handle_leave_request_form() {
 	);
 
 	$entity_id = (int) $wpdb->insert_id;
-	micro_erp_audit_log( 'save', 'leave_request', $entity_id, 'New leave request' );
-	micro_erp_redirect_notice( __( 'Leave request submitted.', 'lime-micro-erp' ) );
+	li_mi_erp_audit_log( 'save', 'leave_request', $entity_id, 'New leave request' );
+	li_mi_erp_redirect_notice( __( 'Leave request submitted.', 'lime-micro-erp' ) );
 }
 
-function micro_erp_handle_leave_status( $status ) {
-	micro_erp_verify_nonce( 'micro_erp_leave_status' );
+function li_mi_erp_handle_leave_status( $status ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_leave_status' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
 	$wpdb->update(
-		micro_erp_table( 'leave_requests' ),
+		li_mi_erp_table( 'leave_requests' ),
 		array( 'status' => $status, 'approved_by' => get_current_user_id() ),
 		array( 'id' => $id ),
 		array( '%s', '%d' ),
 		array( '%d' )
 	);
-	micro_erp_audit_log( 'approve', 'leave_request', $id, 'Leave request ' . $status );
+	li_mi_erp_audit_log( 'approve', 'leave_request', $id, 'Leave request ' . $status );
 	/* translators: %s: leave request status (approved or rejected). */
-	micro_erp_redirect_notice( sprintf( __( 'Leave request %s.', 'lime-micro-erp' ), $status ) );
+	li_mi_erp_redirect_notice( sprintf( __( 'Leave request %s.', 'lime-micro-erp' ), $status ) );
 }

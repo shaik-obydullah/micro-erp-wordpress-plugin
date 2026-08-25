@@ -7,14 +7,14 @@ global $wpdb;
 
 $contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
 
-$back_url = micro_erp_admin_url( 'sales' );
+$back_url = li_mi_erp_admin_url( 'sales' );
 
 // Record payment view.
-$pay_id = micro_erp_query_int( 'pay' );
+$pay_id = li_mi_erp_query_int( 'pay' );
 if ( $pay_id ) {
 	$pay_sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $pay_id ) );
-	$asset_accounts = micro_erp_get_accounts( 'asset' );
-	micro_erp_print_admin_notice();
+	$asset_accounts = li_mi_erp_get_accounts( 'asset' );
+	li_mi_erp_print_admin_notice();
 	?>
 	<div class="wrap micro-erp-page">
 		<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></h1>
@@ -32,21 +32,21 @@ if ( $pay_id ) {
 		<div class="invoice-info mt-3">
 			<div class="row">
 				<div><div class="label"><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_no ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_contact_name( $pay_sale->contact_id ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Customer', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( li_mi_erp_contact_name( $pay_sale->contact_id ) ); ?></div></div>
 				<div><div class="label"><?php esc_html_e( 'Date', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( $pay_sale->sale_date ); ?></div></div>
 			</div>
 			<div class="row">
-				<div><div class="label"><?php esc_html_e( 'Original Amount', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->total ) ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Already Paid', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( micro_erp_format_money( $pay_sale->amount_paid ) ); ?></div></div>
-				<div><div class="label"><?php esc_html_e( 'Balance Due', 'lime-micro-erp' ); ?></div><div class="balance"><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Original Amount', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( li_mi_erp_format_money( $pay_sale->total ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Already Paid', 'lime-micro-erp' ); ?></div><div class="value"><?php echo esc_html( li_mi_erp_format_money( $pay_sale->amount_paid ) ); ?></div></div>
+				<div><div class="label"><?php esc_html_e( 'Balance Due', 'lime-micro-erp' ); ?></div><div class="balance"><?php echo esc_html( li_mi_erp_format_money( $balance ) ); ?></div></div>
 			</div>
 		</div>
 
 		<form method="post" action="">
-			<?php wp_nonce_field( 'micro_erp_payment_save' ); ?>
-			<input type="hidden" name="micro_erp_action" value="record_payment">
+			<?php wp_nonce_field( 'li_mi_erp_payment_save' ); ?>
+			<input type="hidden" name="li_mi_erp_action" value="record_payment">
 			<input type="hidden" name="sale_id" value="<?php echo (int) $pay_sale->id; ?>">
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -100,7 +100,7 @@ if ( $pay_id ) {
 	return;
 }
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 $edit_items = array();
 if ( $edit_id ) {
@@ -108,11 +108,11 @@ if ( $edit_id ) {
 	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sale_items WHERE sale_id = %d ORDER BY id ASC", $edit_id ) );
 }
 
-$status_filter = micro_erp_query_key( 'status' );
-$search        = micro_erp_query_text( 's' );
+$status_filter = li_mi_erp_query_key( 'status' );
+$search        = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $status_filter && $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -195,29 +195,29 @@ if ( $status_filter && $search ) {
 	);
 }
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Sale', 'lime-micro-erp' ) : esc_html__( 'Sales Orders', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Sale', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php
 			$action = $editing ? 'update_sale' : 'save_sale';
-			wp_nonce_field( 'micro_erp_sale_save' );
+			wp_nonce_field( 'li_mi_erp_sale_save' );
 			?>
-			<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 			<?php if ( $editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 			<?php endif; ?>
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -226,7 +226,7 @@ micro_erp_print_admin_notice();
 
 						<div class="mb-3">
 							<label class="form-label"><?php esc_html_e( 'Sale #', 'lime-micro-erp' ); ?></label>
-							<input type="text" class="form-control" value="<?php echo $editing ? esc_attr( $editing->sale_no ) : esc_attr( micro_erp_next_sale_no() ); ?>" readonly style="background:#f9f9f9;">
+							<input type="text" class="form-control" value="<?php echo $editing ? esc_attr( $editing->sale_no ) : esc_attr( li_mi_erp_next_sale_no() ); ?>" readonly style="background:#f9f9f9;">
 						</div>
 
 						<div class="mb-3">
@@ -271,7 +271,7 @@ micro_erp_print_admin_notice();
 											<td><input type="number" name="item_quantity[]" value="<?php echo esc_attr( $item->quantity ); ?>" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 											<td><input type="number" name="item_price[]" value="<?php echo esc_attr( $item->unit_price ); ?>" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
 											<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( $item->tax_rate ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
-											<td class="text-right i-line-total"><?php echo esc_html( micro_erp_format_money( $item->total ) ); ?></td>
+											<td class="text-right i-line-total"><?php echo esc_html( li_mi_erp_format_money( $item->total ) ); ?></td>
 											<td><button type="button" class="btn-danger i-remove">×</button></td>
 										</tr>
 									<?php endforeach; ?>
@@ -280,7 +280,7 @@ micro_erp_print_admin_notice();
 										<td><input type="text" name="item_description[]" required class="form-control form-control-sm"></td>
 										<td><input type="number" name="item_quantity[]" value="1" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 										<td><input type="number" name="item_price[]" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
-										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( micro_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
+										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( li_mi_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
 										<td class="text-right i-line-total">—</td>
 										<td><button type="button" class="btn-danger i-remove">×</button></td>
 									</tr>
@@ -288,7 +288,7 @@ micro_erp_print_admin_notice();
 										<td><input type="text" name="item_description[]" required class="form-control form-control-sm"></td>
 										<td><input type="number" name="item_quantity[]" value="1" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 										<td><input type="number" name="item_price[]" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
-										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( micro_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
+										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( li_mi_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
 										<td class="text-right i-line-total">—</td>
 										<td><button type="button" class="btn-danger i-remove">×</button></td>
 									</tr>
@@ -346,16 +346,16 @@ micro_erp_print_admin_notice();
 
 				<?php
 				$pill_args = $search ? array( 's' => $search ) : array();
-				$all_url   = micro_erp_admin_url( 'sales', $pill_args );
+				$all_url   = li_mi_erp_admin_url( 'sales', $pill_args );
 				?>
 				<div class="filter-pills" role="group" aria-label="<?php esc_attr_e( 'Filter by payment status', 'lime-micro-erp' ); ?>">
 					<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $status_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All', 'lime-micro-erp' ); ?></a>
 					<?php foreach ( array( 'paid', 'unpaid', 'partial' ) as $st ) : ?>
-						<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array_merge( $pill_args, array( 'status' => $st ) ) ) ); ?>" class="<?php echo esc_attr( $status_filter === $st ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $st ) ); ?></a>
+						<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array_merge( $pill_args, array( 'status' => $st ) ) ) ); ?>" class="<?php echo esc_attr( $status_filter === $st ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $st ) ); ?></a>
 					<?php endforeach; ?>
 				</div>
 
-				<?php micro_erp_render_search_bar( 'sales', __( 'Search Sales', 'lime-micro-erp' ), __( 'Search by sale # or customer...', 'lime-micro-erp' ), array( 'status' => $status_filter ), $search, true ); ?>
+				<?php li_mi_erp_render_search_bar( 'sales', __( 'Search Sales', 'lime-micro-erp' ), __( 'Search by sale # or customer...', 'lime-micro-erp' ), array( 'status' => $status_filter ), $search, true ); ?>
 			</div>
 		</div>
 
@@ -389,15 +389,15 @@ micro_erp_print_admin_notice();
 										<td><strong><?php echo esc_html( $sale->sale_no ); ?></strong></td>
 										<td><?php echo esc_html( $sale->customer ); ?></td>
 										<td><?php echo esc_html( $sale->sale_date ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $sale->total ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $sale->amount_paid ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></td>
-										<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $sale->total ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $sale->amount_paid ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $balance ) ); ?></td>
+										<td><?php echo li_mi_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $sale->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array( 'edit' => $sale->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<?php if ( $balance > 0 ) : ?>
-													<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $sale->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
+													<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array( 'pay' => $sale->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
 												<?php endif; ?>
 											</div>
 										</td>
@@ -407,7 +407,7 @@ micro_erp_print_admin_notice();
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'sales', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'sales', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

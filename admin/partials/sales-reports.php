@@ -23,24 +23,24 @@ $rows = $wpdb->get_results(
 	)
 );
 
-$fiscal = micro_erp_get_active_fiscal_year();
-micro_erp_print_admin_notice();
+$fiscal = li_mi_erp_get_active_fiscal_year();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Sales Reports', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<?php
-	$total_sales_all = micro_erp_sum( $rows, 'total_sales' );
-	$total_paid_all  = micro_erp_sum( $rows, 'total_paid' );
-	$invoice_count   = (int) micro_erp_sum( $rows, 'invoice_count' );
+	$total_sales_all = li_mi_erp_sum( $rows, 'total_sales' );
+	$total_paid_all  = li_mi_erp_sum( $rows, 'total_paid' );
+	$invoice_count   = (int) li_mi_erp_sum( $rows, 'invoice_count' );
 	$pct_collected   = $total_sales_all > 0 ? round( ( $total_paid_all / $total_sales_all ) * 100 ) : 0;
 
 	$report_stats = array(
 		array(
 			'key'   => 'sales',
 			'label' => __( 'Total Sales (12 months)', 'lime-micro-erp' ),
-			'value' => micro_erp_format_money( $total_sales_all ),
+			'value' => li_mi_erp_format_money( $total_sales_all ),
 			'sub'   => __( 'Gross invoiced amount', 'lime-micro-erp' ),
 			'icon'  => 'chart-area',
 			'bar'   => null,
@@ -56,7 +56,7 @@ micro_erp_print_admin_notice();
 		array(
 			'key'   => 'collected',
 			'label' => __( 'Collected', 'lime-micro-erp' ),
-			'value' => micro_erp_format_money( $total_paid_all ),
+			'value' => li_mi_erp_format_money( $total_paid_all ),
 			'sub'   => sprintf(
 				/* translators: %d: percentage of total sales collected. */
 				__( '%d%% of total sales', 'lime-micro-erp' ),
@@ -120,9 +120,9 @@ micro_erp_print_admin_notice();
 								<tr>
 									<td><strong><?php echo esc_html( $month_name ); ?></strong></td>
 									<td class="text-right"><?php echo (int) $row->invoice_count; ?></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $row->total_sales ) ); ?></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $row->total_paid ) ); ?></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $outstanding ) ); ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $row->total_sales ) ); ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $row->total_paid ) ); ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $outstanding ) ); ?></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
@@ -146,10 +146,10 @@ micro_erp_print_admin_notice();
 							</tr>
 						</thead>
 						<tbody class="bg-white">
-							<?php foreach ( micro_erp_get_account_balances_by_type() as $type => $balance ) : ?>
+							<?php foreach ( li_mi_erp_get_account_balances_by_type() as $type => $balance ) : ?>
 								<tr>
 									<td><strong><?php echo esc_html( ucfirst( $type ) ); ?></strong></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $balance ) ); ?></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>

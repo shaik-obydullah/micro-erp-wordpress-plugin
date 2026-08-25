@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
 	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_fiscal_years WHERE id = %d", $edit_id ) );
@@ -13,20 +13,20 @@ if ( $edit_id ) {
 
 $rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_fiscal_years ORDER BY start_date DESC" );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'fiscal-years' );
+$back_url = li_mi_erp_admin_url( 'fiscal-years' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Fiscal Year', 'lime-micro-erp' ) : esc_html__( 'Fiscal Years', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'fiscal-years', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Fiscal Year', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
@@ -35,13 +35,13 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 					<form method="post" action="">
 						<?php
 						$action = $editing ? 'save_fiscal_year' : 'save_fiscal_year';
-						wp_nonce_field( 'micro_erp_fiscal_year_save' );
+						wp_nonce_field( 'li_mi_erp_fiscal_year_save' );
 						?>
-						<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 						<?php if ( $editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 						<?php endif; ?>
-						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+						<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
 							<label for="name" class="form-label"><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -99,21 +99,21 @@ $back_url = micro_erp_admin_url( 'fiscal-years' );
 										<td><?php echo $row->is_active ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-neutral">Closed</span>'; // phpcs:ignore ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'fiscal-years', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<?php if ( ! $row->is_active ) : ?>
 													<form method="post" action="" class="inline-form">
-														<?php wp_nonce_field( 'micro_erp_fiscal_year_activate' ); ?>
-														<input type="hidden" name="micro_erp_action" value="activate_fiscal_year">
+														<?php wp_nonce_field( 'li_mi_erp_fiscal_year_activate' ); ?>
+														<input type="hidden" name="li_mi_erp_action" value="activate_fiscal_year">
 														<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+														<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 														<button type="submit" class="pos-action activate"><?php esc_html_e( 'Activate', 'lime-micro-erp' ); ?></button>
 													</form>
 												<?php endif; ?>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this fiscal year?', 'lime-micro-erp' ); ?>');">
-													<?php wp_nonce_field( 'micro_erp_fiscal_year_delete' ); ?>
-													<input type="hidden" name="micro_erp_action" value="delete_fiscal_year">
+													<?php wp_nonce_field( 'li_mi_erp_fiscal_year_delete' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="delete_fiscal_year">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>

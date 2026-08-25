@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$income    = micro_erp_total_income();
-$expense   = micro_erp_total_expense();
+$income    = li_mi_erp_total_income();
+$expense   = li_mi_erp_total_expense();
 $receivable = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total - amount_paid),0) FROM {$wpdb->prefix}micro_erp_sales WHERE payment_status != %s", 'paid' ) );
 $payable   = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit - debit),0) FROM {$wpdb->prefix}micro_erp_journal_lines WHERE account_id = (SELECT id FROM {$wpdb->prefix}micro_erp_accounts WHERE code = %s LIMIT 1)", '2001' ) );
 
@@ -16,9 +16,9 @@ $pending_leave= (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wp
 $unpaid_sales = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_sales WHERE payment_status != %s", 'paid' ) );
 $recent_emp   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees ORDER BY id DESC LIMIT %d", 5 ) );
 $recent_jrnl  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_journal_entries ORDER BY id DESC LIMIT %d", 5 ) );
-$fy           = micro_erp_get_active_fiscal_year();
+$fy           = li_mi_erp_get_active_fiscal_year();
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Dashboard', 'lime-micro-erp' ); ?></h1>
@@ -37,7 +37,7 @@ micro_erp_print_admin_notice();
 					<?php esc_html_e( 'Total Income', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-success mb-0">
-					<?php echo esc_html( micro_erp_format_money( $income ) ); ?>
+					<?php echo esc_html( li_mi_erp_format_money( $income ) ); ?>
 				</p>
 				<small class="text-muted"><?php esc_html_e( 'All time revenue', 'lime-micro-erp' ); ?></small>
 			</div>
@@ -50,7 +50,7 @@ micro_erp_print_admin_notice();
 					<?php esc_html_e( 'Total Expense', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-danger mb-0">
-					<?php echo esc_html( micro_erp_format_money( $expense ) ); ?>
+					<?php echo esc_html( li_mi_erp_format_money( $expense ) ); ?>
 				</p>
 				<small class="text-muted"><?php esc_html_e( 'All time expenses', 'lime-micro-erp' ); ?></small>
 			</div>
@@ -63,7 +63,7 @@ micro_erp_print_admin_notice();
 					<?php esc_html_e( 'Total Receivable', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-info mb-0">
-					<?php echo esc_html( micro_erp_format_money( $receivable ) ); ?>
+					<?php echo esc_html( li_mi_erp_format_money( $receivable ) ); ?>
 				</p>
 				<small class="text-muted"><?php esc_html_e( 'Money owed to you', 'lime-micro-erp' ); ?></small>
 			</div>
@@ -76,7 +76,7 @@ micro_erp_print_admin_notice();
 					<?php esc_html_e( 'Total Payable', 'lime-micro-erp' ); ?>
 				</h3>
 				<p class="summary-number text-warning mb-0">
-					<?php echo esc_html( micro_erp_format_money( $payable ) ); ?>
+					<?php echo esc_html( li_mi_erp_format_money( $payable ) ); ?>
 				</p>
 				<small class="text-muted"><?php esc_html_e( 'Money you owe', 'lime-micro-erp' ); ?></small>
 			</div>
@@ -109,9 +109,9 @@ micro_erp_print_admin_notice();
 								<?php foreach ( $recent_sales as $sale ) : ?>
 									<tr>
 										<td><strong><?php echo esc_html( $sale->sale_no ); ?></strong></td>
-										<td><?php echo esc_html( micro_erp_contact_name( $sale->contact_id ) ); ?></td>
-										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( $sale->total ) ); ?></td>
-										<td><?php echo micro_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td><?php echo esc_html( li_mi_erp_contact_name( $sale->contact_id ) ); ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( $sale->total ) ); ?></td>
+										<td><?php echo li_mi_erp_status_badge( $sale->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td><?php echo esc_html( $sale->sale_date ); ?></td>
 									</tr>
 								<?php endforeach; ?>
@@ -179,8 +179,8 @@ micro_erp_print_admin_notice();
 								<tr>
 									<td><?php echo esc_html( $emp->employee_id ); ?></td>
 									<td><?php echo esc_html( $emp->name ); ?></td>
-									<td><?php echo esc_html( micro_erp_department_name( $emp->department_id ) ); ?></td>
-									<td><?php echo micro_erp_status_badge( $emp->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+									<td><?php echo esc_html( li_mi_erp_department_name( $emp->department_id ) ); ?></td>
+									<td><?php echo li_mi_erp_status_badge( $emp->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>

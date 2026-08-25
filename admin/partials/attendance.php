@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$date = micro_erp_query_text( 'date', current_time( 'Y-m-d' ) );
+$date = li_mi_erp_query_text( 'date', current_time( 'Y-m-d' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 	$date = current_time( 'Y-m-d' );
 }
@@ -30,9 +30,9 @@ foreach ( $existing as $a ) {
 }
 $unmarked = count( $employees ) - count( $existing );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
+$back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Attendance', 'lime-micro-erp' ); ?></h1>
@@ -40,7 +40,7 @@ $back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 
 	<form method="get" action="" class="date-nav mt-3">
 		<input type="hidden" name="page" value="micro-erp/attendance">
-		<a href="<?php echo esc_url( micro_erp_admin_url( 'attendance', array( 'date' => current_time( 'Y-m-d' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'lime-micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'attendance', array( 'date' => current_time( 'Y-m-d' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'lime-micro-erp' ); ?></a>
 		<input type="date" name="date" value="<?php echo esc_attr( $date ); ?>" class="form-control form-control-sm">
 		<button class="btn-primary"><?php esc_html_e( 'Load', 'lime-micro-erp' ); ?></button>
 	</form>
@@ -99,10 +99,10 @@ $back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 	</div>
 
 	<form method="post" action="">
-		<?php wp_nonce_field( 'micro_erp_attendance_save' ); ?>
-		<input type="hidden" name="micro_erp_action" value="save_attendance">
+		<?php wp_nonce_field( 'li_mi_erp_attendance_save' ); ?>
+		<input type="hidden" name="li_mi_erp_action" value="save_attendance">
 		<input type="hidden" name="date" value="<?php echo esc_attr( $date ); ?>">
-		<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+		<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 		<div class="row">
 			<div class="col-lg-12">
@@ -132,7 +132,7 @@ $back_url = micro_erp_admin_url( 'attendance', array( 'date' => $date ) );
 									<tr>
 										<td><?php echo esc_html( $emp->employee_id ); ?></td>
 										<td><strong><?php echo esc_html( $emp->name ); ?></strong></td>
-										<td><?php echo esc_html( micro_erp_department_name( $emp->department_id ) ); ?></td>
+										<td><?php echo esc_html( li_mi_erp_department_name( $emp->department_id ) ); ?></td>
 										<td><input type="time" name="attendance[<?php echo (int) $emp->id; ?>][check_in]" value="<?php echo $rec ? esc_attr( $rec->check_in ) : ''; ?>" class="form-control form-control-sm"></td>
 										<td><input type="time" name="attendance[<?php echo (int) $emp->id; ?>][check_out]" value="<?php echo $rec ? esc_attr( $rec->check_out ) : ''; ?>" class="form-control form-control-sm"></td>
 										<td>

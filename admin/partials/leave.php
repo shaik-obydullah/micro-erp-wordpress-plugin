@@ -8,10 +8,10 @@ global $wpdb;
 $leave_types = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}micro_erp_leave_types ORDER BY name ASC" );
 $employees   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE status = %s ORDER BY name ASC", 'active' ) );
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -67,15 +67,15 @@ if ( $search ) {
 	);
 }
 
-$edit_type_id = micro_erp_query_int( 'edit_type' );
+$edit_type_id = li_mi_erp_query_int( 'edit_type' );
 $editing_type = null;
 if ( $edit_type_id ) {
 	$editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_leave_types WHERE id = %d", $edit_type_id ) );
 }
 
-$back_url = micro_erp_admin_url( 'leave' );
+$back_url = li_mi_erp_admin_url( 'leave' );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Leave Management', 'lime-micro-erp' ); ?></h1>
@@ -122,9 +122,9 @@ micro_erp_print_admin_notice();
 			<div class="bg-light p-4 rounded shadow-sm mb-4">
 				<h2 class="mb-3 mt-1"><?php esc_html_e( 'New Leave Request', 'lime-micro-erp' ); ?></h2>
 				<form method="post" action="">
-					<?php wp_nonce_field( 'micro_erp_leave_request_save' ); ?>
-					<input type="hidden" name="micro_erp_action" value="save_leave_request">
-					<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+					<?php wp_nonce_field( 'li_mi_erp_leave_request_save' ); ?>
+					<input type="hidden" name="li_mi_erp_action" value="save_leave_request">
+					<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 					<div class="mb-3">
 						<label for="employee_id" class="form-label"><?php esc_html_e( 'Employee', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -173,13 +173,13 @@ micro_erp_print_admin_notice();
 				<form method="post" action="" class="mb-3">
 					<?php
 					$action = $editing_type ? 'update_leave_type' : 'save_leave_type';
-					wp_nonce_field( 'micro_erp_leave_type_save' );
+					wp_nonce_field( 'li_mi_erp_leave_type_save' );
 					?>
-					<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+					<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 					<?php if ( $editing_type ) : ?>
 						<input type="hidden" name="id" value="<?php echo (int) $editing_type->id; ?>">
 					<?php endif; ?>
-					<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+					<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 					<div class="mb-3">
 						<label for="lt_name" class="form-label"><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -215,12 +215,12 @@ micro_erp_print_admin_notice();
 								<td><?php echo $lt->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'lime-micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Off', 'lime-micro-erp' ) . '</span>'; // phpcs:ignore ?></td>
 								<td width="130">
 									<div class="pos-row-actions">
-										<a href="<?php echo esc_url( micro_erp_admin_url( 'leave', array( 'edit_type' => $lt->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+										<a href="<?php echo esc_url( li_mi_erp_admin_url( 'leave', array( 'edit_type' => $lt->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 										<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this leave type?', 'lime-micro-erp' ); ?>');">
-											<?php wp_nonce_field( 'micro_erp_leave_type_delete' ); ?>
-											<input type="hidden" name="micro_erp_action" value="delete_leave_type">
+											<?php wp_nonce_field( 'li_mi_erp_leave_type_delete' ); ?>
+											<input type="hidden" name="li_mi_erp_action" value="delete_leave_type">
 											<input type="hidden" name="id" value="<?php echo (int) $lt->id; ?>">
-											<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+											<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 											<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 										</form>
 									</div>
@@ -235,7 +235,7 @@ micro_erp_print_admin_notice();
 
 	<div class="row mt-1">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'leave', __( 'Search Leave Requests', 'lime-micro-erp' ), __( 'Search by employee, ID or reason...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'leave', __( 'Search Leave Requests', 'lime-micro-erp' ), __( 'Search by employee, ID or reason...', 'lime-micro-erp' ), array(), $search ); ?>
 			<div class="bg-light p-3 rounded shadow-sm border">
 				<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Leave Requests', 'lime-micro-erp' ); ?></h2>
 
@@ -259,28 +259,28 @@ micro_erp_print_admin_notice();
 							<?php endif; ?>
 							<?php foreach ( $requests as $req ) : ?>
 								<tr>
-									<td><strong><?php echo esc_html( micro_erp_employee_name( $req->employee_id ) ); ?></strong></td>
-									<td><?php echo esc_html( micro_erp_leave_type_name( $req->leave_type_id ) ); ?></td>
+									<td><strong><?php echo esc_html( li_mi_erp_employee_name( $req->employee_id ) ); ?></strong></td>
+									<td><?php echo esc_html( li_mi_erp_leave_type_name( $req->leave_type_id ) ); ?></td>
 									<td><?php echo esc_html( $req->start_date ); ?></td>
 									<td><?php echo esc_html( $req->end_date ); ?></td>
 									<td><?php echo esc_html( $req->total_days ); ?></td>
 									<td><?php echo esc_html( $req->reason ); ?></td>
-									<td><?php echo micro_erp_status_badge( $req->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+									<td><?php echo li_mi_erp_status_badge( $req->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 									<td>
 										<?php if ( 'pending' === $req->status ) : ?>
 											<div class="pos-row-actions">
 												<form method="post" action="" class="inline-form">
-													<?php wp_nonce_field( 'micro_erp_leave_status' ); ?>
-													<input type="hidden" name="micro_erp_action" value="approve_leave">
+													<?php wp_nonce_field( 'li_mi_erp_leave_status' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="approve_leave">
 													<input type="hidden" name="id" value="<?php echo (int) $req->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button class="pos-action edit"><?php esc_html_e( 'Approve', 'lime-micro-erp' ); ?></button>
 												</form>
 												<form method="post" action="" class="inline-form">
-													<?php wp_nonce_field( 'micro_erp_leave_status' ); ?>
-													<input type="hidden" name="micro_erp_action" value="reject_leave">
+													<?php wp_nonce_field( 'li_mi_erp_leave_status' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="reject_leave">
 													<input type="hidden" name="id" value="<?php echo (int) $req->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button class="pos-action delete"><?php esc_html_e( 'Reject', 'lime-micro-erp' ); ?></button>
 												</form>
 											</div>
@@ -292,7 +292,7 @@ micro_erp_print_admin_notice();
 					</table>
 				</div>
 
-				<?php micro_erp_render_pagination( 'leave', $total_items, $per_page ); ?>
+				<?php li_mi_erp_render_pagination( 'leave', $total_items, $per_page ); ?>
 
 			</div>
 		</div>

@@ -5,22 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$fy         = micro_erp_get_active_fiscal_year();
-$accounts   = micro_erp_get_accounts();
-$income_accounts   = micro_erp_get_accounts( 'income' );
-$expense_accounts  = micro_erp_get_accounts( 'expense' );
-$asset_accounts    = micro_erp_get_accounts( 'asset' );
+$fy         = li_mi_erp_get_active_fiscal_year();
+$accounts   = li_mi_erp_get_accounts();
+$income_accounts   = li_mi_erp_get_accounts( 'income' );
+$expense_accounts  = li_mi_erp_get_accounts( 'expense' );
+$asset_accounts    = li_mi_erp_get_accounts( 'asset' );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'settings' );
+$back_url = li_mi_erp_admin_url( 'settings' );
 
-$currency = micro_erp_get_currency_symbol();
-$company  = micro_erp_get_setting( 'company_name', '' );
-$tax_rate = micro_erp_get_setting( 'default_tax_rate', 5 );
-$def_income  = (int) micro_erp_get_setting( 'default_income_account', 0 );
-$def_expense = (int) micro_erp_get_setting( 'default_expense_account', 0 );
-$cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
+$currency = li_mi_erp_get_currency_symbol();
+$company  = li_mi_erp_get_setting( 'company_name', '' );
+$tax_rate = li_mi_erp_get_setting( 'default_tax_rate', 5 );
+$def_income  = (int) li_mi_erp_get_setting( 'default_income_account', 0 );
+$def_expense = (int) li_mi_erp_get_setting( 'default_expense_account', 0 );
+$cash_acct   = (int) li_mi_erp_get_setting( 'cash_account', 0 );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Settings', 'lime-micro-erp' ); ?></h1>
@@ -31,7 +31,7 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 			<strong><?php esc_html_e( 'Active Fiscal Year:', 'lime-micro-erp' ); ?></strong>
 			<?php echo esc_html( $fy->name ); ?> (<?php echo esc_html( $fy->start_date ); ?> - <?php echo esc_html( $fy->end_date ); ?>)
 			<span class="status-badge status-active"><?php esc_html_e( 'Active', 'lime-micro-erp' ); ?></span>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'fiscal-years' ) ); ?>" class="btn-secondary ml-auto">
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'fiscal-years' ) ); ?>" class="btn-secondary ml-auto">
 				<?php esc_html_e( 'Manage Fiscal Years', 'lime-micro-erp' ); ?>
 				<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
 			</a>
@@ -39,9 +39,9 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 	<?php endif; ?>
 
 	<form method="post" action="">
-		<?php wp_nonce_field( 'micro_erp_settings_save' ); ?>
-		<input type="hidden" name="micro_erp_action" value="save_settings">
-		<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+		<?php wp_nonce_field( 'li_mi_erp_settings_save' ); ?>
+		<input type="hidden" name="li_mi_erp_action" value="save_settings">
+		<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
@@ -114,15 +114,15 @@ $cash_acct   = (int) micro_erp_get_setting( 'cash_account', 0 );
 					<h2 class="mb-3 mt-1"><?php esc_html_e( 'Modules', 'lime-micro-erp' ); ?></h2>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) micro_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Accounting Module', 'lime-micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_accounting" name="module_accounting" <?php checked( (int) li_mi_erp_get_setting( 'module_accounting', 1 ) ); ?>> <?php esc_html_e( 'Accounting Module', 'lime-micro-erp' ); ?></label>
 					</div>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) micro_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'HRM Module', 'lime-micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_hrm" name="module_hrm" <?php checked( (int) li_mi_erp_get_setting( 'module_hrm', 1 ) ); ?>> <?php esc_html_e( 'HRM Module', 'lime-micro-erp' ); ?></label>
 					</div>
 
 					<div class="mb-3 form-check">
-						<label><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) micro_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Sales Module', 'lime-micro-erp' ); ?></label>
+						<label><input type="checkbox" id="module_sales" name="module_sales" <?php checked( (int) li_mi_erp_get_setting( 'module_sales', 1 ) ); ?>> <?php esc_html_e( 'Sales Module', 'lime-micro-erp' ); ?></label>
 					</div>
 				</div>
 			</div>

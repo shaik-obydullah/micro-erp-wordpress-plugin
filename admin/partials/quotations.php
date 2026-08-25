@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $wpdb;
 
 $contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
-$accounts = micro_erp_get_accounts();
+$accounts = li_mi_erp_get_accounts();
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 $edit_items = array();
 if ( $edit_id ) {
@@ -16,10 +16,10 @@ if ( $edit_id ) {
 	$edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotation_items WHERE quotation_id = %d ORDER BY id ASC", $edit_id ) );
 }
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -73,31 +73,31 @@ if ( $search ) {
 	);
 }
 
-$back_url = micro_erp_admin_url( 'quotations' );
+$back_url = li_mi_erp_admin_url( 'quotations' );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Quotation', 'lime-micro-erp' ) : esc_html__( 'Quotations', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'quotations', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Quotation', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'quotations', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Quotation', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php
 			$action = $editing ? 'update_quotation' : 'save_quotation';
-			wp_nonce_field( 'micro_erp_quotation_save' );
+			wp_nonce_field( 'li_mi_erp_quotation_save' );
 			?>
-			<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 			<?php if ( $editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 			<?php endif; ?>
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -106,7 +106,7 @@ micro_erp_print_admin_notice();
 
 						<div class="mb-3">
 							<label class="form-label"><?php esc_html_e( 'Quotation #', 'lime-micro-erp' ); ?></label>
-							<input type="text" class="form-control" value="<?php echo $editing ? esc_attr( $editing->quotation_no ) : esc_attr( micro_erp_next_quotation_no() ); ?>" readonly style="background:#f9f9f9;">
+							<input type="text" class="form-control" value="<?php echo $editing ? esc_attr( $editing->quotation_no ) : esc_attr( li_mi_erp_next_quotation_no() ); ?>" readonly style="background:#f9f9f9;">
 						</div>
 
 						<div class="mb-3">
@@ -156,7 +156,7 @@ micro_erp_print_admin_notice();
 											<td><input type="number" name="item_quantity[]" value="<?php echo esc_attr( $item->quantity ); ?>" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 											<td><input type="number" name="item_price[]" value="<?php echo esc_attr( $item->unit_price ); ?>" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
 											<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( $item->tax_rate ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
-											<td class="text-right i-line-total"><?php echo esc_html( micro_erp_format_money( $item->total ) ); ?></td>
+											<td class="text-right i-line-total"><?php echo esc_html( li_mi_erp_format_money( $item->total ) ); ?></td>
 											<td><button type="button" class="btn-danger i-remove">×</button></td>
 										</tr>
 									<?php endforeach; ?>
@@ -165,7 +165,7 @@ micro_erp_print_admin_notice();
 										<td><input type="text" name="item_description[]" required class="form-control form-control-sm"></td>
 										<td><input type="number" name="item_quantity[]" value="1" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 										<td><input type="number" name="item_price[]" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
-										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( micro_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
+										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( li_mi_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
 										<td class="text-right i-line-total">—</td>
 										<td><button type="button" class="btn-danger i-remove">×</button></td>
 									</tr>
@@ -173,7 +173,7 @@ micro_erp_print_admin_notice();
 										<td><input type="text" name="item_description[]" required class="form-control form-control-sm"></td>
 										<td><input type="number" name="item_quantity[]" value="1" step="0.01" min="1" required class="i-qty form-control form-control-sm"></td>
 										<td><input type="number" name="item_price[]" step="0.01" min="0" required class="i-price form-control form-control-sm"></td>
-										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( micro_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
+										<td><input type="number" name="item_tax[]" value="<?php echo esc_attr( li_mi_erp_get_setting( 'default_tax_rate', 0 ) ); ?>" step="0.01" min="0" class="i-tax form-control form-control-sm"></td>
 										<td class="text-right i-line-total">—</td>
 										<td><button type="button" class="btn-danger i-remove">×</button></td>
 									</tr>
@@ -228,7 +228,7 @@ micro_erp_print_admin_notice();
 
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'quotations', __( 'Search Quotations', 'lime-micro-erp' ), __( 'Search by quotation # or customer...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'quotations', __( 'Search Quotations', 'lime-micro-erp' ), __( 'Search by quotation # or customer...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -257,39 +257,39 @@ micro_erp_print_admin_notice();
 								<?php foreach ( $rows as $q ) : ?>
 									<tr>
 										<td><strong><?php echo esc_html( $q->quotation_no ); ?></strong></td>
-										<td><?php echo esc_html( micro_erp_contact_name( $q->contact_id ) ); ?></td>
+										<td><?php echo esc_html( li_mi_erp_contact_name( $q->contact_id ) ); ?></td>
 										<td><?php echo esc_html( $q->quotation_date ); ?></td>
 										<td><?php echo esc_html( $q->valid_until ); ?></td>
-										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( $q->total ) ); ?></td>
-										<td><?php echo micro_erp_status_badge( $q->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( $q->total ) ); ?></td>
+										<td><?php echo li_mi_erp_status_badge( $q->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'quotations', array( 'edit' => $q->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'quotations', array( 'edit' => $q->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<?php if ( 'draft' === $q->status ) : ?>
 													<form method="post" action="" class="inline-form">
-														<?php wp_nonce_field( 'micro_erp_quotation_status' ); ?>
-														<input type="hidden" name="micro_erp_action" value="quotation_status">
+														<?php wp_nonce_field( 'li_mi_erp_quotation_status' ); ?>
+														<input type="hidden" name="li_mi_erp_action" value="quotation_status">
 														<input type="hidden" name="id" value="<?php echo (int) $q->id; ?>">
 														<input type="hidden" name="status" value="sent">
-														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+														<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 														<button class="pos-action edit"><?php esc_html_e( 'Send', 'lime-micro-erp' ); ?></button>
 													</form>
 												<?php endif; ?>
 												<?php if ( in_array( $q->status, array( 'sent', 'accepted' ), true ) ) : ?>
 													<form method="post" action="" class="inline-form">
-														<?php wp_nonce_field( 'micro_erp_quotation_convert' ); ?>
-														<input type="hidden" name="micro_erp_action" value="convert_quotation">
+														<?php wp_nonce_field( 'li_mi_erp_quotation_convert' ); ?>
+														<input type="hidden" name="li_mi_erp_action" value="convert_quotation">
 														<input type="hidden" name="id" value="<?php echo (int) $q->id; ?>">
-														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+														<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 														<button class="pos-action edit"><?php esc_html_e( 'Convert', 'lime-micro-erp' ); ?></button>
 													</form>
 												<?php endif; ?>
 												<?php if ( 'draft' === $q->status ) : ?>
 													<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this quotation?', 'lime-micro-erp' ); ?>');">
-														<?php wp_nonce_field( 'micro_erp_quotation_delete' ); ?>
-														<input type="hidden" name="micro_erp_action" value="delete_quotation">
+														<?php wp_nonce_field( 'li_mi_erp_quotation_delete' ); ?>
+														<input type="hidden" name="li_mi_erp_action" value="delete_quotation">
 														<input type="hidden" name="id" value="<?php echo (int) $q->id; ?>">
-														<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+														<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 														<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 													</form>
 												<?php endif; ?>
@@ -301,7 +301,7 @@ micro_erp_print_admin_notice();
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'quotations', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'quotations', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

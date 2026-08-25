@@ -5,17 +5,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
 	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_contacts WHERE id = %d", $edit_id ) );
 }
 
-$type_filter = micro_erp_query_key( 'type' );
-$search      = micro_erp_query_text( 's' );
+$type_filter = li_mi_erp_query_key( 'type' );
+$search      = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $type_filter && $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -102,20 +102,20 @@ if ( $type_filter && $search ) {
 	);
 }
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'contacts' );
+$back_url = li_mi_erp_admin_url( 'contacts' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Contact', 'lime-micro-erp' ) : esc_html__( 'Contacts', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Contact', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'contacts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Contact', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
@@ -126,13 +126,13 @@ $back_url = micro_erp_admin_url( 'contacts' );
 					<form method="post" action="">
 						<?php
 						$action = $editing ? 'update_contact' : 'save_contact';
-						wp_nonce_field( 'micro_erp_contact_save' );
+						wp_nonce_field( 'li_mi_erp_contact_save' );
 						?>
-						<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 						<?php if ( $editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 						<?php endif; ?>
-						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+						<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
 							<label for="type" class="form-label"><?php esc_html_e( 'Type', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -213,12 +213,12 @@ $back_url = micro_erp_admin_url( 'contacts' );
 							if ( $search ) {
 								$pill_args['s'] = $search;
 							}
-							$all_url = micro_erp_admin_url( 'contacts', $pill_args );
+							$all_url = li_mi_erp_admin_url( 'contacts', $pill_args );
 							?>
 							<div class="filter-pills ml-auto" role="group" aria-label="<?php esc_attr_e( 'Filter by contact type', 'lime-micro-erp' ); ?>">
 								<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( '' === $type_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All Types', 'lime-micro-erp' ); ?></a>
 								<?php foreach ( array( 'customer', 'vendor', 'supplier' ) as $t ) : ?>
-									<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array_merge( $pill_args, array( 'type' => $t ) ) ) ); ?>" class="<?php echo esc_attr( $type_filter === $t ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $t ) ); ?></a>
+									<a href="<?php echo esc_url( li_mi_erp_admin_url( 'contacts', array_merge( $pill_args, array( 'type' => $t ) ) ) ); ?>" class="<?php echo esc_attr( $type_filter === $t ? 'active' : '' ); ?>"><?php echo esc_html( ucfirst( $t ) ); ?></a>
 								<?php endforeach; ?>
 							</div>
 						</div>
@@ -245,19 +245,19 @@ $back_url = micro_erp_admin_url( 'contacts' );
 								<?php foreach ( $rows as $row ) : ?>
 									<tr>
 										<td><strong><?php echo esc_html( $row->name ); ?></strong></td>
-										<td><?php echo micro_erp_contact_type_badge( $row->type ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td><?php echo li_mi_erp_contact_type_badge( $row->type ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td><?php echo esc_html( $row->email ); ?></td>
 										<td><?php echo esc_html( $row->phone ); ?></td>
 										<td><?php echo esc_html( $row->company ); ?></td>
-										<td><?php echo micro_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td><?php echo li_mi_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'contacts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'contacts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this contact?', 'lime-micro-erp' ); ?>');">
-													<?php wp_nonce_field( 'micro_erp_contact_delete' ); ?>
-													<input type="hidden" name="micro_erp_action" value="delete_contact">
+													<?php wp_nonce_field( 'li_mi_erp_contact_delete' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="delete_contact">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
@@ -268,7 +268,7 @@ $back_url = micro_erp_admin_url( 'contacts' );
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'contacts', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'contacts', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

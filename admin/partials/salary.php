@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$month = micro_erp_query_text( 'month', current_time( 'Y-m' ) );
+$month = li_mi_erp_query_text( 'month', current_time( 'Y-m' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 	$month = current_time( 'Y-m' );
 }
@@ -16,10 +16,10 @@ $mnum  = (int) substr( $month, 5, 2 );
 $prev = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
 $next = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -110,23 +110,23 @@ $total_salary = (float) ( $totals ? $totals->salary : 0 );
 $total_paid   = (float) ( $totals ? $totals->paid : 0 );
 $total_unpaid = (float) ( $totals ? $totals->unpaid : 0 );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
+$back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'lime-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<div class="month-nav mt-3">
-		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'lime-micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'lime-micro-erp' ); ?></a>
 		<strong><?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></strong>
-		<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'lime-micro-erp' ); ?> →</a>
+		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'lime-micro-erp' ); ?> →</a>
 		<form method="post" action="" class="inline-form" style="margin-left:auto;">
-			<?php wp_nonce_field( 'micro_erp_salary_paid' ); ?>
-			<input type="hidden" name="micro_erp_action" value="mark_salary_paid">
+			<?php wp_nonce_field( 'li_mi_erp_salary_paid' ); ?>
+			<input type="hidden" name="li_mi_erp_action" value="mark_salary_paid">
 			<input type="hidden" name="month" value="<?php echo esc_attr( $month ); ?>">
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 			<button type="submit" class="btn-save">
 				<span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
 				<?php esc_html_e( 'Mark All Paid', 'lime-micro-erp' ); ?>
@@ -151,7 +151,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		array(
 			'key'   => 'total',
 			'label' => __( 'Total Salary', 'lime-micro-erp' ),
-			'value' => micro_erp_format_money( $total_salary ),
+			'value' => li_mi_erp_format_money( $total_salary ),
 			'sub'   => $month_label,
 			'icon'  => 'chart-line',
 			'bar'   => null,
@@ -159,7 +159,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		array(
 			'key'   => 'paid',
 			'label' => __( 'Paid', 'lime-micro-erp' ),
-			'value' => micro_erp_format_money( $total_paid ),
+			'value' => li_mi_erp_format_money( $total_paid ),
 			'sub'   => sprintf(
 				/* translators: %d: percentage of total salary already paid. */
 				__( '%d%% of total salary', 'lime-micro-erp' ),
@@ -171,7 +171,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 		array(
 			'key'   => 'due',
 			'label' => __( 'Unpaid', 'lime-micro-erp' ),
-			'value' => micro_erp_format_money( $total_unpaid ),
+			'value' => li_mi_erp_format_money( $total_unpaid ),
 			'sub'   => sprintf(
 				/* translators: %d: percentage of total salary still unpaid. */
 				__( '%d%% of total salary', 'lime-micro-erp' ),
@@ -184,7 +184,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 	?>
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'salary', __( 'Search Employees', 'lime-micro-erp' ), __( 'Search by name or employee ID...', 'lime-micro-erp' ), array( 'month' => $month ), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'salary', __( 'Search Employees', 'lime-micro-erp' ), __( 'Search by name or employee ID...', 'lime-micro-erp' ), array( 'month' => $month ), $search ); ?>
 		</div>
 	</div>
 
@@ -207,10 +207,10 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 	</div>
 
 	<form method="post" action="">
-		<?php wp_nonce_field( 'micro_erp_salary_paid' ); ?>
-		<input type="hidden" name="micro_erp_action" value="mark_salary_paid">
+		<?php wp_nonce_field( 'li_mi_erp_salary_paid' ); ?>
+		<input type="hidden" name="li_mi_erp_action" value="mark_salary_paid">
 		<input type="hidden" name="month" value="<?php echo esc_attr( $month ); ?>">
-		<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+		<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 		<div class="row">
 			<div class="col-lg-12">
@@ -248,11 +248,11 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 										<td><?php echo esc_html( $emp->employee_id ); ?></td>
 										<td><strong><?php echo esc_html( $emp->name ); ?></strong></td>
 										<td><?php echo esc_html( $emp->department_name ); ?></td>
-										<td class="text-right"><?php echo esc_html( micro_erp_format_money( $basic ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $basic ) ); ?></td>
 										<td><input type="number" name="allowances[<?php echo (int) $emp->id; ?>]" value="<?php echo esc_attr( $allow ); ?>" step="0.01" min="0" style="width:110px;" <?php echo $is_paid ? 'disabled' : ''; ?>></td>
 										<td><input type="number" name="deductions[<?php echo (int) $emp->id; ?>]" value="<?php echo esc_attr( $deduct ); ?>" step="0.01" min="0" style="width:110px;" <?php echo $is_paid ? 'disabled' : ''; ?>></td>
-										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( $net ) ); ?></td>
-										<td><?php echo micro_erp_status_badge( $is_paid ? 'paid' : 'unpaid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( $net ) ); ?></td>
+										<td><?php echo li_mi_erp_status_badge( $is_paid ? 'paid' : 'unpaid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td class="text-right">
 											<?php if ( ! $is_paid ) : ?>
 												<button type="submit" name="employee_id" value="<?php echo (int) $emp->id; ?>" class="btn-success"><?php esc_html_e( 'Mark Paid', 'lime-micro-erp' ); ?></button>
@@ -266,7 +266,7 @@ $back_url = micro_erp_admin_url( 'salary', array( 'month' => $month ) );
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'salary', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'salary', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

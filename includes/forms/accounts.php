@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_account_form( $action ) {
-	micro_erp_verify_nonce( 'micro_erp_account_save' );
+function li_mi_erp_handle_account_form( $action ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_account_save' );
 
 	$data = array(
 		'code'      => isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '',
@@ -15,16 +15,16 @@ function micro_erp_handle_account_form( $action ) {
 	);
 
 	if ( ! $data['code'] || ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Code and name are required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Code and name are required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = micro_erp_table( 'accounts' );
+	$table = li_mi_erp_table( 'accounts' );
 
 	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE code = %s AND id != %d", $data['code'], isset( $_POST['id'] ) ? (int) $_POST['id'] : 0 ) );
 	if ( $exists ) {
-		micro_erp_redirect_notice( __( 'An account with that code already exists.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'An account with that code already exists.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -39,17 +39,17 @@ function micro_erp_handle_account_form( $action ) {
 		$message   = __( 'Account created.', 'lime-micro-erp' );
 	}
 
-	micro_erp_audit_log( 'save', 'account', $entity_id, $data['code'] . ' - ' . $data['name'] );
-	micro_erp_redirect_notice( $message );
+	li_mi_erp_audit_log( 'save', 'account', $entity_id, $data['code'] . ' - ' . $data['name'] );
+	li_mi_erp_redirect_notice( $message );
 }
 
-function micro_erp_handle_delete_account() {
-	micro_erp_verify_nonce( 'micro_erp_account_delete' );
+function li_mi_erp_handle_delete_account() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_account_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$table       = micro_erp_table( 'accounts' );
-	$lines_table = micro_erp_table( 'journal_lines' );
+	$table       = li_mi_erp_table( 'accounts' );
+	$lines_table = li_mi_erp_table( 'journal_lines' );
 
 	$used = $wpdb->get_var(
 		$wpdb->prepare(
@@ -58,10 +58,10 @@ function micro_erp_handle_delete_account() {
 		)
 	);
 	if ( $used ) {
-		micro_erp_redirect_notice( __( 'This account is used by journal entries and cannot be deleted.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'This account is used by journal entries and cannot be deleted.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 	$wpdb->delete( $table, array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'account', $id, 'Deleted account #' . $id );
-	micro_erp_redirect_notice( __( 'Account deleted.', 'lime-micro-erp' ) );
+	li_mi_erp_audit_log( 'delete', 'account', $id, 'Deleted account #' . $id );
+	li_mi_erp_redirect_notice( __( 'Account deleted.', 'lime-micro-erp' ) );
 }

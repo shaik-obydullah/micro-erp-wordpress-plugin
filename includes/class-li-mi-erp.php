@@ -3,20 +3,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once MICRO_ERP_PATH . 'includes/forms/fiscal-years.php';
-require_once MICRO_ERP_PATH . 'includes/forms/settings.php';
-require_once MICRO_ERP_PATH . 'includes/forms/contacts.php';
-require_once MICRO_ERP_PATH . 'includes/forms/accounts.php';
-require_once MICRO_ERP_PATH . 'includes/forms/journal.php';
-require_once MICRO_ERP_PATH . 'includes/forms/employees.php';
-require_once MICRO_ERP_PATH . 'includes/forms/departments.php';
-require_once MICRO_ERP_PATH . 'includes/forms/attendance.php';
-require_once MICRO_ERP_PATH . 'includes/forms/leave.php';
-require_once MICRO_ERP_PATH . 'includes/forms/salary.php';
-require_once MICRO_ERP_PATH . 'includes/forms/quotations.php';
-require_once MICRO_ERP_PATH . 'includes/forms/sales.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/fiscal-years.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/settings.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/contacts.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/accounts.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/journal.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/employees.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/departments.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/attendance.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/leave.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/salary.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/quotations.php';
+require_once LI_MI_ERP_PATH . 'includes/forms/sales.php';
 
-class MicroERP {
+class LiMiErp {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
@@ -89,120 +89,120 @@ class MicroERP {
 		if ( ! $screen || strpos( $screen->id, 'micro-erp' ) === false ) {
 			return;
 		}
-		$css_ver = MICRO_ERP_VERSION . '.' . (int) filemtime( MICRO_ERP_PATH . 'assets/css/micro-erp-admin.css' );
-		wp_enqueue_style( 'micro-erp-base', MICRO_ERP_URL . 'assets/css/base.css', array(), $css_ver );
-		wp_enqueue_style( 'micro-erp-admin', MICRO_ERP_URL . 'assets/css/micro-erp-admin.css', array( 'micro-erp-base' ), $css_ver );
-		wp_enqueue_script( 'micro-erp-admin', MICRO_ERP_URL . 'assets/js/micro-erp-admin.js', array( 'jquery' ), MICRO_ERP_VERSION, true );
+		$css_ver = LI_MI_ERP_VERSION . '.' . (int) filemtime( LI_MI_ERP_PATH . 'assets/css/li-mi-erp-admin.css' );
+		wp_enqueue_style( 'li-mi-erp-base', LI_MI_ERP_URL . 'assets/css/base.css', array(), $css_ver );
+		wp_enqueue_style( 'li-mi-erp-admin', LI_MI_ERP_URL . 'assets/css/li-mi-erp-admin.css', array( 'li-mi-erp-base' ), $css_ver );
+		wp_enqueue_script( 'li-mi-erp-admin', LI_MI_ERP_URL . 'assets/js/li-mi-erp-admin.js', array( 'jquery' ), LI_MI_ERP_VERSION, true );
 	}
 
 	public function handle_forms() {
-		if ( ! current_user_can( 'manage_options' ) || ! isset( $_POST['micro_erp_action'] ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! isset( $_POST['li_mi_erp_action'] ) ) {
 			return;
 		}
 
-		$action = sanitize_key( wp_unslash( $_POST['micro_erp_action'] ) );
+		$action = sanitize_key( wp_unslash( $_POST['li_mi_erp_action'] ) );
 
 		switch ( $action ) {
 			case 'save_fiscal_year':
-				micro_erp_handle_fiscal_year_form();
+				li_mi_erp_handle_fiscal_year_form();
 				break;
 			case 'delete_fiscal_year':
-				micro_erp_handle_delete_fiscal_year();
+				li_mi_erp_handle_delete_fiscal_year();
 				break;
 			case 'activate_fiscal_year':
-				micro_erp_handle_activate_fiscal_year();
+				li_mi_erp_handle_activate_fiscal_year();
 				break;
 			case 'save_settings':
-				micro_erp_handle_settings_form();
+				li_mi_erp_handle_settings_form();
 				break;
 			case 'save_contact':
 			case 'update_contact':
-				micro_erp_handle_contact_form( $action );
+				li_mi_erp_handle_contact_form( $action );
 				break;
 			case 'delete_contact':
-				micro_erp_handle_delete_contact();
+				li_mi_erp_handle_delete_contact();
 				break;
 			case 'save_account':
 			case 'update_account':
-				micro_erp_handle_account_form( $action );
+				li_mi_erp_handle_account_form( $action );
 				break;
 			case 'delete_account':
-				micro_erp_handle_delete_account();
+				li_mi_erp_handle_delete_account();
 				break;
 			case 'save_journal':
-				micro_erp_handle_journal_form();
+				li_mi_erp_handle_journal_form();
 				break;
 			case 'save_transaction':
-				micro_erp_handle_transaction_form();
+				li_mi_erp_handle_transaction_form();
 				break;
 			case 'delete_journal':
-				micro_erp_handle_delete_journal();
+				li_mi_erp_handle_delete_journal();
 				break;
 			case 'save_employee':
 			case 'update_employee':
-				micro_erp_handle_employee_form( $action );
+				li_mi_erp_handle_employee_form( $action );
 				break;
 			case 'delete_employee':
-				micro_erp_handle_delete_employee();
+				li_mi_erp_handle_delete_employee();
 				break;
 			case 'save_department':
 			case 'update_department':
-				micro_erp_handle_department_form( $action );
+				li_mi_erp_handle_department_form( $action );
 				break;
 			case 'delete_department':
-				micro_erp_handle_delete_department();
+				li_mi_erp_handle_delete_department();
 				break;
 			case 'save_attendance':
-				micro_erp_handle_attendance_form();
+				li_mi_erp_handle_attendance_form();
 				break;
 			case 'delete_attendance':
-				micro_erp_handle_delete_attendance();
+				li_mi_erp_handle_delete_attendance();
 				break;
 			case 'save_leave_type':
 			case 'update_leave_type':
-				micro_erp_handle_leave_type_form( $action );
+				li_mi_erp_handle_leave_type_form( $action );
 				break;
 			case 'delete_leave_type':
-				micro_erp_handle_delete_leave_type();
+				li_mi_erp_handle_delete_leave_type();
 				break;
 			case 'save_leave_request':
-				micro_erp_handle_leave_request_form();
+				li_mi_erp_handle_leave_request_form();
 				break;
 			case 'approve_leave':
-				micro_erp_handle_leave_status( 'approved' );
+				li_mi_erp_handle_leave_status( 'approved' );
 				break;
 			case 'reject_leave':
-				micro_erp_handle_leave_status( 'rejected' );
+				li_mi_erp_handle_leave_status( 'rejected' );
 				break;
 			case 'mark_salary_paid':
-				micro_erp_handle_salary_paid();
+				li_mi_erp_handle_salary_paid();
 				break;
 			case 'save_quotation':
 			case 'update_quotation':
-				micro_erp_handle_quotation_form( $action );
+				li_mi_erp_handle_quotation_form( $action );
 				break;
 			case 'delete_quotation':
-				micro_erp_handle_delete_quotation();
+				li_mi_erp_handle_delete_quotation();
 				break;
 			case 'quotation_status':
-				micro_erp_handle_quotation_status();
+				li_mi_erp_handle_quotation_status();
 				break;
 			case 'convert_quotation':
-				micro_erp_handle_convert_quotation();
+				li_mi_erp_handle_convert_quotation();
 				break;
 			case 'save_sale':
 			case 'update_sale':
-				micro_erp_handle_sale_form( $action );
+				li_mi_erp_handle_sale_form( $action );
 				break;
 			case 'delete_sale':
-				micro_erp_handle_delete_sale();
+				li_mi_erp_handle_delete_sale();
 				break;
 			case 'record_payment':
-				micro_erp_handle_record_payment();
+				li_mi_erp_handle_record_payment();
 				break;
 		}
 
-		$redirect = isset( $_POST['micro_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['micro_erp_redirect'] ) ) : admin_url( 'admin.php?page=micro-erp/dashboard' );
+		$redirect = isset( $_POST['li_mi_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['li_mi_erp_redirect'] ) ) : admin_url( 'admin.php?page=micro-erp/dashboard' );
 		wp_safe_redirect( $redirect );
 		exit;
 	}
@@ -223,7 +223,7 @@ class MicroERP {
 		}
 
 		$slug = str_replace( 'micro-erp/', '', $page );
-		$file = MICRO_ERP_PATH . 'admin/partials/' . $slug . '.php';
+		$file = LI_MI_ERP_PATH . 'admin/partials/' . $slug . '.php';
 
 		if ( file_exists( $file ) ) {
 			include $file;

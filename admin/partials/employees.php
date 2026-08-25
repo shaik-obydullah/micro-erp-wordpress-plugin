@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
 	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE id = %d", $edit_id ) );
@@ -13,11 +13,11 @@ if ( $edit_id ) {
 
 $departments = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_departments WHERE status = %s ORDER BY name ASC", 'active' ) );
 
-$dept_filter = micro_erp_query_int( 'department_id' );
-$search      = micro_erp_query_text( 's' );
+$dept_filter = li_mi_erp_query_int( 'department_id' );
+$search      = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $dept_filter && $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -100,31 +100,31 @@ if ( $dept_filter && $search ) {
 	);
 }
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'employees' );
+$back_url = li_mi_erp_admin_url( 'employees' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Employee', 'lime-micro-erp' ) : esc_html__( 'Employees', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'employees', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Employee', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'employees', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Employee', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<form method="post" action="">
 			<?php
 			$action = $editing ? 'update_employee' : 'save_employee';
-			wp_nonce_field( 'micro_erp_employee_save' );
+			wp_nonce_field( 'li_mi_erp_employee_save' );
 			?>
-			<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 			<?php if ( $editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 			<?php endif; ?>
-			<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -133,7 +133,7 @@ $back_url = micro_erp_admin_url( 'employees' );
 
 						<div class="mb-3">
 							<label for="employee_id" class="form-label"><?php esc_html_e( 'Employee ID', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
-							<input type="text" name="employee_id" id="employee_id" class="form-control" value="<?php echo $editing ? esc_attr( $editing->employee_id ) : esc_attr( micro_erp_next_employee_id() ); ?>" <?php echo $editing ? '' : 'readonly'; ?> style="background:#f9f9f9;">
+							<input type="text" name="employee_id" id="employee_id" class="form-control" value="<?php echo $editing ? esc_attr( $editing->employee_id ) : esc_attr( li_mi_erp_next_employee_id() ); ?>" <?php echo $editing ? '' : 'readonly'; ?> style="background:#f9f9f9;">
 						</div>
 
 						<div class="mb-3">
@@ -244,12 +244,12 @@ $back_url = micro_erp_admin_url( 'employees' );
 							if ( $search ) {
 								$pill_args['s'] = $search;
 							}
-							$all_url = micro_erp_admin_url( 'employees', $pill_args );
+							$all_url = li_mi_erp_admin_url( 'employees', $pill_args );
 							?>
 							<div class="filter-pills ml-auto" role="group" aria-label="<?php esc_attr_e( 'Filter by department', 'lime-micro-erp' ); ?>">
 								<a href="<?php echo esc_url( $all_url ); ?>" class="<?php echo esc_attr( ! $dept_filter ? 'active' : '' ); ?>"><?php esc_html_e( 'All Departments', 'lime-micro-erp' ); ?></a>
 								<?php foreach ( $departments as $dept ) : ?>
-									<a href="<?php echo esc_url( micro_erp_admin_url( 'employees', array_merge( $pill_args, array( 'department_id' => (int) $dept->id ) ) ) ); ?>" class="<?php echo esc_attr( $dept_filter === (int) $dept->id ? 'active' : '' ); ?>"><?php echo esc_html( $dept->name ); ?></a>
+									<a href="<?php echo esc_url( li_mi_erp_admin_url( 'employees', array_merge( $pill_args, array( 'department_id' => (int) $dept->id ) ) ) ); ?>" class="<?php echo esc_attr( $dept_filter === (int) $dept->id ? 'active' : '' ); ?>"><?php echo esc_html( $dept->name ); ?></a>
 								<?php endforeach; ?>
 							</div>
 						</div>
@@ -278,20 +278,20 @@ $back_url = micro_erp_admin_url( 'employees' );
 									<tr>
 										<td><?php echo esc_html( $row->employee_id ); ?></td>
 										<td><strong><?php echo esc_html( $row->name ); ?></strong><br><small class="text-muted"><?php echo esc_html( $row->email ); ?></small></td>
-										<td><?php echo esc_html( micro_erp_department_name( $row->department_id ) ); ?></td>
+										<td><?php echo esc_html( li_mi_erp_department_name( $row->department_id ) ); ?></td>
 										<td><?php echo esc_html( $row->designation ); ?></td>
 										<td><?php echo esc_html( $row->date_of_join ); ?></td>
-										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( $row->basic_salary ) ); ?></td>
-										<td><?php echo micro_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( $row->basic_salary ) ); ?></td>
+										<td><?php echo li_mi_erp_status_badge( $row->status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'employees', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'salary', array( 'month' => current_time( 'Y-m' ) ) ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Salary', 'lime-micro-erp' ); ?></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'employees', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'salary', array( 'month' => current_time( 'Y-m' ) ) ) ); ?>" class="pos-action edit"><?php esc_html_e( 'Salary', 'lime-micro-erp' ); ?></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this employee?', 'lime-micro-erp' ); ?>');">
-													<?php wp_nonce_field( 'micro_erp_employee_delete' ); ?>
-													<input type="hidden" name="micro_erp_action" value="delete_employee">
+													<?php wp_nonce_field( 'li_mi_erp_employee_delete' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="delete_employee">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
@@ -302,7 +302,7 @@ $back_url = micro_erp_admin_url( 'employees' );
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'employees', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'employees', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

@@ -5,16 +5,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$edit_id = micro_erp_query_int( 'edit' );
+$edit_id = li_mi_erp_query_int( 'edit' );
 $editing = null;
 if ( $edit_id ) {
 	$editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_accounts WHERE id = %d", $edit_id ) );
 }
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -75,20 +75,20 @@ $type_badges = array(
 	'expense'    => 'status-warning',
 );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'accounts' );
+$back_url = li_mi_erp_admin_url( 'accounts' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php echo $editing ? esc_html__( 'Edit Account', 'lime-micro-erp' ) : esc_html__( 'Chart of Accounts', 'lime-micro-erp' ); ?>
 		<?php if ( ! $editing ) : ?>
-			<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'lime-micro-erp' ); ?></a>
+			<a href="<?php echo esc_url( li_mi_erp_admin_url( 'accounts', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ Add Account', 'lime-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $editing || micro_erp_query_has( 'new' ) ) : ?>
+	<?php if ( $editing || li_mi_erp_query_has( 'new' ) ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-6 col-md-12">
@@ -97,13 +97,13 @@ $back_url = micro_erp_admin_url( 'accounts' );
 					<form method="post" action="">
 						<?php
 						$action = $editing ? 'update_account' : 'save_account';
-						wp_nonce_field( 'micro_erp_account_save' );
+						wp_nonce_field( 'li_mi_erp_account_save' );
 						?>
-						<input type="hidden" name="micro_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="li_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
 						<?php if ( $editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>">
 						<?php endif; ?>
-						<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+						<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 						<div class="mb-3">
 							<label for="code" class="form-label"><?php esc_html_e( 'Code', 'lime-micro-erp' ); ?> <span class="text-danger">*</span></label>
@@ -142,7 +142,7 @@ $back_url = micro_erp_admin_url( 'accounts' );
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'accounts', __( 'Search Accounts', 'lime-micro-erp' ), __( 'Search by code or name...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'accounts', __( 'Search Accounts', 'lime-micro-erp' ), __( 'Search by code or name...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -179,17 +179,17 @@ $back_url = micro_erp_admin_url( 'accounts' );
 									<tr>
 										<td><?php echo esc_html( $row->code ); ?></td>
 										<td><?php echo esc_html( $row->name ); ?></td>
-										<td><?php echo micro_erp_badge( isset( $account_types[ $row->type ] ) ? $account_types[ $row->type ] : $row->type, $type_badges ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
-										<td class="text-right fw-bold"><?php echo esc_html( micro_erp_format_money( micro_erp_account_balance( $row->id ) ) ); ?></td>
+										<td><?php echo li_mi_erp_badge( isset( $account_types[ $row->type ] ) ? $account_types[ $row->type ] : $row->type, $type_badges ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( li_mi_erp_account_balance( $row->id ) ) ); ?></td>
 										<td><?php echo $row->is_active ? '<span class="status-badge status-active">' . esc_html__( 'Active', 'lime-micro-erp' ) . '</span>' : '<span class="status-badge status-neutral">' . esc_html__( 'Inactive', 'lime-micro-erp' ) . '</span>'; ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( micro_erp_admin_url( 'accounts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( li_mi_erp_admin_url( 'accounts', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Edit', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this account?', 'lime-micro-erp' ); ?>');">
-													<?php wp_nonce_field( 'micro_erp_account_delete' ); ?>
-													<input type="hidden" name="micro_erp_action" value="delete_account">
+													<?php wp_nonce_field( 'li_mi_erp_account_delete' ); ?>
+													<input type="hidden" name="li_mi_erp_action" value="delete_account">
 													<input type="hidden" name="id" value="<?php echo (int) $row->id; ?>">
-													<input type="hidden" name="micro_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 													<button type="submit" class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
@@ -200,7 +200,7 @@ $back_url = micro_erp_admin_url( 'accounts' );
 						</table>
 					</div>
 
-					<?php micro_erp_render_pagination( 'accounts', $total_items, $per_page ); ?>
+					<?php li_mi_erp_render_pagination( 'accounts', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

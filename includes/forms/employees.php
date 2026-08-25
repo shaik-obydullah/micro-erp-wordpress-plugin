@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_employee_form( $action ) {
-	micro_erp_verify_nonce( 'micro_erp_employee_save' );
+function li_mi_erp_handle_employee_form( $action ) {
+	li_mi_erp_verify_nonce( 'li_mi_erp_employee_save' );
 
 	$data = array(
 		'employee_id'   => isset( $_POST['employee_id'] ) ? sanitize_text_field( wp_unslash( $_POST['employee_id'] ) ) : '',
@@ -22,16 +22,16 @@ function micro_erp_handle_employee_form( $action ) {
 	);
 
 	if ( ! $data['employee_id'] || ! $data['name'] ) {
-		micro_erp_redirect_notice( __( 'Employee ID and name are required.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Employee ID and name are required.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = micro_erp_table( 'employees' );
+	$table = li_mi_erp_table( 'employees' );
 
 	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %s AND id != %d", $data['employee_id'], isset( $_POST['id'] ) ? (int) $_POST['id'] : 0 ) );
 	if ( $exists ) {
-		micro_erp_redirect_notice( __( 'An employee with that ID already exists.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'An employee with that ID already exists.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -46,16 +46,16 @@ function micro_erp_handle_employee_form( $action ) {
 		$message   = __( 'Employee created.', 'lime-micro-erp' );
 	}
 
-	micro_erp_audit_log( 'save', 'employee', $entity_id, $data['employee_id'] . ' - ' . $data['name'] );
-	micro_erp_redirect_notice( $message );
+	li_mi_erp_audit_log( 'save', 'employee', $entity_id, $data['employee_id'] . ' - ' . $data['name'] );
+	li_mi_erp_redirect_notice( $message );
 }
 
-function micro_erp_handle_delete_employee() {
-	micro_erp_verify_nonce( 'micro_erp_employee_delete' );
+function li_mi_erp_handle_delete_employee() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_employee_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( micro_erp_table( 'employees' ), array( 'id' => $id ), array( '%d' ) );
-	micro_erp_audit_log( 'delete', 'employee', $id, 'Deleted employee #' . $id );
-	micro_erp_redirect_notice( __( 'Employee deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( li_mi_erp_table( 'employees' ), array( 'id' => $id ), array( '%d' ) );
+	li_mi_erp_audit_log( 'delete', 'employee', $id, 'Deleted employee #' . $id );
+	li_mi_erp_redirect_notice( __( 'Employee deleted.', 'lime-micro-erp' ) );
 }

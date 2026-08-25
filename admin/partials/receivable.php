@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$search = micro_erp_query_text( 's' );
+$search = li_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, micro_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
@@ -95,9 +95,9 @@ $total_original = (float) ( $totals ? $totals->original : 0 );
 $total_paid     = (float) ( $totals ? $totals->paid : 0 );
 $total_balance  = (float) ( $totals ? $totals->balance : 0 );
 
-micro_erp_print_admin_notice();
+li_mi_erp_print_admin_notice();
 
-$back_url = micro_erp_admin_url( 'receivable' );
+$back_url = li_mi_erp_admin_url( 'receivable' );
 ?>
 <div class="wrap micro-erp-page">
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Accounts Receivable', 'lime-micro-erp' ); ?></h1>
@@ -106,7 +106,7 @@ $back_url = micro_erp_admin_url( 'receivable' );
 
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php micro_erp_render_search_bar( 'receivable', __( 'Search Receivables', 'lime-micro-erp' ), __( 'Search by customer or invoice #...', 'lime-micro-erp' ), array(), $search ); ?>
+			<?php li_mi_erp_render_search_bar( 'receivable', __( 'Search Receivables', 'lime-micro-erp' ), __( 'Search by customer or invoice #...', 'lime-micro-erp' ), array(), $search ); ?>
 		</div>
 	</div>
 
@@ -141,23 +141,23 @@ $back_url = micro_erp_admin_url( 'receivable' );
 									<td><strong><?php echo esc_html( $row->customer ); ?></strong></td>
 									<td><?php echo esc_html( $row->sale_no ); ?></td>
 									<td><?php echo esc_html( $row->sale_date ); ?></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $row->total ) ); ?></td>
-									<td class="text-right"><?php echo esc_html( micro_erp_format_money( $row->amount_paid ) ); ?></td>
-									<td class="text-right"><strong<?php echo $overdue ? ' style="color:#d63638;"' : ''; ?>><?php echo esc_html( micro_erp_format_money( $balance ) ); ?></strong></td>
-									<td><?php echo micro_erp_status_badge( $row->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $row->total ) ); ?></td>
+									<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $row->amount_paid ) ); ?></td>
+									<td class="text-right"><strong<?php echo $overdue ? ' style="color:#d63638;"' : ''; ?>><?php echo esc_html( li_mi_erp_format_money( $balance ) ); ?></strong></td>
+									<td><?php echo li_mi_erp_status_badge( $row->payment_status ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 									<td class="text-right">
 										<div class="pos-row-actions">
-											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
-											<a href="<?php echo esc_url( micro_erp_admin_url( 'sales', array( 'pay' => $row->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
+											<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array( 'edit' => $row->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'lime-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+											<a href="<?php echo esc_url( li_mi_erp_admin_url( 'sales', array( 'pay' => $row->id ) ) ); ?>" class="pos-action pay"><?php esc_html_e( 'Record Payment', 'lime-micro-erp' ); ?></a>
 										</div>
 									</td>
 								</tr>
 							<?php endforeach; ?>
 							<tr class="total-row">
 								<td colspan="3"><strong><?php esc_html_e( 'Total Receivable', 'lime-micro-erp' ); ?></strong></td>
-								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_original ) ); ?></strong></td>
-								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_paid ) ); ?></strong></td>
-								<td class="text-right"><strong><?php echo esc_html( micro_erp_format_money( $total_balance ) ); ?></strong></td>
+								<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $total_original ) ); ?></strong></td>
+								<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $total_paid ) ); ?></strong></td>
+								<td class="text-right"><strong><?php echo esc_html( li_mi_erp_format_money( $total_balance ) ); ?></strong></td>
 								<td></td>
 								<td></td>
 							</tr>
@@ -165,7 +165,7 @@ $back_url = micro_erp_admin_url( 'receivable' );
 					</table>
 				</div>
 
-				<?php micro_erp_render_pagination( 'receivable', $total_items, $per_page ); ?>
+				<?php li_mi_erp_render_pagination( 'receivable', $total_items, $per_page ); ?>
 
 			</div>
 		</div>

@@ -3,12 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function micro_erp_handle_salary_paid() {
-	micro_erp_verify_nonce( 'micro_erp_salary_paid' );
+function li_mi_erp_handle_salary_paid() {
+	li_mi_erp_verify_nonce( 'li_mi_erp_salary_paid' );
 
 	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' );
 	if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
-		micro_erp_redirect_notice( __( 'Invalid month.', 'lime-micro-erp' ), 'error' );
+		li_mi_erp_redirect_notice( __( 'Invalid month.', 'lime-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -21,7 +21,7 @@ function micro_erp_handle_salary_paid() {
 		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}micro_erp_employees WHERE status = 'active'" );
 	}
 
-	$spt   = micro_erp_table( 'salary_payments' );
+	$spt   = li_mi_erp_table( 'salary_payments' );
 	$count = 0;
 
 	foreach ( $employees as $employee_id ) {
@@ -55,10 +55,10 @@ function micro_erp_handle_salary_paid() {
 			$payment_id = (int) $wpdb->insert_id;
 		}
 
-		$expense_account = micro_erp_default_account( 'expense', '5001' );
-		$cash_account    = micro_erp_default_account( 'asset', '1001' );
+		$expense_account = li_mi_erp_default_account( 'expense', '5001' );
+		$cash_account    = li_mi_erp_default_account( 'asset', '1001' );
 
-		$entry_id = micro_erp_create_journal_entry(
+		$entry_id = li_mi_erp_create_journal_entry(
 			current_time( 'Y-m-d' ),
 			sprintf( 'Salary Payment - %s (%s)', $month, $emp->name ),
 			array(
@@ -71,11 +71,11 @@ function micro_erp_handle_salary_paid() {
 
 		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) );
 
-		do_action( 'micro_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
+		do_action( 'li_mi_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
 		$count++;
 	}
 
-	micro_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
+	li_mi_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
 	/* translators: %d: number of salary payments marked as paid. */
-	micro_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'lime-micro-erp' ), $count ) );
+	li_mi_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'lime-micro-erp' ), $count ) );
 }

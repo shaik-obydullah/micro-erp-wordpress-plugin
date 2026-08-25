@@ -34,7 +34,3 @@ function li_mi_erp_bootstrap() {
 }
 add_action( 'plugins_loaded', 'li_mi_erp_bootstrap' );
 
-function li_mi_erp_load_textdomain() {
-	load_plugin_textdomain( 'lime-micro-erp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-add_action( 'init', 'li_mi_erp_load_textdomain' );

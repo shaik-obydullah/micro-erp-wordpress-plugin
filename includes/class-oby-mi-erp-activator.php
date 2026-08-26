@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class LiMiErp_Activator {
+class ObyMiErp_Activator {
 
 	public static function activate() {
 		global $wpdb;
@@ -11,7 +11,7 @@ class LiMiErp_Activator {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$charset = $wpdb->get_charset_collate();
-		$t       = $wpdb->prefix . LI_MI_ERP_TABLE;
+		$t       = $wpdb->prefix . OBY_MI_ERP_TABLE;
 
 		$sql = array();
 
@@ -347,7 +347,7 @@ class LiMiErp_Activator {
 			);
 		}
 
-		update_option( 'li_mi_erp_version', LI_MI_ERP_VERSION );
+		update_option( 'oby_mi_erp_version', OBY_MI_ERP_VERSION );
 	}
 
 	public static function deactivate() {

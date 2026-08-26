@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function li_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_col, $type ) {
+function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_col, $type ) {
 	global $wpdb;
 
 	$contact_id = isset( $_POST['contact_id'] ) ? (int) $_POST['contact_id'] : 0;
@@ -21,7 +21,7 @@ function li_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_co
 	$tax_rates    = isset( $_POST['item_tax'] ) ? array_map( 'floatval', (array) wp_unslash( $_POST['item_tax'] ) ) : array();
 
 	if ( ! $contact_id || empty( $descriptions ) ) {
-		li_mi_erp_redirect_notice( __( 'A contact and at least one item are required.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'A contact and at least one item are required.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -64,13 +64,13 @@ function li_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_co
 	);
 
 	if ( 'quotation' === $type ) {
-		$data['quotation_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT quotation_no FROM {$table_main} WHERE id = %d", $update_id ) ) : li_mi_erp_next_quotation_no();
+		$data['quotation_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT quotation_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_quotation_no();
 		$data['quotation_date'] = $date;
 		$data['valid_until'] = $valid_until;
 		unset( $data['date'] );
 		$formats = array( '%d', '%f', '%f', '%f', '%f', '%s', '%s', '%s', '%s' );
 	} else {
-		$data['sale_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT sale_no FROM {$table_main} WHERE id = %d", $update_id ) ) : li_mi_erp_next_sale_no();
+		$data['sale_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT sale_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_sale_no();
 		$data['sale_date'] = $date;
 		unset( $data['date'] );
 		$formats = array( '%d', '%f', '%f', '%f', '%f', '%s', '%s', '%s' );
@@ -104,60 +104,60 @@ function li_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_co
 		$wpdb->insert( $table_items, $item, array( '%s', '%f', '%f', '%f', '%f', '%d' ) );
 	}
 
-	li_mi_erp_audit_log( 'save', $type, $entity_id, 'Saved ' . $type . ' #' . $entity_id );
+	oby_mi_erp_audit_log( 'save', $type, $entity_id, 'Saved ' . $type . ' #' . $entity_id );
 	return array( $entity_id, $created );
 }
 
-function li_mi_erp_handle_quotation_form( $action ) {
-	li_mi_erp_verify_nonce( 'li_mi_erp_quotation_save' );
-	list( $entity_id, $created ) = li_mi_erp_save_quote_sale(
+function oby_mi_erp_handle_quotation_form( $action ) {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_save' );
+	list( $entity_id, $created ) = oby_mi_erp_save_quote_sale(
 		'QUO-',
-		li_mi_erp_table( 'quotations' ),
-		li_mi_erp_table( 'quotation_items' ),
+		oby_mi_erp_table( 'quotations' ),
+		oby_mi_erp_table( 'quotation_items' ),
 		'quotation_id',
 		'quotation'
 	);
-	li_mi_erp_redirect_notice( $created ? __( 'Quotation created.', 'lime-micro-erp' ) : __( 'Quotation updated.', 'lime-micro-erp' ) );
+	oby_mi_erp_redirect_notice( $created ? __( 'Quotation created.', 'obydullah-micro-erp' ) : __( 'Quotation updated.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_delete_quotation() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_quotation_delete' );
+function oby_mi_erp_handle_delete_quotation() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( li_mi_erp_table( 'quotation_items' ), array( 'quotation_id' => $id ), array( '%d' ) );
-	$wpdb->delete( li_mi_erp_table( 'quotations' ), array( 'id' => $id ), array( '%d' ) );
-	li_mi_erp_audit_log( 'delete', 'quotation', $id, 'Deleted quotation #' . $id );
-	li_mi_erp_redirect_notice( __( 'Quotation deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( oby_mi_erp_table( 'quotation_items' ), array( 'quotation_id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'quotations' ), array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_audit_log( 'delete', 'quotation', $id, 'Deleted quotation #' . $id );
+	oby_mi_erp_redirect_notice( __( 'Quotation deleted.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_quotation_status() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_quotation_status' );
+function oby_mi_erp_handle_quotation_status() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_status' );
 	$id     = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 	$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'draft';
 
 	global $wpdb;
-	$wpdb->update( li_mi_erp_table( 'quotations' ), array( 'status' => $status ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
-	li_mi_erp_audit_log( 'status', 'quotation', $id, 'Quotation status -> ' . $status );
-	li_mi_erp_redirect_notice( __( 'Quotation status updated.', 'lime-micro-erp' ) );
+	$wpdb->update( oby_mi_erp_table( 'quotations' ), array( 'status' => $status ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
+	oby_mi_erp_audit_log( 'status', 'quotation', $id, 'Quotation status -> ' . $status );
+	oby_mi_erp_redirect_notice( __( 'Quotation status updated.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_convert_quotation() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_quotation_convert' );
+function oby_mi_erp_handle_convert_quotation() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_convert' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$q = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotations WHERE id = %d", $id ) );
+	$q = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE id = %d", $id ) );
 	if ( ! $q ) {
-		li_mi_erp_redirect_notice( __( 'Quotation not found.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'Quotation not found.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
-	$items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_quotation_items WHERE quotation_id = %d", $id ) );
+	$items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotation_items WHERE quotation_id = %d", $id ) );
 
-	$sale_no = li_mi_erp_next_sale_no();
+	$sale_no = oby_mi_erp_next_sale_no();
 	$wpdb->insert(
-		li_mi_erp_table( 'sales' ),
+		oby_mi_erp_table( 'sales' ),
 		array(
 			'sale_no'       => $sale_no,
 			'quotation_id'  => $id,
@@ -178,7 +178,7 @@ function li_mi_erp_handle_convert_quotation() {
 
 	foreach ( $items as $item ) {
 		$wpdb->insert(
-			li_mi_erp_table( 'sale_items' ),
+			oby_mi_erp_table( 'sale_items' ),
 			array(
 				'sale_id'     => $sale_id,
 				'description' => $item->description,
@@ -191,12 +191,12 @@ function li_mi_erp_handle_convert_quotation() {
 		);
 	}
 
-	$wpdb->update( li_mi_erp_table( 'quotations' ), array( 'status' => 'converted' ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
+	$wpdb->update( oby_mi_erp_table( 'quotations' ), array( 'status' => 'converted' ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
 
-	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_sales WHERE id = %d", $sale_id ) );
-	li_mi_erp_create_sale_journal( $sale );
+	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $sale_id ) );
+	oby_mi_erp_create_sale_journal( $sale );
 
-	do_action( 'li_mi_erp_quotation_converted', $id, $sale_id );
-	li_mi_erp_audit_log( 'convert', 'quotation', $id, 'Converted quotation to sale ' . $sale_no );
-	li_mi_erp_redirect_notice( __( 'Quotation converted to sale.', 'lime-micro-erp' ) );
+	do_action( 'oby_mi_erp_quotation_converted', $id, $sale_id );
+	oby_mi_erp_audit_log( 'convert', 'quotation', $id, 'Converted quotation to sale ' . $sale_no );
+	oby_mi_erp_redirect_notice( __( 'Quotation converted to sale.', 'obydullah-micro-erp' ) );
 }

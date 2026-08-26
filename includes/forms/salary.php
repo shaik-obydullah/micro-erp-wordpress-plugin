@@ -3,12 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function li_mi_erp_handle_salary_paid() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_salary_paid' );
+function oby_mi_erp_handle_salary_paid() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_salary_paid' );
 
 	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' );
 	if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
-		li_mi_erp_redirect_notice( __( 'Invalid month.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'Invalid month.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -18,14 +18,14 @@ function li_mi_erp_handle_salary_paid() {
 	if ( isset( $_POST['employee_id'] ) && (int) $_POST['employee_id'] ) {
 		$employees[] = (int) $_POST['employee_id'];
 	} else {
-		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}micro_erp_employees WHERE status = 'active'" );
+		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = 'active'" );
 	}
 
-	$spt   = li_mi_erp_table( 'salary_payments' );
+	$spt   = oby_mi_erp_table( 'salary_payments' );
 	$count = 0;
 
 	foreach ( $employees as $employee_id ) {
-		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE id = %d", $employee_id ) );
+		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $employee_id ) );
 		if ( ! $emp ) {
 			continue;
 		}
@@ -55,10 +55,10 @@ function li_mi_erp_handle_salary_paid() {
 			$payment_id = (int) $wpdb->insert_id;
 		}
 
-		$expense_account = li_mi_erp_default_account( 'expense', '5001' );
-		$cash_account    = li_mi_erp_default_account( 'asset', '1001' );
+		$expense_account = oby_mi_erp_default_account( 'expense', '5001' );
+		$cash_account    = oby_mi_erp_default_account( 'asset', '1001' );
 
-		$entry_id = li_mi_erp_create_journal_entry(
+		$entry_id = oby_mi_erp_create_journal_entry(
 			current_time( 'Y-m-d' ),
 			sprintf( 'Salary Payment - %s (%s)', $month, $emp->name ),
 			array(
@@ -71,11 +71,11 @@ function li_mi_erp_handle_salary_paid() {
 
 		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) );
 
-		do_action( 'li_mi_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
+		do_action( 'oby_mi_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
 		$count++;
 	}
 
-	li_mi_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
+	oby_mi_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );
 	/* translators: %d: number of salary payments marked as paid. */
-	li_mi_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'lime-micro-erp' ), $count ) );
+	oby_mi_erp_redirect_notice( sprintf( __( '%d salary payment(s) marked as paid.', 'obydullah-micro-erp' ), $count ) );
 }

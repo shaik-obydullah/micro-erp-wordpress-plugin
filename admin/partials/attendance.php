@@ -5,18 +5,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$date = li_mi_erp_query_text( 'date', current_time( 'Y-m-d' ) );
+$date = oby_mi_erp_query_text( 'date', current_time( 'Y-m-d' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 	$date = current_time( 'Y-m-d' );
 }
 
-$employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_employees WHERE status = %s ORDER BY employee_id ASC", 'active' ) );
+$employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = %s ORDER BY employee_id ASC", 'active' ) );
 
 $existing = array();
 if ( $employees ) {
 	$ids            = array_map( 'intval', wp_list_pluck( $employees, 'id' ) );
 	$in_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-	$att            = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_attendance WHERE date = %s AND employee_id IN ({$in_placeholders})", array_merge( array( $date ), $ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	$att            = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_attendance WHERE date = %s AND employee_id IN ({$in_placeholders})", array_merge( array( $date ), $ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	foreach ( $att as $a ) {
 		$existing[ $a->employee_id ] = $a;
 	}
@@ -30,19 +30,19 @@ foreach ( $existing as $a ) {
 }
 $unmarked = count( $employees ) - count( $existing );
 
-li_mi_erp_print_admin_notice();
+oby_mi_erp_print_admin_notice();
 
-$back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
+$back_url = oby_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 ?>
-<div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Attendance', 'lime-micro-erp' ); ?></h1>
+<div class="wrap oby-mi-erp-page">
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Attendance', 'obydullah-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<form method="get" action="" class="date-nav mt-3">
-		<input type="hidden" name="page" value="micro-erp/attendance">
-		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'attendance', array( 'date' => current_time( 'Y-m-d' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'lime-micro-erp' ); ?></a>
+		<input type="hidden" name="page" value="oby-mi-erp/attendance">
+		<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'attendance', array( 'date' => current_time( 'Y-m-d' ) ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Today', 'obydullah-micro-erp' ); ?></a>
 		<input type="date" name="date" value="<?php echo esc_attr( $date ); ?>" class="form-control form-control-sm">
-		<button class="btn-primary"><?php esc_html_e( 'Load', 'lime-micro-erp' ); ?></button>
+		<button class="btn-primary"><?php esc_html_e( 'Load', 'obydullah-micro-erp' ); ?></button>
 	</form>
 
 	<?php
@@ -50,25 +50,25 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 	$stats     = array(
 		array(
 			'key'   => 'present',
-			'label' => __( 'Present', 'lime-micro-erp' ),
+			'label' => __( 'Present', 'obydullah-micro-erp' ),
 			'value' => (int) $summary['present'],
 			'icon'  => 'yes-alt',
 		),
 		array(
 			'key'   => 'absent',
-			'label' => __( 'Absent', 'lime-micro-erp' ),
+			'label' => __( 'Absent', 'obydullah-micro-erp' ),
 			'value' => (int) $summary['absent'],
 			'icon'  => 'no-alt',
 		),
 		array(
 			'key'   => 'late',
-			'label' => __( 'Late', 'lime-micro-erp' ),
+			'label' => __( 'Late', 'obydullah-micro-erp' ),
 			'value' => (int) $summary['late'],
 			'icon'  => 'clock',
 		),
 		array(
 			'key'   => 'unmarked',
-			'label' => __( 'Unmarked', 'lime-micro-erp' ),
+			'label' => __( 'Unmarked', 'obydullah-micro-erp' ),
 			'value' => (int) $unmarked,
 			'icon'  => 'editor-help',
 		),
@@ -87,7 +87,7 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 					<span class="stat-label"><?php echo esc_html( $stat['label'] ); ?></span>
 					<?php $stat_sub = sprintf(
 					/* translators: 1: percentage, 2: total number of employees. */
-					__( '%1$d%% of %2$d employees', 'lime-micro-erp' ),
+					__( '%1$d%% of %2$d employees', 'obydullah-micro-erp' ),
 					$pct,
 					$total_emp
 				); ?>
@@ -99,32 +99,32 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 	</div>
 
 	<form method="post" action="">
-		<?php wp_nonce_field( 'li_mi_erp_attendance_save' ); ?>
-		<input type="hidden" name="li_mi_erp_action" value="save_attendance">
+		<?php wp_nonce_field( 'oby_mi_erp_attendance_save' ); ?>
+		<input type="hidden" name="oby_mi_erp_action" value="save_attendance">
 		<input type="hidden" name="date" value="<?php echo esc_attr( $date ); ?>">
-		<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+		<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Mark Attendance', 'lime-micro-erp' ); ?> — <?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $date ) ) ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Mark Attendance', 'obydullah-micro-erp' ); ?> — <?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $date ) ) ); ?></h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="90"><?php esc_html_e( 'Emp ID', 'lime-micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Department', 'lime-micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Check In', 'lime-micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Check Out', 'lime-micro-erp' ); ?></th>
-									<th width="120"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Notes', 'lime-micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Emp ID', 'obydullah-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Name', 'obydullah-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Department', 'obydullah-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Check In', 'obydullah-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Check Out', 'obydullah-micro-erp' ); ?></th>
+									<th width="120"><?php esc_html_e( 'Status', 'obydullah-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Notes', 'obydullah-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
 								<?php if ( empty( $employees ) ) : ?>
-									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'lime-micro-erp' ); ?></td></tr>
+									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $employees as $emp ) :
 									$rec = isset( $existing[ $emp->id ] ) ? $existing[ $emp->id ] : null;
@@ -132,7 +132,7 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 									<tr>
 										<td><?php echo esc_html( $emp->employee_id ); ?></td>
 										<td><strong><?php echo esc_html( $emp->name ); ?></strong></td>
-										<td><?php echo esc_html( li_mi_erp_department_name( $emp->department_id ) ); ?></td>
+										<td><?php echo esc_html( oby_mi_erp_department_name( $emp->department_id ) ); ?></td>
 										<td><input type="time" name="attendance[<?php echo (int) $emp->id; ?>][check_in]" value="<?php echo $rec ? esc_attr( $rec->check_in ) : ''; ?>" class="form-control form-control-sm"></td>
 										<td><input type="time" name="attendance[<?php echo (int) $emp->id; ?>][check_out]" value="<?php echo $rec ? esc_attr( $rec->check_out ) : ''; ?>" class="form-control form-control-sm"></td>
 										<td>
@@ -153,7 +153,7 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 						<?php if ( $employees && $unmarked > 0 ) : ?>
 							<?php $unmarked_note = sprintf(
 								/* translators: 1: number of unmarked employees, 2: total number of employees. */
-								__( '%1$d of %2$d employees unmarked.', 'lime-micro-erp' ),
+								__( '%1$d of %2$d employees unmarked.', 'obydullah-micro-erp' ),
 								$unmarked,
 								count( $employees )
 							); ?>
@@ -163,7 +163,7 @@ $back_url = li_mi_erp_admin_url( 'attendance', array( 'date' => $date ) );
 						<?php endif; ?>
 						<button type="submit" class="btn-save">
 							<span class="dashicons dashicons-yes" aria-hidden="true"></span>
-							<?php esc_html_e( 'Save Attendance', 'lime-micro-erp' ); ?>
+							<?php esc_html_e( 'Save Attendance', 'obydullah-micro-erp' ); ?>
 						</button>
 					</div>
 				</div>

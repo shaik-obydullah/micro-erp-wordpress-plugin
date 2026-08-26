@@ -3,8 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function li_mi_erp_handle_journal_form() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_journal_save' );
+function oby_mi_erp_handle_journal_form() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
 	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
 	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
@@ -14,7 +14,7 @@ function li_mi_erp_handle_journal_form() {
 	$line_desc   = isset( $_POST['line_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['line_description'] ) ) : array();
 
 	if ( ! $description ) {
-		li_mi_erp_redirect_notice( __( 'A description is required.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'A description is required.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -22,7 +22,7 @@ function li_mi_erp_handle_journal_form() {
 	$total_credit = array_sum( $credits );
 
 	if ( $total_debit <= 0 || abs( $total_debit - $total_credit ) > 0.01 ) {
-		li_mi_erp_redirect_notice( __( 'Journal must be balanced and have at least one line.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'Journal must be balanced and have at least one line.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
@@ -39,13 +39,13 @@ function li_mi_erp_handle_journal_form() {
 		);
 	}
 
-	$entry_id = li_mi_erp_create_journal_entry( $date, $description, $lines, 'manual', 0 );
-	li_mi_erp_audit_log( 'save', 'journal', $entry_id, $description );
-	li_mi_erp_redirect_notice( __( 'Journal entry saved.', 'lime-micro-erp' ) );
+	$entry_id = oby_mi_erp_create_journal_entry( $date, $description, $lines, 'manual', 0 );
+	oby_mi_erp_audit_log( 'save', 'journal', $entry_id, $description );
+	oby_mi_erp_redirect_notice( __( 'Journal entry saved.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_transaction_form() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_journal_save' );
+function oby_mi_erp_handle_transaction_form() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
 	$mode        = isset( $_POST['tx_mode'] ) && 'expense' === $_POST['tx_mode'] ? 'expense' : 'income';
 	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
@@ -54,40 +54,40 @@ function li_mi_erp_handle_transaction_form() {
 	$account_id  = isset( $_POST['account_id'] ) ? (int) $_POST['account_id'] : 0;
 
 	if ( ! $description || $amount <= 0 ) {
-		li_mi_erp_redirect_notice( __( 'A description and a valid amount are required.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'A description and a valid amount are required.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
 	if ( 'expense' === $mode ) {
-		$acct  = $account_id ? $account_id : li_mi_erp_default_account( 'expense', '5001' );
+		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'expense', '5001' );
 		$lines = array(
 			array( 'account_id' => $acct, 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => li_mi_erp_default_account( 'asset', '1001' ), 'debit' => 0, 'credit' => $amount ),
+			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => 0, 'credit' => $amount ),
 		);
 		$ref_type = 'expense';
 	} else {
-		$acct  = $account_id ? $account_id : li_mi_erp_default_account( 'income', '4001' );
+		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'income', '4001' );
 		$lines = array(
-			array( 'account_id' => li_mi_erp_default_account( 'asset', '1001' ), 'debit' => $amount, 'credit' => 0 ),
+			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => $amount, 'credit' => 0 ),
 			array( 'account_id' => $acct, 'debit' => 0, 'credit' => $amount ),
 		);
 		$ref_type = 'income';
 	}
 
-	$entry_id = li_mi_erp_create_journal_entry( $date, $description, $lines, $ref_type, 0 );
+	$entry_id = oby_mi_erp_create_journal_entry( $date, $description, $lines, $ref_type, 0 );
 
-	do_action( 'li_mi_erp_expense_created', $entry_id );
-	li_mi_erp_audit_log( 'save', 'journal', $entry_id, $description );
-	li_mi_erp_redirect_notice( __( 'Entry saved.', 'lime-micro-erp' ) );
+	do_action( 'oby_mi_erp_expense_created', $entry_id );
+	oby_mi_erp_audit_log( 'save', 'journal', $entry_id, $description );
+	oby_mi_erp_redirect_notice( __( 'Entry saved.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_delete_journal() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_journal_delete' );
+function oby_mi_erp_handle_delete_journal() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( li_mi_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) );
-	$wpdb->delete( li_mi_erp_table( 'journal_entries' ), array( 'id' => $id ), array( '%d' ) );
-	li_mi_erp_audit_log( 'delete', 'journal', $id, 'Deleted journal entry #' . $id );
-	li_mi_erp_redirect_notice( __( 'Journal entry deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( oby_mi_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'journal_entries' ), array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_audit_log( 'delete', 'journal', $id, 'Deleted journal entry #' . $id );
+	oby_mi_erp_redirect_notice( __( 'Journal entry deleted.', 'obydullah-micro-erp' ) );
 }

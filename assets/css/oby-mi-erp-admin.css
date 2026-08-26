@@ -1,6 +1,6 @@
 /*!
  * ==========================================================
- * Plugin Name: Micro ERP
+ * Plugin Name: Obydullah Micro ERP
  * Admin Styles - Based on Obydullah Restaurant POS Lite UI
  * Author: Shaik Obydullah
  * Author URI: https://obydullah.com
@@ -62,8 +62,8 @@
 
 /* Page heading: title left, action button pinned to the top right.
    Higher specificity than WP core's ".wrap h1.wp-heading-inline". */
-.wrap.micro-erp-page h1.wp-heading-inline,
-.micro-erp-page h1 {
+.wrap.oby-mi-erp-page h1.wp-heading-inline,
+.oby-mi-erp-page h1 {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -71,16 +71,16 @@
 	width: 100%;
 }
 
-.wrap.micro-erp-page h1.wp-heading-inline .btn,
-.wrap.micro-erp-page h1.wp-heading-inline .btn-primary,
-.micro-erp-page h1 .btn,
-.micro-erp-page h1 .btn-primary {
+.wrap.oby-mi-erp-page h1.wp-heading-inline .btn,
+.wrap.oby-mi-erp-page h1.wp-heading-inline .btn-primary,
+.oby-mi-erp-page h1 .btn,
+.oby-mi-erp-page h1 .btn-primary {
 	margin-left: auto;
 	margin-right: 0;
 	flex-shrink: 0;
 }
 
-.micro-erp-fy-label {
+.oby-mi-erp-fy-label {
 	color: #6c757d;
 	font-size: 13px;
 	margin-bottom: 16px;
@@ -327,7 +327,7 @@ tr:hover .pos-row-actions {
 	opacity: 1;
 }
 
-.micro-erp-page .pos-action {
+.oby-mi-erp-page .pos-action {
 	background: #fff;
 	border: 1px solid #dcdcde;
 	padding: 2px 10px;
@@ -344,50 +344,50 @@ tr:hover .pos-row-actions {
 	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 
-.micro-erp-page .edit {
+.oby-mi-erp-page .edit {
 	color: #2271b1;
 	border-color: #c5d9ed;
 	background-color: #f0f6fb;
 }
 
-.micro-erp-page .edit:hover {
+.oby-mi-erp-page .edit:hover {
 	color: #fff;
 	border-color: #2271b1;
 	background-color: #2271b1;
 }
 
-.micro-erp-page .activate {
+.oby-mi-erp-page .activate {
 	color: #008a20;
 	border-color: #b8e6c2;
 	background-color: #edfaef;
 }
 
-.micro-erp-page .activate:hover {
+.oby-mi-erp-page .activate:hover {
 	color: #fff;
 	border-color: #00a32a;
 	background-color: #00a32a;
 }
 
 /* Money-in action (Record Payment) */
-.micro-erp-page .pay {
+.oby-mi-erp-page .pay {
 	color: #008a20;
 	border-color: #b8e6c2;
 	background-color: #edfaef;
 }
 
-.micro-erp-page .pay:hover {
+.oby-mi-erp-page .pay:hover {
 	color: #fff;
 	border-color: #00a32a;
 	background-color: #00a32a;
 }
 
-.micro-erp-page .delete {
+.oby-mi-erp-page .delete {
 	color: #b32d2e;
 	border-color: #f0c5c5;
 	background-color: #fcf0f1;
 }
 
-.micro-erp-page .delete:hover {
+.oby-mi-erp-page .delete:hover {
 	color: #fff;
 	border-color: #b32d2e;
 	background-color: #b32d2e;
@@ -441,8 +441,8 @@ tr:hover .pos-row-actions {
 	padding: 1rem !important;
 }
 
-.micro-erp-page h2.h5,
-.micro-erp-page h3.fs-5 {
+.oby-mi-erp-page h2.h5,
+.oby-mi-erp-page h3.fs-5 {
 	font-size: 15px;
 	font-weight: 600;
 	color: #1d2327;
@@ -906,14 +906,14 @@ tr:hover .pos-row-actions {
 }
 
 /* Checkbox rows: box on the left, aligned with other field labels */
-.micro-erp-page .form-check {
+.oby-mi-erp-page .form-check {
 	display: flex;
 	align-items: center;
 	gap: 6px;
 	padding-left: 0;
 }
 
-.micro-erp-page .form-check label {
+.oby-mi-erp-page .form-check label {
 	margin: 0;
 	cursor: pointer;
 	line-height: 1.4;
@@ -1023,7 +1023,7 @@ body.wp-admin {
 	cursor: default;
 }
 
-.micro-erp-menu-header {
+.oby-mi-erp-menu-header {
 	font-weight: 700;
 	font-size: 13px;
 	opacity: 0.6;
@@ -1031,7 +1031,7 @@ body.wp-admin {
 	letter-spacing: 0.5px;
 }
 
-#adminmenu .wp-submenu li a[href*="micro-erp-header-"] {
+#adminmenu .wp-submenu li a[href*="oby-mi-erp-header-"] {
 	pointer-events: none;
 	cursor: default;
 }
@@ -1384,7 +1384,7 @@ form.inline-search .btn-secondary {
 		font-size: 12px;
 	}
 
-	.micro-erp-page h1 {
+	.oby-mi-erp-page h1 {
 		flex-wrap: wrap;
 	}
 

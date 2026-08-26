@@ -1,8 +1,8 @@
-=== Lime Micro ERP ===
+=== Obydullah Micro ERP ===
 Contributors: obydullah
 Plugin URI: https://obydullah.com/project/micro-erp-wordpress-plugin
 Tags: erp, accounting, hrm, sales, inventory
-Text Domain: lime-micro-erp
+Text Domain: obydullah-micro-erp
 Requires at least: 6.0
 Tested up to: 7.1
 Stable tag: 1.0.0
@@ -11,11 +11,11 @@ Domain Path: /languages
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lime Micro ERP — a lightweight ERP system for small businesses: contacts, accounting, HRM, and sales management, all inside WordPress.
+Obydullah Micro ERP — a lightweight ERP system for small businesses: contacts, accounting, HRM, and sales management, all inside WordPress.
 
 == Description ==
 
-Lime Micro ERP brings the essentials of business management into your WordPress admin:
+Obydullah Micro ERP brings the essentials of business management into your WordPress admin:
 
 = Features =
 
@@ -27,19 +27,19 @@ Lime Micro ERP brings the essentials of business management into your WordPress 
 
 == Installation ==
 
-1. Upload the `lime-micro-erp` folder to `/wp-content/plugins/`
+1. Upload the `obydullah-micro-erp` folder to `/wp-content/plugins/`
 2. Activate the plugin through the Plugins menu
-3. Navigate to Lime Micro ERP in your admin menu
+3. Navigate to Obydullah Micro ERP in your admin menu
 
 == Frequently Asked Questions ==
 
 = Does it create database tables? =
 
-Yes, on activation it creates its own set of `micro_erp_*` tables.
+Yes, on activation it creates its own set of `oby_mi_erp_*` tables.
 
 = Can I use multiple fiscal years? =
 
-Yes, fiscal years can be managed from Lime Micro ERP → Fiscal Years.
+Yes, fiscal years can be managed from Obydullah Micro ERP → Fiscal Years.
 
 == Screenshots ==
 

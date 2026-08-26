@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$month = li_mi_erp_query_text( 'month', current_time( 'Y-m' ) );
+$month = oby_mi_erp_query_text( 'month', current_time( 'Y-m' ) );
 if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 	$month = current_time( 'Y-m' );
 }
@@ -16,16 +16,16 @@ $mnum  = (int) substr( $month, 5, 2 );
 $prev = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum - 1, 1, $year ) );
 $next = gmdate( 'Y-m', mktime( 0, 0, 0, $mnum + 1, 1, $year ) );
 
-$search = li_mi_erp_query_text( 's' );
+$search = oby_mi_erp_query_text( 's' );
 
 $per_page = 20;
-$paged    = max( 1, li_mi_erp_query_int( 'paged', 1 ) );
+$paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
 	$total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees e WHERE e.name LIKE %s OR e.employee_id LIKE %s",
+			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE e.name LIKE %s OR e.employee_id LIKE %s",
 			$like,
 			$like
 		)
@@ -33,7 +33,7 @@ if ( $search ) {
 } else {
 	$total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}micro_erp_employees e WHERE 1 = %d",
+			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE 1 = %d",
 			1
 		)
 	);
@@ -47,8 +47,8 @@ if ( $search ) {
 	$like = '%' . $wpdb->esc_like( $search ) . '%';
 	$employees = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}micro_erp_employees e
-			LEFT JOIN {$wpdb->prefix}micro_erp_departments d ON d.id = e.department_id
+			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}oby_mi_erp_employees e
+			LEFT JOIN {$wpdb->prefix}oby_mi_erp_departments d ON d.id = e.department_id
 			WHERE e.name LIKE %s OR e.employee_id LIKE %s
 			ORDER BY e.employee_id ASC LIMIT %d OFFSET %d",
 			$like,
@@ -60,8 +60,8 @@ if ( $search ) {
 } else {
 	$employees = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}micro_erp_employees e
-			LEFT JOIN {$wpdb->prefix}micro_erp_departments d ON d.id = e.department_id
+			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}oby_mi_erp_employees e
+			LEFT JOIN {$wpdb->prefix}oby_mi_erp_departments d ON d.id = e.department_id
 			ORDER BY e.employee_id ASC LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
@@ -71,7 +71,7 @@ if ( $search ) {
 
 $payments = array();
 if ( $employees ) {
-	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}micro_erp_salary_payments WHERE month = %s", $month ) );
+	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_salary_payments WHERE month = %s", $month ) );
 	foreach ( $rows as $r ) {
 		$payments[ $r->employee_id ] = $r;
 	}
@@ -85,8 +85,8 @@ if ( $search ) {
 			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
 				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
 				COALESCE(SUM(IF(p.status = 'paid', 0, e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))),0) AS unpaid
-			FROM {$wpdb->prefix}micro_erp_employees e
-			LEFT JOIN {$wpdb->prefix}micro_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s
+			FROM {$wpdb->prefix}oby_mi_erp_employees e
+			LEFT JOIN {$wpdb->prefix}oby_mi_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s
 			WHERE e.name LIKE %s OR e.employee_id LIKE %s",
 			$month,
 			$like,
@@ -99,8 +99,8 @@ if ( $search ) {
 			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
 				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
 				COALESCE(SUM(IF(p.status = 'paid', 0, e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0))),0) AS unpaid
-			FROM {$wpdb->prefix}micro_erp_employees e
-			LEFT JOIN {$wpdb->prefix}micro_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s",
+			FROM {$wpdb->prefix}oby_mi_erp_employees e
+			LEFT JOIN {$wpdb->prefix}oby_mi_erp_salary_payments p ON p.employee_id = e.id AND p.month = %s",
 			$month
 		)
 	);
@@ -110,26 +110,26 @@ $total_salary = (float) ( $totals ? $totals->salary : 0 );
 $total_paid   = (float) ( $totals ? $totals->paid : 0 );
 $total_unpaid = (float) ( $totals ? $totals->unpaid : 0 );
 
-li_mi_erp_print_admin_notice();
+oby_mi_erp_print_admin_notice();
 
-$back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
+$back_url = oby_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 ?>
-<div class="wrap micro-erp-page">
-	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'lime-micro-erp' ); ?></h1>
+<div class="wrap oby-mi-erp-page">
+	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Salary', 'obydullah-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<div class="month-nav mt-3">
-		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'lime-micro-erp' ); ?></a>
+		<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'salary', array( 'month' => $prev ) ) ); ?>" class="btn-secondary">← <?php esc_html_e( 'Previous', 'obydullah-micro-erp' ); ?></a>
 		<strong><?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></strong>
-		<a href="<?php echo esc_url( li_mi_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'lime-micro-erp' ); ?> →</a>
+		<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'salary', array( 'month' => $next ) ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Next', 'obydullah-micro-erp' ); ?> →</a>
 		<form method="post" action="" class="inline-form" style="margin-left:auto;">
-			<?php wp_nonce_field( 'li_mi_erp_salary_paid' ); ?>
-			<input type="hidden" name="li_mi_erp_action" value="mark_salary_paid">
+			<?php wp_nonce_field( 'oby_mi_erp_salary_paid' ); ?>
+			<input type="hidden" name="oby_mi_erp_action" value="mark_salary_paid">
 			<input type="hidden" name="month" value="<?php echo esc_attr( $month ); ?>">
-			<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 			<button type="submit" class="btn-save">
 				<span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
-				<?php esc_html_e( 'Mark All Paid', 'lime-micro-erp' ); ?>
+				<?php esc_html_e( 'Mark All Paid', 'obydullah-micro-erp' ); ?>
 			</button>
 		</form>
 	</div>
@@ -142,7 +142,7 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 	$salary_stats = array(
 		array(
 			'key'   => 'employees',
-			'label' => __( 'Total Employees', 'lime-micro-erp' ),
+			'label' => __( 'Total Employees', 'obydullah-micro-erp' ),
 			'value' => (int) $total_items,
 			'sub'   => $month_label,
 			'icon'  => 'groups',
@@ -150,19 +150,19 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 		),
 		array(
 			'key'   => 'total',
-			'label' => __( 'Total Salary', 'lime-micro-erp' ),
-			'value' => li_mi_erp_format_money( $total_salary ),
+			'label' => __( 'Total Salary', 'obydullah-micro-erp' ),
+			'value' => oby_mi_erp_format_money( $total_salary ),
 			'sub'   => $month_label,
 			'icon'  => 'chart-line',
 			'bar'   => null,
 		),
 		array(
 			'key'   => 'paid',
-			'label' => __( 'Paid', 'lime-micro-erp' ),
-			'value' => li_mi_erp_format_money( $total_paid ),
+			'label' => __( 'Paid', 'obydullah-micro-erp' ),
+			'value' => oby_mi_erp_format_money( $total_paid ),
 			'sub'   => sprintf(
 				/* translators: %d: percentage of total salary already paid. */
-				__( '%d%% of total salary', 'lime-micro-erp' ),
+				__( '%d%% of total salary', 'obydullah-micro-erp' ),
 				$pct_paid
 			),
 			'icon'  => 'money-alt',
@@ -170,11 +170,11 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 		),
 		array(
 			'key'   => 'due',
-			'label' => __( 'Unpaid', 'lime-micro-erp' ),
-			'value' => li_mi_erp_format_money( $total_unpaid ),
+			'label' => __( 'Unpaid', 'obydullah-micro-erp' ),
+			'value' => oby_mi_erp_format_money( $total_unpaid ),
 			'sub'   => sprintf(
 				/* translators: %d: percentage of total salary still unpaid. */
-				__( '%d%% of total salary', 'lime-micro-erp' ),
+				__( '%d%% of total salary', 'obydullah-micro-erp' ),
 				$pct_unpaid
 			),
 			'icon'  => 'warning',
@@ -184,7 +184,7 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 	?>
 	<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php li_mi_erp_render_search_bar( 'salary', __( 'Search Employees', 'lime-micro-erp' ), __( 'Search by name or employee ID...', 'lime-micro-erp' ), array( 'month' => $month ), $search ); ?>
+			<?php oby_mi_erp_render_search_bar( 'salary', __( 'Search Employees', 'obydullah-micro-erp' ), __( 'Search by name or employee ID...', 'obydullah-micro-erp' ), array( 'month' => $month ), $search ); ?>
 		</div>
 	</div>
 
@@ -207,34 +207,34 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 	</div>
 
 	<form method="post" action="">
-		<?php wp_nonce_field( 'li_mi_erp_salary_paid' ); ?>
-		<input type="hidden" name="li_mi_erp_action" value="mark_salary_paid">
+		<?php wp_nonce_field( 'oby_mi_erp_salary_paid' ); ?>
+		<input type="hidden" name="oby_mi_erp_action" value="mark_salary_paid">
 		<input type="hidden" name="month" value="<?php echo esc_attr( $month ); ?>">
-		<input type="hidden" name="li_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+		<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
 
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Salary Sheet', 'lime-micro-erp' ); ?> — <?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php esc_html_e( 'Salary Sheet', 'obydullah-micro-erp' ); ?> — <?php echo esc_html( date_i18n( 'F Y', mktime( 0, 0, 0, $mnum, 1, $year ) ) ); ?></h2>
 
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
 								<tr class="bg-primary text-white">
-									<th width="90"><?php esc_html_e( 'Emp ID', 'lime-micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Name', 'lime-micro-erp' ); ?></th>
-									<th><?php esc_html_e( 'Department', 'lime-micro-erp' ); ?></th>
-									<th width="110" class="text-right"><?php esc_html_e( 'Basic Salary', 'lime-micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Allowances', 'lime-micro-erp' ); ?></th>
-									<th width="130"><?php esc_html_e( 'Deductions', 'lime-micro-erp' ); ?></th>
-									<th width="110" class="text-right"><?php esc_html_e( 'Net Pay', 'lime-micro-erp' ); ?></th>
-									<th width="100"><?php esc_html_e( 'Status', 'lime-micro-erp' ); ?></th>
-									<th width="140" class="text-right"><?php esc_html_e( 'Actions', 'lime-micro-erp' ); ?></th>
+									<th width="90"><?php esc_html_e( 'Emp ID', 'obydullah-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Name', 'obydullah-micro-erp' ); ?></th>
+									<th><?php esc_html_e( 'Department', 'obydullah-micro-erp' ); ?></th>
+									<th width="110" class="text-right"><?php esc_html_e( 'Basic Salary', 'obydullah-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Allowances', 'obydullah-micro-erp' ); ?></th>
+									<th width="130"><?php esc_html_e( 'Deductions', 'obydullah-micro-erp' ); ?></th>
+									<th width="110" class="text-right"><?php esc_html_e( 'Net Pay', 'obydullah-micro-erp' ); ?></th>
+									<th width="100"><?php esc_html_e( 'Status', 'obydullah-micro-erp' ); ?></th>
+									<th width="140" class="text-right"><?php esc_html_e( 'Actions', 'obydullah-micro-erp' ); ?></th>
 								</tr>
 							</thead>
 							<tbody class="bg-white">
 								<?php if ( empty( $employees ) ) : ?>
-									<tr><td colspan="9" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'lime-micro-erp' ); ?></td></tr>
+									<tr><td colspan="9" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
 								<?php foreach ( $employees as $emp ) :
 									$payment   = isset( $payments[ $emp->id ] ) ? $payments[ $emp->id ] : null;
@@ -248,14 +248,14 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 										<td><?php echo esc_html( $emp->employee_id ); ?></td>
 										<td><strong><?php echo esc_html( $emp->name ); ?></strong></td>
 										<td><?php echo esc_html( $emp->department_name ); ?></td>
-										<td class="text-right"><?php echo esc_html( li_mi_erp_format_money( $basic ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $basic ) ); ?></td>
 										<td><input type="number" name="allowances[<?php echo (int) $emp->id; ?>]" value="<?php echo esc_attr( $allow ); ?>" step="0.01" min="0" style="width:110px;" <?php echo $is_paid ? 'disabled' : ''; ?>></td>
 										<td><input type="number" name="deductions[<?php echo (int) $emp->id; ?>]" value="<?php echo esc_attr( $deduct ); ?>" step="0.01" min="0" style="width:110px;" <?php echo $is_paid ? 'disabled' : ''; ?>></td>
-										<td class="text-right fw-bold"><?php echo esc_html( li_mi_erp_format_money( $net ) ); ?></td>
-										<td><?php echo li_mi_erp_status_badge( $is_paid ? 'paid' : 'unpaid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
+										<td class="text-right fw-bold"><?php echo esc_html( oby_mi_erp_format_money( $net ) ); ?></td>
+										<td><?php echo oby_mi_erp_status_badge( $is_paid ? 'paid' : 'unpaid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td>
 										<td class="text-right">
 											<?php if ( ! $is_paid ) : ?>
-												<button type="submit" name="employee_id" value="<?php echo (int) $emp->id; ?>" class="btn-success"><?php esc_html_e( 'Mark Paid', 'lime-micro-erp' ); ?></button>
+												<button type="submit" name="employee_id" value="<?php echo (int) $emp->id; ?>" class="btn-success"><?php esc_html_e( 'Mark Paid', 'obydullah-micro-erp' ); ?></button>
 											<?php else : ?>
 												<em class="text-muted fs-6"><?php echo esc_html( gmdate( 'M d, Y', strtotime( $payment->paid_at ) ) ); ?></em>
 											<?php endif; ?>
@@ -266,7 +266,7 @@ $back_url = li_mi_erp_admin_url( 'salary', array( 'month' => $month ) );
 						</table>
 					</div>
 
-					<?php li_mi_erp_render_pagination( 'salary', $total_items, $per_page ); ?>
+					<?php oby_mi_erp_render_pagination( 'salary', $total_items, $per_page ); ?>
 
 				</div>
 			</div>

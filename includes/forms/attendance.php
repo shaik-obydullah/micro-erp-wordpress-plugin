@@ -3,19 +3,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function li_mi_erp_handle_attendance_form() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_attendance_save' );
+function oby_mi_erp_handle_attendance_form() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_save' );
 
 	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- every row value is sanitized individually in the loop below.
 	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
 
 	if ( ! $date ) {
-		li_mi_erp_redirect_notice( __( 'A date is required.', 'lime-micro-erp' ), 'error' );
+		oby_mi_erp_redirect_notice( __( 'A date is required.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
 	global $wpdb;
-	$table = li_mi_erp_table( 'attendance' );
+	$table = oby_mi_erp_table( 'attendance' );
 
 	foreach ( $employees as $employee_id => $row ) {
 		$employee_id = (int) $employee_id;
@@ -50,16 +50,16 @@ function li_mi_erp_handle_attendance_form() {
 		}
 	}
 
-	li_mi_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
-	li_mi_erp_redirect_notice( __( 'Attendance saved.', 'lime-micro-erp' ) );
+	oby_mi_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
+	oby_mi_erp_redirect_notice( __( 'Attendance saved.', 'obydullah-micro-erp' ) );
 }
 
-function li_mi_erp_handle_delete_attendance() {
-	li_mi_erp_verify_nonce( 'li_mi_erp_attendance_delete' );
+function oby_mi_erp_handle_delete_attendance() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_delete' );
 	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 
 	global $wpdb;
-	$wpdb->delete( li_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
-	li_mi_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
-	li_mi_erp_redirect_notice( __( 'Attendance record deleted.', 'lime-micro-erp' ) );
+	$wpdb->delete( oby_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
+	oby_mi_erp_redirect_notice( __( 'Attendance record deleted.', 'obydullah-micro-erp' ) );
 }

@@ -1,8 +1,19 @@
 <?php
+/**
+ * Form handler for saving daily employee attendance records.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (insert or update) each employee's attendance row for one date from $_POST['attendance'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_attendance_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_save' );
 
@@ -54,6 +65,11 @@ function oby_mi_erp_handle_attendance_form() {
 	oby_mi_erp_redirect_notice( __( 'Attendance saved.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete an attendance record named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_attendance() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

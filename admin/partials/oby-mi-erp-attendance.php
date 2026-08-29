@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the daily Attendance admin screen and check-in/out form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

@@ -1,8 +1,26 @@
 <?php
+/**
+ * Shared save logic plus form handlers for quotations and sales orders.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a quotation or sale and its line items from $_POST.
+ * Verifies the caller-appropriate nonce itself, since $type determines which
+ * nonce action applies.
+ *
+ * @param string $prefix      Document number prefix, e.g. 'QUO-' or 'SALE-'.
+ * @param string $table_main  Fully-prefixed main table (quotations or sales).
+ * @param string $table_items Fully-prefixed line-items table.
+ * @param string $item_col    Foreign key column on $table_items referencing the main row.
+ * @param string $type        'quotation' or 'sale'.
+ * @return array{0:int,1:bool} The saved entity's ID and whether it was newly created.
+ */
 function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_col, $type ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_' . $type . '_save' );
 
@@ -110,6 +128,11 @@ function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_c
 	return array( $entity_id, $created );
 }
 
+/**
+ * Save (create or update) a quotation and its line items from $_POST.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_quotation_form() {
 	list( $entity_id, $created ) = oby_mi_erp_save_quote_sale(
 		'QUO-',
@@ -121,6 +144,11 @@ function oby_mi_erp_handle_quotation_form() {
 	oby_mi_erp_redirect_notice( $created ? __( 'Quotation created.', 'obydullah-micro-erp' ) : __( 'Quotation updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete a quotation and its line items, named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_quotation() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
@@ -132,6 +160,11 @@ function oby_mi_erp_handle_delete_quotation() {
 	oby_mi_erp_redirect_notice( __( 'Quotation deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Update a quotation's status (e.g. sent/accepted/rejected) named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_quotation_status() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_status' );
 	$id     = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
@@ -143,6 +176,11 @@ function oby_mi_erp_handle_quotation_status() {
 	oby_mi_erp_redirect_notice( __( 'Quotation status updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Convert a quotation named by $_POST['id'] into a new sale with matching line items.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_convert_quotation() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_convert' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

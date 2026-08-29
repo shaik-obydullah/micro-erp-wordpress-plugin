@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for creating, updating, and deleting contacts (customers and suppliers).
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a contact (customer/supplier) from $_POST.
+ *
+ * @param string $action 'update_contact' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_contact_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_contact_save' );
 
@@ -42,6 +54,11 @@ function oby_mi_erp_handle_contact_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete a contact named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_contact() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_contact_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

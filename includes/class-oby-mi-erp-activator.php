@@ -1,10 +1,26 @@
 <?php
+/**
+ * Plugin activation and deactivation handling: creates the plugin's database
+ * tables and seeds default data.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Handles the plugin's activation and deactivation lifecycle hooks.
+ */
 class ObyMiErp_Activator {
 
+	/**
+	 * Create the plugin's database tables via dbDelta() and seed default data
+	 * (chart of accounts, leave types, and the current fiscal year) on first run.
+	 *
+	 * @return void
+	 */
 	public static function activate() {
 		global $wpdb;
 
@@ -350,6 +366,11 @@ class ObyMiErp_Activator {
 		update_option( 'oby_mi_erp_version', OBY_MI_ERP_VERSION );
 	}
 
+	/**
+	 * Flush rewrite rules on deactivation. Plugin tables and data are left intact.
+	 *
+	 * @return void
+	 */
 	public static function deactivate() {
 		flush_rewrite_rules();
 	}

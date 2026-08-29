@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the plugin Settings admin screen (company profile and currency).
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the shared transaction list table used by the Payable and Receivable screens.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

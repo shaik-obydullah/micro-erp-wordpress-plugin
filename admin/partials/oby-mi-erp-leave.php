@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Leave Management admin screen: leave types and leave requests.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

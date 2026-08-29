@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for leave types and employee leave requests.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a leave type from $_POST.
+ *
+ * @param string $action 'update_leave_type' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_leave_type_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_type_save' );
 
@@ -35,6 +47,11 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete a leave type named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_leave_type() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_type_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
@@ -45,6 +62,11 @@ function oby_mi_erp_handle_delete_leave_type() {
 	oby_mi_erp_redirect_notice( __( 'Leave type deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Submit a new employee leave request from $_POST, in 'pending' status.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_leave_request_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_request_save' );
 
@@ -85,6 +107,12 @@ function oby_mi_erp_handle_leave_request_form() {
 	oby_mi_erp_redirect_notice( __( 'Leave request submitted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Update a leave request's status (e.g. approve/reject) named by $_POST['id'].
+ *
+ * @param string $status New status to set, e.g. 'approved' or 'rejected'.
+ * @return void
+ */
 function oby_mi_erp_handle_leave_status( $status ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_status' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

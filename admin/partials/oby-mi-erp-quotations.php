@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Quotations admin screen and its add/edit form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

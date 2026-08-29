@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for creating, updating, and deleting Chart of Accounts entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a Chart of Accounts entry from $_POST.
+ *
+ * @param string $action 'update_account' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_account_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_save' );
 
@@ -47,6 +59,11 @@ function oby_mi_erp_handle_account_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete an account named by $_POST['id'], refusing if it has journal lines.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_account() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

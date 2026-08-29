@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Expenses admin screen, listing expense journal entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

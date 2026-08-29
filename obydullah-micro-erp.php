@@ -12,6 +12,8 @@
  * Requires PHP: 8.0
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package Obydullah_Micro_ERP
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -29,6 +31,11 @@ require_once OBY_MI_ERP_PATH . 'includes/class-oby-mi-erp.php';
 register_activation_hook( __FILE__, array( 'ObyMiErp_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'ObyMiErp_Activator', 'deactivate' ) );
 
+/**
+ * Instantiate the plugin once WordPress has loaded all active plugins.
+ *
+ * @return void
+ */
 function oby_mi_erp_bootstrap() {
 	new ObyMiErp();
 }

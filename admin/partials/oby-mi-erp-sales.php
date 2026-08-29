@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Sales Orders admin screen, its add/edit form, and payment recording.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

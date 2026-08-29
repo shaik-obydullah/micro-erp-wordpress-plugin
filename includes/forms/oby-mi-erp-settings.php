@@ -1,8 +1,19 @@
 <?php
+/**
+ * Form handler for saving the plugin's company profile and currency settings.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save the plugin's company profile, currency, default accounts, and module toggles from $_POST.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_settings_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_settings_save' );
 

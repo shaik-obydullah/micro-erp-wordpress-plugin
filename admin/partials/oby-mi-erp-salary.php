@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Salary admin screen and its monthly payroll run form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

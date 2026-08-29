@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handler that runs a monthly salary payment batch for all active employees.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Record a salary payment for one employee (or all active employees) for a
+ * given month, and post the matching salary-expense journal entry.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_salary_paid() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_salary_paid' );
 

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Income admin screen, listing income journal entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

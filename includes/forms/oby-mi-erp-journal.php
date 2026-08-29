@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for creating, updating, and deleting double-entry journal entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Post a manual, multi-line double-entry journal entry from $_POST, requiring
+ * debits to equal credits.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_journal_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
@@ -44,6 +56,11 @@ function oby_mi_erp_handle_journal_form() {
 	oby_mi_erp_redirect_notice( __( 'Journal entry saved.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Post a simple two-line income or expense journal entry from $_POST['tx_mode'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_transaction_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
@@ -98,6 +115,11 @@ function oby_mi_erp_handle_transaction_form() {
 	oby_mi_erp_redirect_notice( __( 'Entry saved.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete a journal entry and its lines, named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_journal() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );

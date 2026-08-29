@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the plugin's main Dashboard overview screen.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

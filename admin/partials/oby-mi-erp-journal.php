@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the double-entry Journal admin screen and its entry form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

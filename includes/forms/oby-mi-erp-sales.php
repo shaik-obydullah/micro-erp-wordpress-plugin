@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for saving a sale and posting its accounting entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a sale and its line items, posting the sale journal
+ * entry when a new sale is created.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_sale_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_save' );
 
@@ -26,6 +38,11 @@ function oby_mi_erp_handle_sale_form() {
 	oby_mi_erp_redirect_notice( $created ? __( 'Sale created.', 'obydullah-micro-erp' ) : __( 'Sale updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete a sale and its line items, named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_sale() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
@@ -37,6 +54,11 @@ function oby_mi_erp_handle_delete_sale() {
 	oby_mi_erp_redirect_notice( __( 'Sale deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Record a payment against a sale from $_POST and post the matching cash journal entry.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_record_payment() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_payment_save' );
 

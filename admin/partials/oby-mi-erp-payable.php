@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Accounts Payable admin screen.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

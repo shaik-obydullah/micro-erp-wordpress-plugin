@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Sales Reports admin screen.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

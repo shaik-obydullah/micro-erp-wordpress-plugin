@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Fiscal Years admin screen and its add form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

@@ -33,4 +33,3 @@ function oby_mi_erp_bootstrap() {
 	new ObyMiErp();
 }
 add_action( 'plugins_loaded', 'oby_mi_erp_bootstrap' );
-

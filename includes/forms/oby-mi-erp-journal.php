@@ -47,8 +47,8 @@ function oby_mi_erp_handle_journal_form() {
 function oby_mi_erp_handle_transaction_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
-	$tx_mode    = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
-	$mode       = 'expense' === $tx_mode ? 'expense' : 'income';
+	$tx_mode     = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
+	$mode        = 'expense' === $tx_mode ? 'expense' : 'income';
 	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
 	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
 	$amount      = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
@@ -60,17 +60,33 @@ function oby_mi_erp_handle_transaction_form() {
 	}
 
 	if ( 'expense' === $mode ) {
-		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'expense', '5001' );
-		$lines = array(
-			array( 'account_id' => $acct, 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => 0, 'credit' => $amount ),
+		$acct     = $account_id ? $account_id : oby_mi_erp_default_account( 'expense', '5001' );
+		$lines    = array(
+			array(
+				'account_id' => $acct,
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => oby_mi_erp_default_account( 'asset', '1001' ),
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		);
 		$ref_type = 'expense';
 	} else {
-		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'income', '4001' );
-		$lines = array(
-			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => $acct, 'debit' => 0, 'credit' => $amount ),
+		$acct     = $account_id ? $account_id : oby_mi_erp_default_account( 'income', '4001' );
+		$lines    = array(
+			array(
+				'account_id' => oby_mi_erp_default_account( 'asset', '1001' ),
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => $acct,
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		);
 		$ref_type = 'income';
 	}

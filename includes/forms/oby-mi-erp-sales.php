@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function oby_mi_erp_handle_sale_form( $action ) {
+function oby_mi_erp_handle_sale_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_save' );
 
 	global $wpdb;
@@ -69,7 +69,7 @@ function oby_mi_erp_handle_record_payment() {
 	$wpdb->update(
 		oby_mi_erp_table( 'sales' ),
 		array(
-			'amount_paid'   => $new_paid,
+			'amount_paid'    => $new_paid,
 			'payment_status' => $status,
 			'payment_method' => $method,
 		),
@@ -87,8 +87,16 @@ function oby_mi_erp_handle_record_payment() {
 		current_time( 'Y-m-d' ),
 		sprintf( 'Sale Payment - %s (%s)', $sale->sale_no, $ref ),
 		array(
-			array( 'account_id' => $deposit, 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => $ar_account, 'debit' => 0, 'credit' => $amount ),
+			array(
+				'account_id' => $deposit,
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => $ar_account,
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		),
 		'sale_payment',
 		$sale_id

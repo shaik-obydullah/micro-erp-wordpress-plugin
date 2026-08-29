@@ -32,7 +32,7 @@ function oby_mi_erp_handle_attendance_form() {
 			}
 		}
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %d AND date = %s", $employee_id, $date ) );
+		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %d AND date = %s", $employee_id, $date ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a fixed plugin table name, not user input; the actual values are placeholder-bound above.
 		$data     = array(
 			'employee_id'  => $employee_id,
 			'date'         => $date,

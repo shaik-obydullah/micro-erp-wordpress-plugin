@@ -12,7 +12,7 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'sales' );
 // Record payment view.
 $oby_mi_erp_pay_id = oby_mi_erp_query_int( 'pay' );
 if ( $oby_mi_erp_pay_id ) {
-	$oby_mi_erp_pay_sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $oby_mi_erp_pay_id ) );
+	$oby_mi_erp_pay_sale       = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $oby_mi_erp_pay_id ) );
 	$oby_mi_erp_asset_accounts = oby_mi_erp_get_accounts( 'asset' );
 	oby_mi_erp_print_admin_notice();
 	?>
@@ -61,8 +61,8 @@ if ( $oby_mi_erp_pay_id ) {
 						<div class="mb-3">
 							<label for="method" class="form-label"><?php esc_html_e( 'Payment Method', 'obydullah-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="method" id="method" class="form-control" required>
-								<?php foreach ( array( 'cash', 'bank_transfer', 'check', 'card' ) as $m ) : ?>
-									<option value="<?php echo esc_attr( $m ); ?>"><?php echo esc_html( ucwords( str_replace( '_', ' ', $m ) ) ); ?></option>
+								<?php foreach ( array( 'cash', 'bank_transfer', 'check', 'card' ) as $payment_method_option ) : ?>
+									<option value="<?php echo esc_attr( $payment_method_option ); ?>"><?php echo esc_html( ucwords( str_replace( '_', ' ', $payment_method_option ) ) ); ?></option>
 								<?php endforeach; ?>
 							</select>
 						</div>
@@ -100,8 +100,8 @@ if ( $oby_mi_erp_pay_id ) {
 	return;
 }
 
-$oby_mi_erp_edit_id = oby_mi_erp_query_int( 'edit' );
-$oby_mi_erp_editing = null;
+$oby_mi_erp_edit_id    = oby_mi_erp_query_int( 'edit' );
+$oby_mi_erp_editing    = null;
 $oby_mi_erp_edit_items = array();
 if ( $oby_mi_erp_edit_id ) {
 	$oby_mi_erp_editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $oby_mi_erp_edit_id ) );
@@ -115,7 +115,7 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s AND (s.sale_no LIKE %s OR c.name LIKE %s)",
@@ -132,7 +132,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 		)
 	);
 } elseif ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.sale_no LIKE %s OR c.name LIKE %s",
@@ -210,10 +210,10 @@ oby_mi_erp_print_admin_notice();
 
 		<form method="post" action="">
 			<?php
-			$action = $oby_mi_erp_editing ? 'update_sale' : 'save_sale';
+			$form_action = $oby_mi_erp_editing ? 'update_sale' : 'save_sale';
 			wp_nonce_field( 'oby_mi_erp_sale_save' );
 			?>
-			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 			<?php if ( $oby_mi_erp_editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 			<?php endif; ?>
@@ -382,7 +382,8 @@ oby_mi_erp_print_admin_notice();
 								<?php if ( empty( $oby_mi_erp_rows ) ) : ?>
 									<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'No sales found.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
-								<?php foreach ( $oby_mi_erp_rows as $oby_mi_erp_sale ) :
+								<?php
+								foreach ( $oby_mi_erp_rows as $oby_mi_erp_sale ) :
 									$oby_mi_erp_balance = (float) $oby_mi_erp_sale->total - (float) $oby_mi_erp_sale->amount_paid;
 									?>
 									<tr>

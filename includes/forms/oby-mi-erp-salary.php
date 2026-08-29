@@ -32,12 +32,12 @@ function oby_mi_erp_handle_salary_paid() {
 			continue;
 		}
 
-		$base        = (float) $emp->basic_salary;
-		$allowances  = isset( $_POST['allowances'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ) ) : 0;
-		$deductions  = isset( $_POST['deductions'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ) ) : 0;
-		$amount      = $base + $allowances - $deductions;
+		$base       = (float) $emp->basic_salary;
+		$allowances = isset( $_POST['allowances'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ) ) : 0;
+		$deductions = isset( $_POST['deductions'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ) ) : 0;
+		$amount     = $base + $allowances - $deductions;
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$spt} WHERE employee_id = %d AND month = %s", $employee_id, $month ) );
+		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$spt} WHERE employee_id = %d AND month = %s", $employee_id, $month ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $spt is a fixed plugin table name, not user input; the actual values are placeholder-bound above.
 
 		$data = array(
 			'employee_id' => $employee_id,
@@ -64,8 +64,16 @@ function oby_mi_erp_handle_salary_paid() {
 			current_time( 'Y-m-d' ),
 			sprintf( 'Salary Payment - %s (%s)', $month, $emp->name ),
 			array(
-				array( 'account_id' => $expense_account, 'debit' => $amount, 'credit' => 0 ),
-				array( 'account_id' => $cash_account, 'debit' => 0, 'credit' => $amount ),
+				array(
+					'account_id' => $expense_account,
+					'debit'      => $amount,
+					'credit'     => 0,
+				),
+				array(
+					'account_id' => $cash_account,
+					'debit'      => 0,
+					'credit'     => $amount,
+				),
 			),
 			'salary_payment',
 			$payment_id
@@ -74,7 +82,7 @@ function oby_mi_erp_handle_salary_paid() {
 		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) );
 
 		do_action( 'oby_mi_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
-		$count++;
+		++$count;
 	}
 
 	oby_mi_erp_audit_log( 'salary_paid', 'salary', 0, 'Marked ' . $count . ' salary payment(s) paid for ' . $month );

@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<ruleset name="Obydullah Micro ERP">
+	<description>WordPress Coding Standards ruleset for the Obydullah Micro ERP plugin.</description>
+
+	<file>.</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+
+	<arg value="sp"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<config name="minimum_supported_wp_version" value="6.0"/>
+	<config name="testVersion" value="8.0-"/>
+
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="obydullah-micro-erp"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+	This plugin verifies every state-changing request through the
+	oby_mi_erp_verify_nonce() wrapper (includes/oby-mi-erp-helpers.php),
+	which itself calls wp_verify_nonce(). PHPCS cannot see through the
+	wrapper, so without this it flags every form handler as missing a
+	nonce check. Declaring the wrapper here is the documented WPCS
+	mechanism for this, rather than adding an ignore comment to every
+	handler.
+	-->
+	<rule ref="WordPress.Security.NonceVerification">
+		<properties>
+			<property name="customNonceVerificationFunctions" type="array">
+				<element value="oby_mi_erp_verify_nonce"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+	The plugin's data (accounts, journals, HRM, sales) lives in its own
+	oby_mi_erp_* tables, which are outside WordPress core's object cache
+	and have no wpdb helper methods beyond direct query/get_row/get_results.
+	Direct queries against these custom tables are required and expected
+	(see https://developer.wordpress.org/plugins/security/securing-input/,
+	"the WordPress database class" section on custom tables).
+	Caching is applied deliberately in includes/oby-mi-erp-helpers.php for
+	the hot-path lookups (fiscal year, settings, balances); the remaining
+	queries are one-shot admin-screen reads or immediately-consumed
+	uniqueness checks ahead of an insert/update, where caching would risk
+	serving stale data rather than improve performance.
+	-->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery"/>
+		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching"/>
+	</rule>
+
+	<!--
+	Class file names use the plugin's oby-mi-erp- prefix (matching every
+	other file in the plugin) rather than a literal transform of the class
+	name, e.g. class-oby-mi-erp-activator.php for ObyMiErp_Activator.
+	Renaming would only affect require_once paths, not any real defect.
+	-->
+	<rule ref="WordPress.Files.FileName">
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
+</ruleset>

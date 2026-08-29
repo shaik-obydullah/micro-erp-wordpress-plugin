@@ -7,9 +7,9 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_type_save' );
 
 	$data = array(
-		'name'         => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-		'days_per_year'=> (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
-		'is_active'    => isset( $_POST['is_active'] ) ? 1 : 0,
+		'name'          => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+		'days_per_year' => (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
+		'is_active'     => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 
 	if ( ! $data['name'] ) {
@@ -69,13 +69,13 @@ function oby_mi_erp_handle_leave_request_form() {
 	$wpdb->insert(
 		oby_mi_erp_table( 'leave_requests' ),
 		array(
-			'employee_id'  => $employee_id,
-			'leave_type_id'=> $leave_type,
-			'start_date'   => $start,
-			'end_date'     => $end,
-			'total_days'   => $total_days,
-			'reason'       => $reason,
-			'status'       => 'pending',
+			'employee_id'   => $employee_id,
+			'leave_type_id' => $leave_type,
+			'start_date'    => $start,
+			'end_date'      => $end,
+			'total_days'    => $total_days,
+			'reason'        => $reason,
+			'status'        => 'pending',
 		),
 		array( '%d', '%d', '%s', '%s', '%d', '%s', '%s' )
 	);
@@ -92,7 +92,10 @@ function oby_mi_erp_handle_leave_status( $status ) {
 	global $wpdb;
 	$wpdb->update(
 		oby_mi_erp_table( 'leave_requests' ),
-		array( 'status' => $status, 'approved_by' => get_current_user_id() ),
+		array(
+			'status'      => $status,
+			'approved_by' => get_current_user_id(),
+		),
 		array( 'id' => $id ),
 		array( '%s', '%d' ),
 		array( '%d' )

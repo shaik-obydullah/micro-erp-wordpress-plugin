@@ -11,7 +11,7 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales s
@@ -68,7 +68,7 @@ if ( $oby_mi_erp_search ) {
 
 // Grand totals across ALL unpaid invoices matching the filter (footer row must not change with paging).
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like   = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_totals = $wpdb->get_row(
 		$wpdb->prepare(
 			"SELECT COALESCE(SUM(s.total),0) AS original, COALESCE(SUM(s.amount_paid),0) AS paid, COALESCE(SUM(s.total - s.amount_paid),0) AS balance
@@ -133,7 +133,8 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'receivable' );
 							<?php if ( empty( $oby_mi_erp_rows ) ) : ?>
 								<tr><td colspan="8" class="text-center p-4"><?php esc_html_e( 'Nothing owed to you. Nice!', 'obydullah-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
-							<?php foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
+							<?php
+							foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
 								$oby_mi_erp_balance = (float) $oby_mi_erp_row->total - (float) $oby_mi_erp_row->amount_paid;
 								$oby_mi_erp_overdue = strtotime( $oby_mi_erp_row->sale_date . ' +30 days' ) < time();
 								?>

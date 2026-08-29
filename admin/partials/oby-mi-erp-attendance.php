@@ -14,18 +14,23 @@ $oby_mi_erp_employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpd
 
 $oby_mi_erp_existing = array();
 if ( $oby_mi_erp_employees ) {
-	$oby_mi_erp_ids            = array_map( 'intval', wp_list_pluck( $oby_mi_erp_employees, 'id' ) );
+	$oby_mi_erp_ids             = array_map( 'intval', wp_list_pluck( $oby_mi_erp_employees, 'id' ) );
 	$oby_mi_erp_in_placeholders = implode( ',', array_fill( 0, count( $oby_mi_erp_ids ), '%d' ) );
-	$oby_mi_erp_att            = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_attendance WHERE date = %s AND employee_id IN ({$oby_mi_erp_in_placeholders})", array_merge( array( $oby_mi_erp_date ), $oby_mi_erp_ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	$oby_mi_erp_att             = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_attendance WHERE date = %s AND employee_id IN ({$oby_mi_erp_in_placeholders})", array_merge( array( $oby_mi_erp_date ), $oby_mi_erp_ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $oby_mi_erp_in_placeholders is a dynamically built %d list matched 1:1 with the ids array, passed as the array form of $wpdb->prepare().
 	foreach ( $oby_mi_erp_att as $oby_mi_erp_a ) {
 		$oby_mi_erp_existing[ $oby_mi_erp_a->employee_id ] = $oby_mi_erp_a;
 	}
 }
 
-$oby_mi_erp_summary = array( 'present' => 0, 'absent' => 0, 'late' => 0, 'half' => 0 );
+$oby_mi_erp_summary = array(
+	'present' => 0,
+	'absent'  => 0,
+	'late'    => 0,
+	'half'    => 0,
+);
 foreach ( $oby_mi_erp_existing as $oby_mi_erp_a ) {
 	if ( isset( $oby_mi_erp_summary[ $oby_mi_erp_a->status ] ) ) {
-		$oby_mi_erp_summary[ $oby_mi_erp_a->status ]++;
+		++$oby_mi_erp_summary[ $oby_mi_erp_a->status ];
 	}
 }
 $oby_mi_erp_unmarked = count( $oby_mi_erp_employees ) - count( $oby_mi_erp_existing );
@@ -75,7 +80,8 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'attendance', array( 'date' => $oby
 	);
 	?>
 	<div class="stat-cards">
-		<?php foreach ( $oby_mi_erp_stats as $oby_mi_erp_stat ) :
+		<?php
+		foreach ( $oby_mi_erp_stats as $oby_mi_erp_stat ) :
 			$oby_mi_erp_pct = $oby_mi_erp_total_emp ? round( ( $oby_mi_erp_stat['value'] / $oby_mi_erp_total_emp ) * 100 ) : 0;
 			?>
 			<div class="stat-card stat-card--<?php echo esc_attr( $oby_mi_erp_stat['key'] ); ?>">
@@ -85,12 +91,14 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'attendance', array( 'date' => $oby
 				<div class="stat-body">
 					<span class="stat-value"><?php echo (int) $oby_mi_erp_stat['value']; ?></span>
 					<span class="stat-label"><?php echo esc_html( $oby_mi_erp_stat['label'] ); ?></span>
-					<?php $oby_mi_erp_stat_sub = sprintf(
+					<?php
+					$oby_mi_erp_stat_sub = sprintf(
 					/* translators: 1: percentage, 2: total number of employees. */
-					__( '%1$d%% of %2$d employees', 'obydullah-micro-erp' ),
-					$oby_mi_erp_pct,
-					$oby_mi_erp_total_emp
-				); ?>
+						__( '%1$d%% of %2$d employees', 'obydullah-micro-erp' ),
+						$oby_mi_erp_pct,
+						$oby_mi_erp_total_emp
+					);
+					?>
 				<span class="stat-sub"><?php echo esc_html( $oby_mi_erp_stat_sub ); ?></span>
 					<div class="stat-bar" role="presentation"><span style="width:<?php echo (int) $oby_mi_erp_pct; ?>%;"></span></div>
 				</div>
@@ -126,7 +134,8 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'attendance', array( 'date' => $oby
 								<?php if ( empty( $oby_mi_erp_employees ) ) : ?>
 									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
-								<?php foreach ( $oby_mi_erp_employees as $oby_mi_erp_emp ) :
+								<?php
+								foreach ( $oby_mi_erp_employees as $oby_mi_erp_emp ) :
 									$oby_mi_erp_rec = isset( $oby_mi_erp_existing[ $oby_mi_erp_emp->id ] ) ? $oby_mi_erp_existing[ $oby_mi_erp_emp->id ] : null;
 									?>
 									<tr>
@@ -151,12 +160,14 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'attendance', array( 'date' => $oby
 
 					<div class="form-actions-bar">
 						<?php if ( $oby_mi_erp_employees && $oby_mi_erp_unmarked > 0 ) : ?>
-							<?php $oby_mi_erp_unmarked_note = sprintf(
+							<?php
+							$oby_mi_erp_unmarked_note = sprintf(
 								/* translators: 1: number of unmarked employees, 2: total number of employees. */
 								__( '%1$d of %2$d employees unmarked.', 'obydullah-micro-erp' ),
 								$oby_mi_erp_unmarked,
 								count( $oby_mi_erp_employees )
-							); ?>
+							);
+							?>
 							<span class="form-actions-note">
 								<?php echo esc_html( $oby_mi_erp_unmarked_note ); ?>
 							</span>

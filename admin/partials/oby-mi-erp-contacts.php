@@ -18,7 +18,7 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_type_filter && $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE type = %s AND (name LIKE %s OR email LIKE %s OR company LIKE %s)",
@@ -36,7 +36,7 @@ if ( $oby_mi_erp_type_filter && $oby_mi_erp_search ) {
 		)
 	);
 } elseif ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE name LIKE %s OR email LIKE %s OR company LIKE %s",
@@ -125,10 +125,10 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'contacts' );
 					</h2>
 					<form method="post" action="">
 						<?php
-						$action = $oby_mi_erp_editing ? 'update_contact' : 'save_contact';
+						$form_action = $oby_mi_erp_editing ? 'update_contact' : 'save_contact';
 						wp_nonce_field( 'oby_mi_erp_contact_save' );
 						?>
-						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 						<?php if ( $oby_mi_erp_editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 						<?php endif; ?>

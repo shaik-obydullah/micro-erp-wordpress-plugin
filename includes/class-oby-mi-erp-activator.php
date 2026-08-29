@@ -280,7 +280,7 @@ class ObyMiErp_Activator {
 		}
 
 		// Default Chart of Accounts.
-		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) );
+		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $account_count ) {
 			$default_accounts = array(
 				array( '1001', 'Cash', 'asset' ),
@@ -311,7 +311,7 @@ class ObyMiErp_Activator {
 		}
 
 		// Default leave types.
-		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) );
+		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $lt_count ) {
 			$default_leave_types = array(
 				array( 'Annual Leave', 12 ),
@@ -332,9 +332,9 @@ class ObyMiErp_Activator {
 		}
 
 		// Default fiscal year covering the current calendar year.
-		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) );
+		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $fy_count ) {
-			$year  = (int) date_i18n( 'Y' );
+			$year = (int) date_i18n( 'Y' );
 			$wpdb->insert(
 				"{$t}fiscal_years",
 				array(

@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $oby_mi_erp_tx_mode   = ( 'expense' === $oby_mi_erp_tx_mode ) ? 'expense' : 'income';
 $oby_mi_erp_tx_page   = 'expense' === $oby_mi_erp_tx_mode ? 'expenses' : 'income'; // Real menu slug (plural for expenses).
-$oby_mi_erp_label   = 'expense' === $oby_mi_erp_tx_mode ? __( 'Expenses', 'obydullah-micro-erp' ) : __( 'Income', 'obydullah-micro-erp' );
-$oby_mi_erp_add_btn = 'expense' === $oby_mi_erp_tx_mode ? __( '+ Add Expense', 'obydullah-micro-erp' ) : __( '+ Add Income', 'obydullah-micro-erp' );
+$oby_mi_erp_label     = 'expense' === $oby_mi_erp_tx_mode ? __( 'Expenses', 'obydullah-micro-erp' ) : __( 'Income', 'obydullah-micro-erp' );
+$oby_mi_erp_add_btn   = 'expense' === $oby_mi_erp_tx_mode ? __( '+ Add Expense', 'obydullah-micro-erp' ) : __( '+ Add Income', 'obydullah-micro-erp' );
 $oby_mi_erp_acct_type = 'expense' === $oby_mi_erp_tx_mode ? 'expense' : 'income';
 
 global $wpdb;
@@ -17,7 +17,7 @@ $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 $oby_mi_erp_search   = oby_mi_erp_query_text( 's' );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(DISTINCT j.id)
@@ -205,7 +205,8 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( $oby_mi_erp_tx_page );
 									?>
 									<tr><td colspan="6" class="text-center p-4"><?php esc_html_e( 'No entries yet.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
-								<?php foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
+								<?php
+								foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
 									$oby_mi_erp_amount = 'expense' === $oby_mi_erp_tx_mode ? (float) $oby_mi_erp_row->debit : (float) $oby_mi_erp_row->credit;
 									$oby_mi_erp_total += $oby_mi_erp_amount;
 									?>
@@ -215,7 +216,19 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( $oby_mi_erp_tx_page );
 										<td><?php echo esc_html( $oby_mi_erp_row->account_code . ' - ' . $oby_mi_erp_row->account_name ); ?></td>
 										<td><?php echo esc_html( $oby_mi_erp_row->reference_type ? strtoupper( $oby_mi_erp_row->reference_type ) : '—' ); ?></td>
 										<td class="text-right"><strong style="color: <?php echo 'expense' === $oby_mi_erp_tx_mode ? '#d63638' : '#00a32a'; ?>;"><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_amount ) ); ?></strong></td>
-										<td class="text-right"><a href="<?php echo esc_url( oby_mi_erp_admin_url( 'journal', array( 'view' => $oby_mi_erp_row->id, 'from' => $oby_mi_erp_tx_mode ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
+										<td class="text-right"><a href="
+										<?php
+										echo esc_url(
+											oby_mi_erp_admin_url(
+												'journal',
+												array(
+													'view' => $oby_mi_erp_row->id,
+													'from' => $oby_mi_erp_tx_mode,
+												)
+											)
+										);
+										?>
+																		" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="total-row">

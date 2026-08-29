@@ -8,9 +8,9 @@ global $wpdb;
 // Payable = amounts owed to vendors, tracked via the Accounts Payable account.
 $oby_mi_erp_ap_account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT %d", '2001', 1 ) );
 
-$oby_mi_erp_rows = array();
+$oby_mi_erp_rows        = array();
 $oby_mi_erp_total_items = 0;
-$oby_mi_erp_total = 0;
+$oby_mi_erp_total       = 0;
 if ( $oby_mi_erp_ap_account ) {
 	$oby_mi_erp_search = oby_mi_erp_query_text( 's' );
 
@@ -18,7 +18,7 @@ if ( $oby_mi_erp_ap_account ) {
 	$oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 	if ( $oby_mi_erp_search ) {
-		$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+		$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 		$oby_mi_erp_total_items = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l
@@ -45,7 +45,7 @@ if ( $oby_mi_erp_ap_account ) {
 
 	// Grand total across ALL payable entries (footer row must not change with paging).
 	if ( $oby_mi_erp_search ) {
-		$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+		$oby_mi_erp_like  = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
 		$oby_mi_erp_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COALESCE(SUM(l.credit),0) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l

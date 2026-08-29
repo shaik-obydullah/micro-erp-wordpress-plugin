@@ -6,19 +6,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_col, $type ) {
 	global $wpdb;
 
-	$contact_id = isset( $_POST['contact_id'] ) ? (int) $_POST['contact_id'] : 0;
+	$contact_id = (int) sanitize_text_field( wp_unslash( $_POST['contact_id'] ?? '' ) );
 	$date       = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
 	$valid_until = isset( $_POST['valid_until'] ) ? sanitize_text_field( wp_unslash( $_POST['valid_until'] ) ) : '';
 	$valid_until = '' !== $valid_until ? $valid_until : null;
-	$discount   = isset( $_POST['discount'] ) ? (float) $_POST['discount'] : 0;
+	$discount   = (float) sanitize_text_field( wp_unslash( $_POST['discount'] ?? '' ) );
 	$notes      = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['notes'] ) ) : '';
-	$update_id  = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$update_id  = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 	$send       = isset( $_POST['save_and_send'] );
 
 	$descriptions = isset( $_POST['item_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_description'] ) ) : array();
-	$quantities   = isset( $_POST['item_quantity'] ) ? array_map( 'floatval', (array) wp_unslash( $_POST['item_quantity'] ) ) : array();
-	$prices       = isset( $_POST['item_price'] ) ? array_map( 'floatval', (array) wp_unslash( $_POST['item_price'] ) ) : array();
-	$tax_rates    = isset( $_POST['item_tax'] ) ? array_map( 'floatval', (array) wp_unslash( $_POST['item_tax'] ) ) : array();
+	$quantities   = isset( $_POST['item_quantity'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_quantity'] ) ) ) : array();
+	$prices       = isset( $_POST['item_price'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_price'] ) ) ) : array();
+	$tax_rates    = isset( $_POST['item_tax'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_tax'] ) ) ) : array();
 
 	if ( ! $contact_id || empty( $descriptions ) ) {
 		oby_mi_erp_redirect_notice( __( 'A contact and at least one item are required.', 'obydullah-micro-erp' ), 'error' );
@@ -122,7 +122,7 @@ function oby_mi_erp_handle_quotation_form( $action ) {
 
 function oby_mi_erp_handle_delete_quotation() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'quotation_items' ), array( 'quotation_id' => $id ), array( '%d' ) );
@@ -133,7 +133,7 @@ function oby_mi_erp_handle_delete_quotation() {
 
 function oby_mi_erp_handle_quotation_status() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_status' );
-	$id     = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id     = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 	$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'draft';
 
 	global $wpdb;
@@ -144,7 +144,7 @@ function oby_mi_erp_handle_quotation_status() {
 
 function oby_mi_erp_handle_convert_quotation() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_convert' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$q = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE id = %d", $id ) );

@@ -22,7 +22,7 @@ define( 'OBY_MI_ERP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OBY_MI_ERP_URL', plugin_dir_url( __FILE__ ) );
 define( 'OBY_MI_ERP_TABLE', 'oby_mi_erp_' );
 
-require_once OBY_MI_ERP_PATH . 'includes/helpers.php';
+require_once OBY_MI_ERP_PATH . 'includes/oby-mi-erp-helpers.php';
 require_once OBY_MI_ERP_PATH . 'includes/class-oby-mi-erp-activator.php';
 require_once OBY_MI_ERP_PATH . 'includes/class-oby-mi-erp.php';
 

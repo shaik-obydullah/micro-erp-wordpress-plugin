@@ -56,7 +56,7 @@ function oby_mi_erp_handle_attendance_form() {
 
 function oby_mi_erp_handle_delete_attendance() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );

@@ -21,7 +21,7 @@ function oby_mi_erp_handle_department_form( $action ) {
 	$table = oby_mi_erp_table( 'departments' );
 
 	if ( 'update_department' === $action ) {
-		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s' ), array( '%d' ) );
 		$entity_id = $id;
 		$message   = __( 'Department updated.', 'obydullah-micro-erp' );
@@ -31,13 +31,15 @@ function oby_mi_erp_handle_department_form( $action ) {
 		$message   = __( 'Department created.', 'obydullah-micro-erp' );
 	}
 
+	oby_mi_erp_flush_cache();
+
 	oby_mi_erp_audit_log( 'save', 'department', $entity_id, $data['name'] );
 	oby_mi_erp_redirect_notice( $message );
 }
 
 function oby_mi_erp_handle_delete_department() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_department_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$used = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE department_id = %d", $id ) );
@@ -46,6 +48,7 @@ function oby_mi_erp_handle_delete_department() {
 		return;
 	}
 	$wpdb->delete( oby_mi_erp_table( 'departments' ), array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'department', $id, 'Deleted department #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Department deleted.', 'obydullah-micro-erp' ) );
 }

@@ -9,7 +9,7 @@ function oby_mi_erp_handle_fiscal_year_form() {
 	$name       = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
 	$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
 	$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
-	$id         = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id         = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	if ( ! $name || ! $start_date || ! $end_date ) {
 		oby_mi_erp_redirect_notice( __( 'Name, start date and end date are required.', 'obydullah-micro-erp' ), 'error' );
@@ -40,7 +40,7 @@ function oby_mi_erp_handle_fiscal_year_form() {
 
 function oby_mi_erp_handle_delete_fiscal_year() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'fiscal_years' ), array( 'id' => $id ), array( '%d' ) );
@@ -50,7 +50,7 @@ function oby_mi_erp_handle_delete_fiscal_year() {
 
 function oby_mi_erp_handle_activate_fiscal_year() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_activate' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$table = oby_mi_erp_table( 'fiscal_years' );

@@ -2,5 +2,5 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-$tx_mode = 'expense';
-include __DIR__ . '/_transaction_list.php';
+$oby_mi_erp_tx_mode = 'expense';
+include __DIR__ . '/oby-mi-erp-transaction-list.php';

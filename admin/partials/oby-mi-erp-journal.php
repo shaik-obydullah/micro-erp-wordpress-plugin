@@ -5,25 +5,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$show_form = oby_mi_erp_query_has( 'new' ) || oby_mi_erp_query_has( 'view' );
-$view_id   = oby_mi_erp_query_int( 'view' );
-$accounts  = oby_mi_erp_get_accounts();
+$oby_mi_erp_show_form = oby_mi_erp_query_has( 'new' ) || oby_mi_erp_query_has( 'view' );
+$oby_mi_erp_view_id   = oby_mi_erp_query_int( 'view' );
+$oby_mi_erp_accounts  = oby_mi_erp_get_accounts();
 
-$search = oby_mi_erp_query_text( 's' );
+$oby_mi_erp_search = oby_mi_erp_query_text( 's' );
 
-$per_page = 20;
-$paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
+$oby_mi_erp_per_page = 20;
+$oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
-if ( $search ) {
-	$like = '%' . $wpdb->esc_like( $search ) . '%';
-	$total_items = (int) $wpdb->get_var(
+if ( $oby_mi_erp_search ) {
+	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE description LIKE %s",
-			$like
+			$oby_mi_erp_like
 		)
 	);
 } else {
-	$total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE 1 = %d",
 			1
@@ -31,79 +31,79 @@ if ( $search ) {
 	);
 }
 
-$total_pages = max( 1, (int) ceil( $total_items / $per_page ) );
-$paged       = min( $paged, $total_pages );
-$offset      = ( $paged - 1 ) * $per_page;
+$oby_mi_erp_total_pages = max( 1, (int) ceil( $oby_mi_erp_total_items / $oby_mi_erp_per_page ) );
+$oby_mi_erp_paged       = min( $oby_mi_erp_paged, $oby_mi_erp_total_pages );
+$oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
-if ( $search ) {
-	$like   = '%' . $wpdb->esc_like( $search ) . '%';
-	$entries = $wpdb->get_results(
+if ( $oby_mi_erp_search ) {
+	$oby_mi_erp_like   = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_entries = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE description LIKE %s ORDER BY entry_date DESC, id DESC LIMIT %d OFFSET %d",
-			$like,
-			$per_page,
-			$offset
+			$oby_mi_erp_like,
+			$oby_mi_erp_per_page,
+			$oby_mi_erp_offset
 		)
 	);
 } else {
-	$entries = $wpdb->get_results(
+	$oby_mi_erp_entries = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries ORDER BY entry_date DESC, id DESC LIMIT %d OFFSET %d",
-			$per_page,
-			$offset
+			$oby_mi_erp_per_page,
+			$oby_mi_erp_offset
 		)
 	);
 }
 
-$lines_by_entry = array();
-if ( ! empty( $entries ) ) {
-	$ids            = array_map( 'intval', array_column( $entries, 'id' ) );
-	$in_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-	$lines          = $wpdb->get_results( $wpdb->prepare( "SELECT l.*, a.code, a.name FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE l.entry_id IN ({$in_placeholders}) ORDER BY l.id ASC", $ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-	foreach ( $lines as $line ) {
-		$lines_by_entry[ $line->entry_id ][] = $line;
+$oby_mi_erp_lines_by_entry = array();
+if ( ! empty( $oby_mi_erp_entries ) ) {
+	$oby_mi_erp_ids            = array_map( 'intval', array_column( $oby_mi_erp_entries, 'id' ) );
+	$oby_mi_erp_in_placeholders = implode( ',', array_fill( 0, count( $oby_mi_erp_ids ), '%d' ) );
+	$oby_mi_erp_lines          = $wpdb->get_results( $wpdb->prepare( "SELECT l.*, a.code, a.name FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE l.entry_id IN ({$oby_mi_erp_in_placeholders}) ORDER BY l.id ASC", $oby_mi_erp_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	foreach ( $oby_mi_erp_lines as $oby_mi_erp_line ) {
+		$oby_mi_erp_lines_by_entry[ $oby_mi_erp_line->entry_id ][] = $oby_mi_erp_line;
 	}
 }
 
 oby_mi_erp_print_admin_notice();
 
-$back_url = oby_mi_erp_admin_url( 'journal' );
-$from     = oby_mi_erp_query_key( 'from' );
-if ( $from && ! in_array( $from, array( 'income', 'expense' ), true ) ) {
-	$from = '';
+$oby_mi_erp_back_url = oby_mi_erp_admin_url( 'journal' );
+$oby_mi_erp_from     = oby_mi_erp_query_key( 'from' );
+if ( $oby_mi_erp_from && ! in_array( $oby_mi_erp_from, array( 'income', 'expense' ), true ) ) {
+	$oby_mi_erp_from = '';
 }
-if ( $from ) {
-	$back_url = oby_mi_erp_admin_url( $from );
+if ( $oby_mi_erp_from ) {
+	$oby_mi_erp_back_url = oby_mi_erp_admin_url( $oby_mi_erp_from );
 }
 
-if ( $view_id ) {
-	$view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE id = %d", $view_id ) );
-	$view_lines = isset( $lines_by_entry[ $view_id ] ) ? $lines_by_entry[ $view_id ] : array();
+if ( $oby_mi_erp_view_id ) {
+	$oby_mi_erp_view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE id = %d", $oby_mi_erp_view_id ) );
+	$oby_mi_erp_view_lines = isset( $oby_mi_erp_lines_by_entry[ $oby_mi_erp_view_id ] ) ? $oby_mi_erp_lines_by_entry[ $oby_mi_erp_view_id ] : array();
 }
 ?>
 <div class="wrap oby-mi-erp-page">
 	<h1 class="wp-heading-inline mb-3">
 		<?php
-		if ( $show_form && $view_id ) {
+		if ( $oby_mi_erp_show_form && $oby_mi_erp_view_id ) {
 			esc_html_e( 'View Journal Entry', 'obydullah-micro-erp' );
-		} elseif ( $show_form ) {
+		} elseif ( $oby_mi_erp_show_form ) {
 			esc_html_e( 'New Journal Entry', 'obydullah-micro-erp' );
 		} else {
 			esc_html_e( 'Journal Entries', 'obydullah-micro-erp' );
 		}
 		?>
-		<?php if ( ! $show_form ) : ?>
+		<?php if ( ! $oby_mi_erp_show_form ) : ?>
 			<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'journal', array( 'new' => '1' ) ) ); ?>" class="btn-primary"><?php esc_html_e( '+ New Entry', 'obydullah-micro-erp' ); ?></a>
 		<?php endif; ?>
 	</h1>
 	<hr class="wp-header-end">
 
-	<?php if ( $show_form && $view_id ) : ?>
+	<?php if ( $oby_mi_erp_show_form && $oby_mi_erp_view_id ) : ?>
 
 		<div class="row mt-3">
 			<div class="col-lg-12">
 				<div class="bg-light p-3 rounded shadow-sm border">
-					<h2 class="h5 mb-3 fw-semibold"><?php echo esc_html( $view_entry->description ); ?></h2>
+					<h2 class="h5 mb-3 fw-semibold"><?php echo esc_html( $oby_mi_erp_view_entry->description ); ?></h2>
 					<div class="table-responsive">
 						<table class="table table-striped table-hover table-bordered mb-2">
 							<thead>
@@ -116,38 +116,38 @@ if ( $view_id ) {
 							</thead>
 							<tbody class="bg-white">
 								<?php
-								$td = 0;
-								$tc = 0;
-								foreach ( $view_lines as $line ) :
-									$td += (float) $line->debit;
-									$tc += (float) $line->credit;
+								$oby_mi_erp_td = 0;
+								$oby_mi_erp_tc = 0;
+								foreach ( $oby_mi_erp_view_lines as $oby_mi_erp_line ) :
+									$oby_mi_erp_td += (float) $oby_mi_erp_line->debit;
+									$oby_mi_erp_tc += (float) $oby_mi_erp_line->credit;
 									?>
 									<tr>
-										<td><?php echo esc_html( $line->code . ' - ' . $line->name ); ?></td>
-										<td><?php echo esc_html( $line->description ); ?></td>
-										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $line->debit ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $line->credit ) ); ?></td>
+										<td><?php echo esc_html( $oby_mi_erp_line->code . ' - ' . $oby_mi_erp_line->name ); ?></td>
+										<td><?php echo esc_html( $oby_mi_erp_line->description ); ?></td>
+										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_line->debit ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_line->credit ) ); ?></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="total-row">
 									<td colspan="2"><strong><?php esc_html_e( 'Total', 'obydullah-micro-erp' ); ?></strong></td>
-									<td class="text-right"><strong><?php echo esc_html( oby_mi_erp_format_money( $td ) ); ?></strong></td>
-									<td class="text-right"><strong><?php echo esc_html( oby_mi_erp_format_money( $tc ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_td ) ); ?></strong></td>
+									<td class="text-right"><strong><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_tc ) ); ?></strong></td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-					<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mt-2 d-inline-block">← <?php echo esc_html( $from ? __( 'Back to ', 'obydullah-micro-erp' ) . ( 'expense' === $from ? __( 'Expenses', 'obydullah-micro-erp' ) : __( 'Income', 'obydullah-micro-erp' ) ) : __( 'Back to Journal', 'obydullah-micro-erp' ) ); ?></a>
+					<a href="<?php echo esc_url( $oby_mi_erp_back_url ); ?>" class="btn-secondary mt-2 d-inline-block">← <?php echo esc_html( $oby_mi_erp_from ? __( 'Back to ', 'obydullah-micro-erp' ) . ( 'expense' === $oby_mi_erp_from ? __( 'Expenses', 'obydullah-micro-erp' ) : __( 'Income', 'obydullah-micro-erp' ) ) : __( 'Back to Journal', 'obydullah-micro-erp' ) ); ?></a>
 				</div>
 			</div>
 		</div>
 
-	<?php elseif ( $show_form ) : ?>
+	<?php elseif ( $oby_mi_erp_show_form ) : ?>
 
 		<form method="post" action="">
 			<?php wp_nonce_field( 'oby_mi_erp_journal_save' ); ?>
 			<input type="hidden" name="oby_mi_erp_action" value="save_journal">
-			<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+			<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $oby_mi_erp_back_url ); ?>">
 
 			<div class="row mt-3">
 				<div class="col-lg-6 col-md-12">
@@ -187,8 +187,8 @@ if ( $view_id ) {
 									<td>
 										<select name="account_id[]" required class="form-control form-control-sm">
 											<option value=""><?php esc_html_e( 'Select Account', 'obydullah-micro-erp' ); ?></option>
-											<?php foreach ( $accounts as $acct ) : ?>
-												<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+											<?php foreach ( $oby_mi_erp_accounts as $oby_mi_erp_acct ) : ?>
+												<option value="<?php echo (int) $oby_mi_erp_acct->id; ?>"><?php echo esc_html( $oby_mi_erp_acct->code . ' - ' . $oby_mi_erp_acct->name ); ?></option>
 											<?php endforeach; ?>
 										</select>
 									</td>
@@ -201,8 +201,8 @@ if ( $view_id ) {
 									<td>
 										<select name="account_id[]" required class="form-control form-control-sm">
 											<option value=""><?php esc_html_e( 'Select Account', 'obydullah-micro-erp' ); ?></option>
-											<?php foreach ( $accounts as $acct ) : ?>
-												<option value="<?php echo (int) $acct->id; ?>"><?php echo esc_html( $acct->code . ' - ' . $acct->name ); ?></option>
+											<?php foreach ( $oby_mi_erp_accounts as $oby_mi_erp_acct ) : ?>
+												<option value="<?php echo (int) $oby_mi_erp_acct->id; ?>"><?php echo esc_html( $oby_mi_erp_acct->code . ' - ' . $oby_mi_erp_acct->name ); ?></option>
 											<?php endforeach; ?>
 										</select>
 									</td>
@@ -229,7 +229,7 @@ if ( $view_id ) {
 			</div>
 
 			<div class="d-flex mt-2 mb-4">
-				<a href="<?php echo esc_url( $back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'obydullah-micro-erp' ); ?></a>
+				<a href="<?php echo esc_url( $oby_mi_erp_back_url ); ?>" class="btn-secondary mr-2"><?php esc_html_e( 'Cancel', 'obydullah-micro-erp' ); ?></a>
 				<button type="submit" class="btn-success"><?php esc_html_e( 'Save Journal Entry', 'obydullah-micro-erp' ); ?></button>
 			</div>
 		</form>
@@ -238,7 +238,7 @@ if ( $view_id ) {
 
 		<div class="row mt-3">
 		<div class="col-lg-12">
-			<?php oby_mi_erp_render_search_bar( 'journal', __( 'Search Entries', 'obydullah-micro-erp' ), __( 'Search by description...', 'obydullah-micro-erp' ), array(), $search ); ?>
+			<?php oby_mi_erp_render_search_bar( 'journal', __( 'Search Entries', 'obydullah-micro-erp' ), __( 'Search by description...', 'obydullah-micro-erp' ), array(), $oby_mi_erp_search ); ?>
 		</div>
 	</div>
 
@@ -261,33 +261,33 @@ if ( $view_id ) {
 								</tr>
 							</thead>
 							<tbody class="bg-white">
-								<?php if ( empty( $entries ) ) : ?>
+								<?php if ( empty( $oby_mi_erp_entries ) ) : ?>
 									<tr><td colspan="7" class="text-center p-4"><?php esc_html_e( 'No journal entries yet.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
-								<?php foreach ( $entries as $entry ) :
-									$entry_lines = isset( $lines_by_entry[ $entry->id ] ) ? $lines_by_entry[ $entry->id ] : array();
-									$t_d = 0;
-									$t_c = 0;
-									foreach ( $entry_lines as $l ) {
-										$t_d += (float) $l->debit;
-										$t_c += (float) $l->credit;
+								<?php foreach ( $oby_mi_erp_entries as $oby_mi_erp_entry ) :
+									$oby_mi_erp_entry_lines = isset( $oby_mi_erp_lines_by_entry[ $oby_mi_erp_entry->id ] ) ? $oby_mi_erp_lines_by_entry[ $oby_mi_erp_entry->id ] : array();
+									$oby_mi_erp_t_d = 0;
+									$oby_mi_erp_t_c = 0;
+									foreach ( $oby_mi_erp_entry_lines as $oby_mi_erp_line ) {
+										$oby_mi_erp_t_d += (float) $oby_mi_erp_line->debit;
+										$oby_mi_erp_t_c += (float) $oby_mi_erp_line->credit;
 									}
 									?>
 									<tr>
-										<td><?php echo esc_html( $entry->entry_date ); ?></td>
-										<td>JE-<?php echo (int) $entry->id; ?></td>
-										<td><strong><?php echo esc_html( $entry->description ); ?></strong></td>
-										<td><?php echo esc_html( $entry->reference_type ? ucwords( str_replace( '_', ' ', $entry->reference_type ) ) : '—' ); ?></td>
-										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $t_d ) ); ?></td>
-										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $t_c ) ); ?></td>
+										<td><?php echo esc_html( $oby_mi_erp_entry->entry_date ); ?></td>
+										<td>JE-<?php echo (int) $oby_mi_erp_entry->id; ?></td>
+										<td><strong><?php echo esc_html( $oby_mi_erp_entry->description ); ?></strong></td>
+										<td><?php echo esc_html( $oby_mi_erp_entry->reference_type ? ucwords( str_replace( '_', ' ', $oby_mi_erp_entry->reference_type ) ) : '—' ); ?></td>
+										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_t_d ) ); ?></td>
+										<td class="text-right"><?php echo esc_html( oby_mi_erp_format_money( $oby_mi_erp_t_c ) ); ?></td>
 										<td>
 											<div class="pos-row-actions">
-												<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'journal', array( 'view' => $entry->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
+												<a href="<?php echo esc_url( oby_mi_erp_admin_url( 'journal', array( 'view' => $oby_mi_erp_entry->id ) ) ); ?>" class="pos-action edit pos-icon" aria-label="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>" title="<?php esc_attr_e( 'View', 'obydullah-micro-erp' ); ?>"><span class="dashicons dashicons-visibility" aria-hidden="true"></span></a>
 												<form method="post" action="" class="inline-form" onsubmit="return confirm('<?php esc_attr_e( 'Delete this entry?', 'obydullah-micro-erp' ); ?>');">
 													<?php wp_nonce_field( 'oby_mi_erp_journal_delete' ); ?>
 													<input type="hidden" name="oby_mi_erp_action" value="delete_journal">
-													<input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
-													<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $back_url ); ?>">
+													<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_entry->id; ?>">
+													<input type="hidden" name="oby_mi_erp_redirect" value="<?php echo esc_url( $oby_mi_erp_back_url ); ?>">
 													<button class="pos-action delete pos-icon" aria-label="<?php esc_attr_e( 'Delete', 'obydullah-micro-erp' ); ?>" title="<?php esc_attr_e( 'Delete', 'obydullah-micro-erp' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
 												</form>
 											</div>
@@ -298,7 +298,7 @@ if ( $view_id ) {
 						</table>
 					</div>
 
-					<?php oby_mi_erp_render_pagination( 'journal', $total_items, $per_page ); ?>
+					<?php oby_mi_erp_render_pagination( 'journal', $oby_mi_erp_total_items, $oby_mi_erp_per_page ); ?>
 
 				</div>
 			</div>

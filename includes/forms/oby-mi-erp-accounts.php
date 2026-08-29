@@ -6,11 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_account_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_save' );
 
+	$id        = isset( $_POST['id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['id'] ) ) : 0;
+	$parent_id = isset( $_POST['parent_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['parent_id'] ) ) : 0;
+
 	$data = array(
 		'code'      => isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '',
 		'name'      => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
 		'type'      => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'asset',
-		'parent_id' => isset( $_POST['parent_id'] ) && $_POST['parent_id'] ? (int) wp_unslash( $_POST['parent_id'] ) : null,
+		'parent_id' => $parent_id ? $parent_id : null,
 		'is_active' => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 
@@ -22,14 +25,13 @@ function oby_mi_erp_handle_account_form( $action ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'accounts' );
 
-	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE code = %s AND id != %d", $data['code'], isset( $_POST['id'] ) ? (int) $_POST['id'] : 0 ) );
+	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE code = %s AND id != %d", $data['code'], $id ) );
 	if ( $exists ) {
 		oby_mi_erp_redirect_notice( __( 'An account with that code already exists.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
 	if ( 'update_account' === $action ) {
-		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
 		$entity_id = $id;
 		$message   = __( 'Account updated.', 'obydullah-micro-erp' );
@@ -39,13 +41,15 @@ function oby_mi_erp_handle_account_form( $action ) {
 		$message   = __( 'Account created.', 'obydullah-micro-erp' );
 	}
 
+	oby_mi_erp_flush_cache();
+
 	oby_mi_erp_audit_log( 'save', 'account', $entity_id, $data['code'] . ' - ' . $data['name'] );
 	oby_mi_erp_redirect_notice( $message );
 }
 
 function oby_mi_erp_handle_delete_account() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$table       = oby_mi_erp_table( 'accounts' );
@@ -62,6 +66,7 @@ function oby_mi_erp_handle_delete_account() {
 		return;
 	}
 	$wpdb->delete( $table, array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'account', $id, 'Deleted account #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Account deleted.', 'obydullah-micro-erp' ) );
 }

@@ -15,8 +15,10 @@ function oby_mi_erp_handle_salary_paid() {
 	global $wpdb;
 	$employees = array();
 
-	if ( isset( $_POST['employee_id'] ) && (int) $_POST['employee_id'] ) {
-		$employees[] = (int) $_POST['employee_id'];
+	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) );
+
+	if ( $employee_id ) {
+		$employees[] = $employee_id;
 	} else {
 		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = 'active'" );
 	}
@@ -31,8 +33,8 @@ function oby_mi_erp_handle_salary_paid() {
 		}
 
 		$base        = (float) $emp->basic_salary;
-		$allowances  = isset( $_POST['allowances'][ $employee_id ] ) ? (float) $_POST['allowances'][ $employee_id ] : 0;
-		$deductions  = isset( $_POST['deductions'][ $employee_id ] ) ? (float) $_POST['deductions'][ $employee_id ] : 0;
+		$allowances  = isset( $_POST['allowances'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ) ) : 0;
+		$deductions  = isset( $_POST['deductions'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ) ) : 0;
 		$amount      = $base + $allowances - $deductions;
 
 		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$spt} WHERE employee_id = %d AND month = %s", $employee_id, $month ) );

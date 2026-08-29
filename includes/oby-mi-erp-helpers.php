@@ -9,6 +9,36 @@ function oby_mi_erp_table( $name ) {
 }
 
 /**
+ * Set a value in the plugin's object-cache group and remember its key
+ * so it can be flushed reliably, even on WordPress < 6.1.
+ *
+ * @param string $key   Cache key.
+ * @param mixed  $value Value to store.
+ */
+function oby_mi_erp_cache_set( $key, $value ) {
+	$keys   = (array) wp_cache_get( 'oby_mi_erp_keys', 'oby_mi_erp' );
+	$keys[] = $key;
+	wp_cache_set( $key, $value, 'oby_mi_erp' );
+	wp_cache_set( 'oby_mi_erp_keys', array_unique( $keys ), 'oby_mi_erp' );
+}
+
+/**
+ * Flush all cached micro-ERP lookups after a write.
+ */
+function oby_mi_erp_flush_cache() {
+	if ( function_exists( 'wp_cache_flush_group' ) ) {
+		wp_cache_flush_group( 'oby_mi_erp' );
+		return;
+	}
+
+	$keys = (array) wp_cache_get( 'oby_mi_erp_keys', 'oby_mi_erp' );
+	foreach ( $keys as $key ) {
+		wp_cache_delete( $key, 'oby_mi_erp' );
+	}
+	wp_cache_delete( 'oby_mi_erp_keys', 'oby_mi_erp' );
+}
+
+/**
  * Centralized read-only $_GET accessors for admin list filters.
  *
  * These query vars drive search boxes, pagination and view state on
@@ -66,8 +96,17 @@ function oby_mi_erp_format_money( $amount ) {
 }
 
 function oby_mi_erp_get_active_fiscal_year() {
+	$cache_key = 'oby_mi_erp_active_fiscal_year';
+	$fy        = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $fy ) {
+		return $fy;
+	}
+
 	global $wpdb;
-	return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE is_active = %d ORDER BY id DESC LIMIT 1", 1 ) );
+	$fy = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE is_active = %d ORDER BY id DESC LIMIT 1", 1 ) );
+
+	oby_mi_erp_cache_set( $cache_key, $fy );
+	return $fy;
 }
 
 function oby_mi_erp_get_fiscal_year_id() {
@@ -76,20 +115,30 @@ function oby_mi_erp_get_fiscal_year_id() {
 }
 
 function oby_mi_erp_get_setting( $key, $default = '' ) {
+	$cache_key = 'oby_mi_erp_setting_' . $key;
+	$cached    = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $cached ) {
+		return $cached;
+	}
+
 	global $wpdb;
 	$val = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->prefix}oby_mi_erp_settings WHERE option_key = %s", $key ) );
-	return null !== $val ? $val : $default;
+	$val = null !== $val ? $val : $default;
+
+	oby_mi_erp_cache_set( $cache_key, $val );
+	return $val;
 }
 
 function oby_mi_erp_set_setting( $key, $value ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'settings' );
-	$found = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE option_key = %s", $key ) );
+	$found = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE option_key = %s", $key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- upsert existence check inside a write; the setting cache is invalidated below regardless.
 	if ( $found ) {
 		$wpdb->update( $table, array( 'option_value' => $value ), array( 'option_key' => $key ), array( '%s' ), array( '%s' ) );
 	} else {
 		$wpdb->insert( $table, array( 'option_key' => $key, 'option_value' => $value ), array( '%s', '%s' ) );
 	}
+	wp_cache_delete( 'oby_mi_erp_setting_' . $key, 'oby_mi_erp' );
 }
 
 function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description = '' ) {
@@ -115,14 +164,14 @@ function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description =
 
 function oby_mi_erp_next_employee_id() {
 	global $wpdb;
-	$max = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING(employee_id, %d) AS UNSIGNED)) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE employee_id LIKE %s", 5, 'EMP-%' ) );
+	$max = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING(employee_id, %d) AS UNSIGNED)) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE employee_id LIKE %s", 5, 'EMP-%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- MUST return a fresh value every call to produce a unique employee number; caching would generate duplicates.
 	return 'EMP-' . str_pad( $max + 1, 3, '0', STR_PAD_LEFT );
 }
 
 function oby_mi_erp_next_number( $table, $column, $prefix ) {
 	global $wpdb;
 	$year = current_time( 'Y' );
-	$max  = (int) $wpdb->get_var(
+	$max  = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- MUST return a fresh value every call to produce a unique sequential number; caching would generate duplicates.
 		$wpdb->prepare(
 			"SELECT MAX(CAST(SUBSTRING({$column}, %d) AS UNSIGNED)) FROM {$table} WHERE {$column} LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted internal identifiers
 			strlen( $prefix . $year . '-' ) + 1,
@@ -157,20 +206,39 @@ function oby_mi_erp_print_admin_notice() {
 }
 
 function oby_mi_erp_verify_nonce( $action, $arg = '_wpnonce' ) {
-	if ( ! isset( $_POST[ $arg ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $arg ] ) ), $action ) ) {
+	// Verify nonce - sanitize the input first.
+	$nonce = sanitize_text_field( wp_unslash( $_POST[ $arg ] ?? '' ) );
+
+	if ( ! wp_verify_nonce( $nonce, $action ) ) {
 		wp_die( esc_html__( 'Security check failed.', 'obydullah-micro-erp' ) );
 	}
 }
 
 function oby_mi_erp_get_accounts( $type = '' ) {
+	$cache_key = $type ? 'oby_mi_erp_accounts_' . $type : 'oby_mi_erp_accounts_all';
+	$accounts  = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $accounts ) {
+		return $accounts;
+	}
+
 	global $wpdb;
 	if ( $type ) {
-		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s ORDER BY code ASC", $type ) );
+		$accounts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s ORDER BY code ASC", $type ) );
+	} else {
+		$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY code ASC" );
 	}
-	return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY code ASC" );
+
+	oby_mi_erp_cache_set( $cache_key, $accounts );
+	return $accounts;
 }
 
 function oby_mi_erp_account_balance( $account_id ) {
+	$cache_key = 'oby_mi_erp_account_balance_' . (int) $account_id;
+	$balance   = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $balance ) {
+		return $balance;
+	}
+
 	global $wpdb;
 	$account_id = (int) $account_id;
 	$table      = oby_mi_erp_table( 'journal_lines' );
@@ -183,54 +251,108 @@ function oby_mi_erp_account_balance( $account_id ) {
 	}
 
 	$normal_debit = in_array( $account->type, array( 'asset', 'expense' ), true );
-	if ( $normal_debit ) {
-		return $debit - $credit;
-	}
-	return $credit - $debit;
+	$balance      = $normal_debit ? $debit - $credit : $credit - $debit;
+
+	oby_mi_erp_cache_set( $cache_key, $balance );
+	return $balance;
 }
 
 function oby_mi_erp_total_income() {
+	$cache_key = 'oby_mi_erp_total_income';
+	$total     = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $total ) {
+		return (float) $total;
+	}
+
 	global $wpdb;
-	return (float) $wpdb->get_var(
+	$total = (float) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT SUM(credit) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
 			'income'
 		)
 	);
+
+	oby_mi_erp_cache_set( $cache_key, $total );
+	return $total;
 }
 
 function oby_mi_erp_total_expense() {
+	$cache_key = 'oby_mi_erp_total_expense';
+	$total     = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $total ) {
+		return (float) $total;
+	}
+
 	global $wpdb;
-	return (float) $wpdb->get_var(
+	$total = (float) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT SUM(debit) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
 			'expense'
 		)
 	);
+
+	oby_mi_erp_cache_set( $cache_key, $total );
+	return $total;
 }
 
 function oby_mi_erp_contact_name( $id ) {
+	$cache_key = 'oby_mi_erp_contact_name_' . (int) $id;
+	$name      = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $name ) {
+		return $name;
+	}
+
 	global $wpdb;
 	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE id = %d", $id ) );
-	return $name ? $name : '—';
+	$name = $name ? $name : '—';
+
+	oby_mi_erp_cache_set( $cache_key, $name );
+	return $name;
 }
 
 function oby_mi_erp_employee_name( $id ) {
+	$cache_key = 'oby_mi_erp_employee_name_' . (int) $id;
+	$name      = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $name ) {
+		return $name;
+	}
+
 	global $wpdb;
 	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $id ) );
-	return $name ? $name : '—';
+	$name = $name ? $name : '—';
+
+	oby_mi_erp_cache_set( $cache_key, $name );
+	return $name;
 }
 
 function oby_mi_erp_department_name( $id ) {
+	$cache_key = 'oby_mi_erp_department_name_' . (int) $id;
+	$name      = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $name ) {
+		return $name;
+	}
+
 	global $wpdb;
 	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_departments WHERE id = %d", $id ) );
-	return $name ? $name : '—';
+	$name = $name ? $name : '—';
+
+	oby_mi_erp_cache_set( $cache_key, $name );
+	return $name;
 }
 
 function oby_mi_erp_leave_type_name( $id ) {
+	$cache_key = 'oby_mi_erp_leave_type_name_' . (int) $id;
+	$name      = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $name ) {
+		return $name;
+	}
+
 	global $wpdb;
 	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_leave_types WHERE id = %d", $id ) );
-	return $name ? $name : '—';
+	$name = $name ? $name : '—';
+
+	oby_mi_erp_cache_set( $cache_key, $name );
+	return $name;
 }
 
 function oby_mi_erp_badge( $value, $map = array() ) {
@@ -308,6 +430,8 @@ function oby_mi_erp_create_journal_entry( $date, $description, $lines, $referenc
 		);
 	}
 
+	oby_mi_erp_flush_cache();
+
 	return $entry_id;
 }
 
@@ -332,6 +456,12 @@ function oby_mi_erp_create_sale_journal( $sale ) {
 }
 
 function oby_mi_erp_default_account( $type, $fallback_code ) {
+	$cache_key = 'oby_mi_erp_default_account_' . $type . '_' . $fallback_code;
+	$account_id = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $account_id ) {
+		return (int) $account_id;
+	}
+
 	global $wpdb;
 	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s AND code = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type, $fallback_code ) );
 	if ( ! $account ) {
@@ -340,7 +470,10 @@ function oby_mi_erp_default_account( $type, $fallback_code ) {
 	if ( ! $account ) {
 		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT 1", $fallback_code ) );
 	}
-	return $account ? (int) $account->id : 0;
+
+	$account_id = $account ? (int) $account->id : 0;
+	oby_mi_erp_cache_set( $cache_key, $account_id );
+	return $account_id;
 }
 
 function oby_mi_erp_sum( $rows, $key ) {
@@ -354,6 +487,12 @@ function oby_mi_erp_sum( $rows, $key ) {
 }
 
 function oby_mi_erp_get_account_balances_by_type() {
+	$cache_key = 'oby_mi_erp_account_balances_by_type';
+	$types     = wp_cache_get( $cache_key, 'oby_mi_erp' );
+	if ( false !== $types ) {
+		return $types;
+	}
+
 	global $wpdb;
 	$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY id ASC" );
 	$types    = array( 'asset' => 0, 'liability' => 0, 'equity' => 0, 'income' => 0, 'expense' => 0 );
@@ -365,7 +504,9 @@ function oby_mi_erp_get_account_balances_by_type() {
 		$types[ $account->type ] += oby_mi_erp_account_balance( $account->id );
 	}
 
-		return $types;
+	oby_mi_erp_cache_set( $cache_key, $types );
+
+	return $types;
 }
 
 /**
@@ -382,34 +523,44 @@ function oby_mi_erp_get_account_balances_by_type() {
 function oby_mi_erp_render_search_bar( $page_slug, $label, $placeholder, $hidden = array(), $current = '', $inline = false ) {
 	$form_class = $inline ? 'inline-search' : 'search-section mb-3';
 	?>
-	<form method="get" action="" class="<?php echo esc_attr( $form_class ); ?>">
-		<input type="hidden" name="page" value="oby-mi-erp/<?php echo esc_attr( $page_slug ); ?>">
-		<?php foreach ( $hidden as $h_key => $h_val ) :
+<form method="get" action="" class="<?php echo esc_attr( $form_class ); ?>">
+    <input type="hidden" name="page" value="oby-mi-erp/<?php echo esc_attr( $page_slug ); ?>">
+    <?php foreach ( $hidden as $h_key => $h_val ) :
 			if ( '' === $h_val || null === $h_val ) {
 				continue;
 			}
 			?>
-			<input type="hidden" name="<?php echo esc_attr( $h_key ); ?>" value="<?php echo esc_attr( (string) $h_val ); ?>">
-		<?php endforeach; ?>
-		<?php if ( $inline ) : ?>
-			<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
-			<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
-			<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'obydullah-micro-erp' ); ?></button>
-			<?php if ( $current ) : ?>
-				<a href="<?php echo esc_url( oby_mi_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'obydullah-micro-erp' ); ?></a>
-			<?php endif; ?>
-		<?php else : ?>
-			<div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
-				<label for="s-<?php echo esc_attr( $page_slug ); ?>" class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
-				<input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>" class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>" value="<?php echo esc_attr( $current ); ?>">
-				<button type="submit" id="search-button" class="btn-primary"><?php esc_html_e( 'Filter', 'obydullah-micro-erp' ); ?></button>
-				<?php if ( $current ) : ?>
-					<a href="<?php echo esc_url( oby_mi_erp_admin_url( $page_slug, $hidden ) ); ?>" class="btn-secondary"><?php esc_html_e( 'Clear', 'obydullah-micro-erp' ); ?></a>
-				<?php endif; ?>
-			</div>
-		<?php endif; ?>
-	</form>
-	<?php
+    <input type="hidden" name="<?php echo esc_attr( $h_key ); ?>" value="<?php echo esc_attr( (string) $h_val ); ?>">
+    <?php endforeach; ?>
+    <?php if ( $inline ) : ?>
+    <label for="s-<?php echo esc_attr( $page_slug ); ?>"
+        class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
+    <input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>"
+        class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>"
+        value="<?php echo esc_attr( $current ); ?>">
+    <button type="submit" id="search-button"
+        class="btn-primary"><?php esc_html_e( 'Filter', 'obydullah-micro-erp' ); ?></button>
+    <?php if ( $current ) : ?>
+    <a href="<?php echo esc_url( oby_mi_erp_admin_url( $page_slug, $hidden ) ); ?>"
+        class="btn-secondary"><?php esc_html_e( 'Clear', 'obydullah-micro-erp' ); ?></a>
+    <?php endif; ?>
+    <?php else : ?>
+    <div class="search-toolbar d-flex flex-wrap align-items-center gap-2">
+        <label for="s-<?php echo esc_attr( $page_slug ); ?>"
+            class="form-label mb-0"><?php echo esc_html( $label ); ?></label>
+        <input type="text" name="s" id="s-<?php echo esc_attr( $page_slug ); ?>"
+            class="form-control form-control-sm search-field" placeholder="<?php echo esc_attr( $placeholder ); ?>"
+            value="<?php echo esc_attr( $current ); ?>">
+        <button type="submit" id="search-button"
+            class="btn-primary"><?php esc_html_e( 'Filter', 'obydullah-micro-erp' ); ?></button>
+        <?php if ( $current ) : ?>
+        <a href="<?php echo esc_url( oby_mi_erp_admin_url( $page_slug, $hidden ) ); ?>"
+            class="btn-secondary"><?php esc_html_e( 'Clear', 'obydullah-micro-erp' ); ?></a>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+</form>
+<?php
 }
 
 /**

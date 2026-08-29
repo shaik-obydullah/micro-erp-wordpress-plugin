@@ -8,7 +8,7 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 
 	$data = array(
 		'name'         => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-		'days_per_year'=> isset( $_POST['days_per_year'] ) ? (int) $_POST['days_per_year'] : 0,
+		'days_per_year'=> (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
 		'is_active'    => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 
@@ -21,7 +21,7 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 	$table = oby_mi_erp_table( 'leave_types' );
 
 	if ( 'update_leave_type' === $action ) {
-		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%d', '%d' ), array( '%d' ) );
 		$entity_id = $id;
 		$message   = __( 'Leave type updated.', 'obydullah-micro-erp' );
@@ -37,7 +37,7 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 
 function oby_mi_erp_handle_delete_leave_type() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_type_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'leave_types' ), array( 'id' => $id ), array( '%d' ) );
@@ -48,8 +48,8 @@ function oby_mi_erp_handle_delete_leave_type() {
 function oby_mi_erp_handle_leave_request_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_request_save' );
 
-	$employee_id = isset( $_POST['employee_id'] ) ? (int) $_POST['employee_id'] : 0;
-	$leave_type  = isset( $_POST['leave_type_id'] ) ? (int) $_POST['leave_type_id'] : 0;
+	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) );
+	$leave_type  = (int) sanitize_text_field( wp_unslash( $_POST['leave_type_id'] ?? '' ) );
 	$start       = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
 	$end         = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
 	$reason      = isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '';
@@ -87,7 +87,7 @@ function oby_mi_erp_handle_leave_request_form() {
 
 function oby_mi_erp_handle_leave_status( $status ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_leave_status' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->update(

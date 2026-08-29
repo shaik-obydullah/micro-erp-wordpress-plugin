@@ -3,18 +3,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once OBY_MI_ERP_PATH . 'includes/forms/fiscal-years.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/settings.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/contacts.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/accounts.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/journal.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/employees.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/departments.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/attendance.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/leave.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/salary.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/quotations.php';
-require_once OBY_MI_ERP_PATH . 'includes/forms/sales.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-fiscal-years.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-settings.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-contacts.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-accounts.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-journal.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-employees.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-departments.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-attendance.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-leave.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-salary.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-quotations.php';
+require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-sales.php';
 
 class ObyMiErp {
 
@@ -43,7 +43,7 @@ class ObyMiErp {
 			'oby-mi-erp/dashboard',
 			array( $this, 'oby_mi_erp_render_page' ),
 			'dashicons-chart-area',
-			25
+			57
 		);
 
 		add_submenu_page( 'oby-mi-erp/dashboard', __( 'Dashboard', 'obydullah-micro-erp' ), __( 'Dashboard', 'obydullah-micro-erp' ), $cap, 'oby-mi-erp/dashboard', array( $this, 'oby_mi_erp_render_page' ) );
@@ -90,17 +90,21 @@ class ObyMiErp {
 			return;
 		}
 		$css_ver = OBY_MI_ERP_VERSION . '.' . (int) filemtime( OBY_MI_ERP_PATH . 'assets/css/oby-mi-erp-admin.css' );
-		wp_enqueue_style( 'oby-mi-erp-base', OBY_MI_ERP_URL . 'assets/css/base.css', array(), $css_ver );
+		wp_enqueue_style( 'oby-mi-erp-base', OBY_MI_ERP_URL . 'assets/css/oby-mi-erp-base.css', array(), $css_ver );
 		wp_enqueue_style( 'oby-mi-erp-admin', OBY_MI_ERP_URL . 'assets/css/oby-mi-erp-admin.css', array( 'oby-mi-erp-base' ), $css_ver );
 		wp_enqueue_script( 'oby-mi-erp-admin', OBY_MI_ERP_URL . 'assets/js/oby-mi-erp-admin.js', array( 'jquery' ), OBY_MI_ERP_VERSION, true );
 	}
 
 	public function oby_mi_erp_handle_forms() {
-		if ( ! current_user_can( 'manage_options' ) || ! isset( $_POST['oby_mi_erp_action'] ) ) {
-			return;
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to perform this action.', 'obydullah-micro-erp' ) );
 		}
 
-		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ) );
+		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) );
+
+		if ( '' === $action ) {
+			return;
+		}
 
 		switch ( $action ) {
 			case 'save_fiscal_year':
@@ -223,7 +227,7 @@ class ObyMiErp {
 		}
 
 		$slug = str_replace( 'oby-mi-erp/', '', $page );
-		$file = OBY_MI_ERP_PATH . 'admin/partials/' . $slug . '.php';
+		$file = OBY_MI_ERP_PATH . 'admin/partials/oby-mi-erp-' . $slug . '.php';
 
 		if ( file_exists( $file ) ) {
 			include $file;

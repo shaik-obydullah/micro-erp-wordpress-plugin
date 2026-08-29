@@ -26,7 +26,7 @@ function oby_mi_erp_handle_contact_form( $action ) {
 	$table = oby_mi_erp_table( 'contacts' );
 
 	if ( 'update_contact' === $action ) {
-		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
 		$entity_id = $id;
 		$message   = __( 'Contact updated.', 'obydullah-micro-erp' );
@@ -36,16 +36,19 @@ function oby_mi_erp_handle_contact_form( $action ) {
 		$message   = __( 'Contact created.', 'obydullah-micro-erp' );
 	}
 
+	oby_mi_erp_flush_cache();
+
 	oby_mi_erp_audit_log( 'save', 'contact', $entity_id, $data['name'] );
 	oby_mi_erp_redirect_notice( $message );
 }
 
 function oby_mi_erp_handle_delete_contact() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_contact_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'contacts' ), array( 'id' => $id ), array( '%d' ) );
+	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'contact', $id, 'Deleted contact #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Contact deleted.', 'obydullah-micro-erp' ) );
 }

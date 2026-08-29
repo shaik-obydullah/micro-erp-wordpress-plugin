@@ -28,7 +28,7 @@ function oby_mi_erp_handle_sale_form( $action ) {
 
 function oby_mi_erp_handle_delete_sale() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_delete' );
-	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) );
@@ -40,12 +40,12 @@ function oby_mi_erp_handle_delete_sale() {
 function oby_mi_erp_handle_record_payment() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_payment_save' );
 
-	$sale_id = isset( $_POST['sale_id'] ) ? (int) $_POST['sale_id'] : 0;
-	$amount  = isset( $_POST['amount'] ) ? (float) $_POST['amount'] : 0;
-	$method  = isset( $_POST['method'] ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'cash';
-	$ref     = isset( $_POST['reference'] ) ? sanitize_text_field( wp_unslash( $_POST['reference'] ) ) : '';
-	$deposit = isset( $_POST['deposit_to'] ) ? (int) $_POST['deposit_to'] : 0;
-	$notes   = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['notes'] ) ) : '';
+	$sale_id = (int) sanitize_text_field( wp_unslash( $_POST['sale_id'] ?? '' ) );
+	$amount  = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
+	$method  = sanitize_key( wp_unslash( $_POST['method'] ?? 'cash' ) );
+	$ref     = sanitize_text_field( wp_unslash( $_POST['reference'] ?? '' ) );
+	$deposit = (int) sanitize_text_field( wp_unslash( $_POST['deposit_to'] ?? '' ) );
+	$notes   = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
 
 	global $wpdb;
 	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $sale_id ) );

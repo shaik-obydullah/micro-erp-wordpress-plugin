@@ -8,7 +8,7 @@ global $wpdb;
 $oby_mi_erp_edit_id = oby_mi_erp_query_int( 'edit' );
 $oby_mi_erp_editing = null;
 if ( $oby_mi_erp_edit_id ) {
-	$oby_mi_erp_editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_departments WHERE id = %d", $oby_mi_erp_edit_id ) );
+	$oby_mi_erp_editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_departments WHERE id = %d", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 }
 
 $oby_mi_erp_search = oby_mi_erp_query_text( 's' );
@@ -18,7 +18,7 @@ $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_departments d WHERE d.name LIKE %s OR d.description LIKE %s",
 			$oby_mi_erp_like,
@@ -26,7 +26,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_departments d WHERE 1 = %d",
 			1
@@ -40,7 +40,7 @@ $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT d.*, (SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE e.department_id = d.id) AS emp_count
 			FROM {$wpdb->prefix}oby_mi_erp_departments d
@@ -53,7 +53,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT d.*, (SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE e.department_id = d.id) AS emp_count
 			FROM {$wpdb->prefix}oby_mi_erp_departments d

@@ -33,18 +33,18 @@ function oby_mi_erp_handle_employee_form( $action ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'employees' );
 
-	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %s AND id != %d", $data['employee_id'], $id ) );
+	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %s AND id != %d", $data['employee_id'], $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream; table/column name comes from a fixed internal constant.
 	if ( $exists ) {
 		oby_mi_erp_redirect_notice( __( 'An employee with that ID already exists.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
 	if ( 'update_employee' === $action ) {
-		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%f', '%s' ), array( '%d' ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%f', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		$entity_id = $id;
 		$message   = __( 'Employee updated.', 'obydullah-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%f', '%s' ) );
+		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%f', '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		$entity_id = (int) $wpdb->insert_id;
 		$message   = __( 'Employee created.', 'obydullah-micro-erp' );
 	}
@@ -57,10 +57,10 @@ function oby_mi_erp_handle_employee_form( $action ) {
 
 function oby_mi_erp_handle_delete_employee() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_employee_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
-	$wpdb->delete( oby_mi_erp_table( 'employees' ), array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'employees' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'employee', $id, 'Deleted employee #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Employee deleted.', 'obydullah-micro-erp' ) );

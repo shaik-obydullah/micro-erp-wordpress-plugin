@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_salary_paid() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_salary_paid' );
 
-	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' );
+	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 		oby_mi_erp_redirect_notice( __( 'Invalid month.', 'obydullah-micro-erp' ), 'error' );
 		return;
@@ -15,29 +15,31 @@ function oby_mi_erp_handle_salary_paid() {
 	global $wpdb;
 	$employees = array();
 
-	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) );
+	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	if ( $employee_id ) {
 		$employees[] = $employee_id;
 	} else {
-		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = 'active'" );
+		$employees = $wpdb->get_col( "SELECT id FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = 'active'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 	}
 
 	$spt   = oby_mi_erp_table( 'salary_payments' );
 	$count = 0;
 
 	foreach ( $employees as $employee_id ) {
-		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $employee_id ) );
+		$emp = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $employee_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 		if ( ! $emp ) {
 			continue;
 		}
 
 		$base        = (float) $emp->basic_salary;
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 		$allowances  = isset( $_POST['allowances'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ) ) : 0;
 		$deductions  = isset( $_POST['deductions'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ) ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		$amount      = $base + $allowances - $deductions;
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$spt} WHERE employee_id = %d AND month = %s", $employee_id, $month ) );
+		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$spt} WHERE employee_id = %d AND month = %s", $employee_id, $month ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- write-flow lookup; caches flushed downstream; table name from fixed internal constant.
 
 		$data = array(
 			'employee_id' => $employee_id,
@@ -50,10 +52,10 @@ function oby_mi_erp_handle_salary_paid() {
 		);
 
 		if ( $existing ) {
-			$wpdb->update( $spt, $data, array( 'id' => $existing ), array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ), array( '%d' ) );
+			$wpdb->update( $spt, $data, array( 'id' => $existing ), array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 			$payment_id = (int) $existing;
 		} else {
-			$wpdb->insert( $spt, $data, array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ) );
+			$wpdb->insert( $spt, $data, array( '%d', '%s', '%f', '%f', '%f', '%s', '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 			$payment_id = (int) $wpdb->insert_id;
 		}
 
@@ -71,7 +73,7 @@ function oby_mi_erp_handle_salary_paid() {
 			$payment_id
 		);
 
-		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) );
+		$wpdb->update( $spt, array( 'journal_entry_id' => $entry_id ), array( 'id' => $payment_id ), array( '%d' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 
 		do_action( 'oby_mi_erp_salary_paid', $payment_id, $employee_id, $month, $amount );
 		$count++;

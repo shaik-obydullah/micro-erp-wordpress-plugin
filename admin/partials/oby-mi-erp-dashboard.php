@@ -7,15 +7,15 @@ global $wpdb;
 
 $oby_mi_erp_income    = oby_mi_erp_total_income();
 $oby_mi_erp_expense   = oby_mi_erp_total_expense();
-$oby_mi_erp_receivable = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total - amount_paid),0) FROM {$wpdb->prefix}oby_mi_erp_sales WHERE payment_status != %s", 'paid' ) );
-$oby_mi_erp_payable   = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit - debit),0) FROM {$wpdb->prefix}oby_mi_erp_journal_lines WHERE account_id = (SELECT id FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT 1)", '2001' ) );
+$oby_mi_erp_receivable = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total - amount_paid),0) FROM {$wpdb->prefix}oby_mi_erp_sales WHERE payment_status != %s", 'paid' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_payable   = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit - debit),0) FROM {$wpdb->prefix}oby_mi_erp_journal_lines WHERE account_id = (SELECT id FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT 1)", '2001' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
 
-$oby_mi_erp_recent_sales = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales ORDER BY id DESC LIMIT %d", 5 ) );
-$oby_mi_erp_pending_quo  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE status IN (%s,%s)", 'draft', 'sent' ) );
-$oby_mi_erp_pending_leave= (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_leave_requests WHERE status = %s", 'pending' ) );
-$oby_mi_erp_unpaid_sales = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales WHERE payment_status != %s", 'paid' ) );
-$oby_mi_erp_recent_emp   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees ORDER BY id DESC LIMIT %d", 5 ) );
-$oby_mi_erp_recent_jrnl  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries ORDER BY id DESC LIMIT %d", 5 ) );
+$oby_mi_erp_recent_sales = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales ORDER BY id DESC LIMIT %d", 5 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_pending_quo  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE status IN (%s,%s)", 'draft', 'sent' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_pending_leave= (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_leave_requests WHERE status = %s", 'pending' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_unpaid_sales = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales WHERE payment_status != %s", 'paid' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_recent_emp   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees ORDER BY id DESC LIMIT %d", 5 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
+$oby_mi_erp_recent_jrnl  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries ORDER BY id DESC LIMIT %d", 5 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
 $oby_mi_erp_fy           = oby_mi_erp_get_active_fiscal_year();
 
 oby_mi_erp_print_admin_notice();

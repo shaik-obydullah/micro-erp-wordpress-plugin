@@ -6,15 +6,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_account_form( $action ) {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_save' );
 
-	$id        = isset( $_POST['id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['id'] ) ) : 0;
-	$parent_id = isset( $_POST['parent_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['parent_id'] ) ) : 0;
+	$id        = isset( $_POST['id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	$parent_id = isset( $_POST['parent_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['parent_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	$data = array(
-		'code'      => isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '',
-		'name'      => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-		'type'      => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'asset',
+		'code'      => isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		'name'      => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		'type'      => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'asset', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 		'parent_id' => $parent_id ? $parent_id : null,
-		'is_active' => isset( $_POST['is_active'] ) ? 1 : 0,
+		'is_active' => isset( $_POST['is_active'] ) ? 1 : 0, // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	);
 
 	if ( ! $data['code'] || ! $data['name'] ) {
@@ -25,18 +25,18 @@ function oby_mi_erp_handle_account_form( $action ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'accounts' );
 
-	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE code = %s AND id != %d", $data['code'], $id ) );
+	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE code = %s AND id != %d", $data['code'], $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream; table/column name comes from a fixed internal constant.
 	if ( $exists ) {
 		oby_mi_erp_redirect_notice( __( 'An account with that code already exists.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
 
 	if ( 'update_account' === $action ) {
-		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		$entity_id = $id;
 		$message   = __( 'Account updated.', 'obydullah-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%d', '%d' ) );
+		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%d', '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		$entity_id = (int) $wpdb->insert_id;
 		$message   = __( 'Account created.', 'obydullah-micro-erp' );
 	}
@@ -49,15 +49,15 @@ function oby_mi_erp_handle_account_form( $action ) {
 
 function oby_mi_erp_handle_delete_account() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
 	$table       = oby_mi_erp_table( 'accounts' );
 	$lines_table = oby_mi_erp_table( 'journal_lines' );
 
-	$used = $wpdb->get_var(
+	$used = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream.
 		$wpdb->prepare(
-			"SELECT COUNT(*) FROM {$lines_table} WHERE account_id = %d",
+			"SELECT COUNT(*) FROM {$lines_table} WHERE account_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table/column name comes from a fixed internal constant.
 			$id
 		)
 	);
@@ -65,7 +65,7 @@ function oby_mi_erp_handle_delete_account() {
 		oby_mi_erp_redirect_notice( __( 'This account is used by journal entries and cannot be deleted.', 'obydullah-micro-erp' ), 'error' );
 		return;
 	}
-	$wpdb->delete( $table, array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( $table, array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'account', $id, 'Deleted account #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Account deleted.', 'obydullah-micro-erp' ) );

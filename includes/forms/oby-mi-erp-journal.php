@@ -6,12 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_journal_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
 	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
 	$accounts    = isset( $_POST['account_id'] ) ? array_map( 'intval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['account_id'] ) ) ) : array();
 	$debits      = isset( $_POST['debit'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['debit'] ) ) ) : array();
 	$credits     = isset( $_POST['credit'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['credit'] ) ) ) : array();
 	$line_desc   = isset( $_POST['line_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['line_description'] ) ) : array();
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	if ( ! $description ) {
 		oby_mi_erp_redirect_notice( __( 'A description is required.', 'obydullah-micro-erp' ), 'error' );
@@ -47,12 +49,14 @@ function oby_mi_erp_handle_journal_form() {
 function oby_mi_erp_handle_transaction_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
 
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	$tx_mode    = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
 	$mode       = 'expense' === $tx_mode ? 'expense' : 'income';
 	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
 	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
 	$amount      = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
 	$account_id  = (int) sanitize_text_field( wp_unslash( $_POST['account_id'] ?? '' ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	if ( ! $description || $amount <= 0 ) {
 		oby_mi_erp_redirect_notice( __( 'A description and a valid amount are required.', 'obydullah-micro-erp' ), 'error' );
@@ -84,11 +88,11 @@ function oby_mi_erp_handle_transaction_form() {
 
 function oby_mi_erp_handle_delete_journal() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
-	$wpdb->delete( oby_mi_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) );
-	$wpdb->delete( oby_mi_erp_table( 'journal_entries' ), array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	$wpdb->delete( oby_mi_erp_table( 'journal_entries' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_flush_cache();
 	oby_mi_erp_audit_log( 'delete', 'journal', $id, 'Deleted journal entry #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Journal entry deleted.', 'obydullah-micro-erp' ) );

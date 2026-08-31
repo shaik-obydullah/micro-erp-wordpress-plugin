@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class ObyMiErp_Activator {
+class Oby_Mi_Erp_Activator {
 
 	public static function activate() {
 		global $wpdb;
@@ -280,7 +280,7 @@ class ObyMiErp_Activator {
 		}
 
 		// Default Chart of Accounts.
-		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) );
+		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check: runs once during activation, so caching is pointless; the table name is built from the plugin's fixed prefix constant.
 		if ( ! $account_count ) {
 			$default_accounts = array(
 				array( '1001', 'Cash', 'asset' ),
@@ -298,8 +298,8 @@ class ObyMiErp_Activator {
 				array( '5005', 'Marketing Expense', 'expense' ),
 			);
 			foreach ( $default_accounts as $account ) {
-				$wpdb->insert(
-					"{$t}accounts",
+$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
+				"{$t}accounts",
 					array(
 						'code' => $account[0],
 						'name' => $account[1],
@@ -311,7 +311,7 @@ class ObyMiErp_Activator {
 		}
 
 		// Default leave types.
-		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) );
+		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check; table name from the plugin's fixed prefix constant.
 		if ( ! $lt_count ) {
 			$default_leave_types = array(
 				array( 'Annual Leave', 12 ),
@@ -320,8 +320,8 @@ class ObyMiErp_Activator {
 				array( 'Maternity Leave', 90 ),
 			);
 			foreach ( $default_leave_types as $leave_type ) {
-				$wpdb->insert(
-					"{$t}leave_types",
+$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
+				"{$t}leave_types",
 					array(
 						'name'          => $leave_type[0],
 						'days_per_year' => $leave_type[1],
@@ -332,10 +332,10 @@ class ObyMiErp_Activator {
 		}
 
 		// Default fiscal year covering the current calendar year.
-		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) );
+		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check; table name from the plugin's fixed prefix constant.
 		if ( ! $fy_count ) {
 			$year  = (int) date_i18n( 'Y' );
-			$wpdb->insert(
+			$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
 				"{$t}fiscal_years",
 				array(
 					'name'       => sprintf( 'FY %d-%d', $year, $year + 1 ),

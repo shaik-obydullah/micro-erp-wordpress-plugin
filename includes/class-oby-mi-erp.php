@@ -16,7 +16,7 @@ require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-salary.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-quotations.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-sales.php';
 
-class ObyMiErp {
+class Oby_Mi_Erp {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'oby_mi_erp_register_menu' ) );
@@ -100,7 +100,7 @@ class ObyMiErp {
 			wp_die( esc_html__( 'You are not allowed to perform this action.', 'obydullah-micro-erp' ) );
 		}
 
-		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) );
+		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- dispatch read only; each form handler verifies its own nonce via oby_mi_erp_verify_nonce().
 
 		if ( '' === $action ) {
 			return;
@@ -206,7 +206,7 @@ class ObyMiErp {
 				break;
 		}
 
-		$redirect = isset( $_POST['oby_mi_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ) ) : admin_url( 'admin.php?page=oby-mi-erp/dashboard' );
+		$redirect = isset( $_POST['oby_mi_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ) ) : admin_url( 'admin.php?page=oby-mi-erp/dashboard' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read only; the dispatched handler has already verified the nonce.
 		wp_safe_redirect( $redirect );
 		exit;
 	}

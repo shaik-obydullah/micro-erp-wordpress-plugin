@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 function oby_mi_erp_table( $name ) {
 	global $wpdb;
-	return $wpdb->prefix . OBY_MI_ERP_TABLE . $name;
+	return esc_sql( $wpdb->prefix . OBY_MI_ERP_TABLE . $name );
 }
 
 /**
@@ -16,9 +16,19 @@ function oby_mi_erp_table( $name ) {
  * @param mixed  $value Value to store.
  */
 function oby_mi_erp_cache_set( $key, $value ) {
+	wp_cache_set( $key, $value, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $key );
+}
+
+/**
+ * Remember a cache key in the plugin's registry so flush_cache can clear it
+ * even on WordPress < 6.1 (where wp_cache_flush_group() does not exist).
+ *
+ * @param string $key Cache key.
+ */
+function oby_mi_erp_cache_register( $key ) {
 	$keys   = (array) wp_cache_get( 'oby_mi_erp_keys', 'oby_mi_erp' );
 	$keys[] = $key;
-	wp_cache_set( $key, $value, 'oby_mi_erp' );
 	wp_cache_set( 'oby_mi_erp_keys', array_unique( $keys ), 'oby_mi_erp' );
 }
 
@@ -103,9 +113,10 @@ function oby_mi_erp_get_active_fiscal_year() {
 	}
 
 	global $wpdb;
-	$fy = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE is_active = %d ORDER BY id DESC LIMIT 1", 1 ) );
+	$fy = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE is_active = %d ORDER BY id DESC LIMIT 1", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 
-	oby_mi_erp_cache_set( $cache_key, $fy );
+	wp_cache_set( $cache_key, $fy, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $fy;
 }
 
@@ -122,21 +133,22 @@ function oby_mi_erp_get_setting( $key, $default = '' ) {
 	}
 
 	global $wpdb;
-	$val = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->prefix}oby_mi_erp_settings WHERE option_key = %s", $key ) );
+	$val = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->prefix}oby_mi_erp_settings WHERE option_key = %s", $key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$val = null !== $val ? $val : $default;
 
-	oby_mi_erp_cache_set( $cache_key, $val );
+	wp_cache_set( $cache_key, $val, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $val;
 }
 
 function oby_mi_erp_set_setting( $key, $value ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'settings' );
-	$found = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE option_key = %s", $key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- upsert existence check inside a write; the setting cache is invalidated below regardless.
+	$found = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE option_key = %s", $key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- upsert existence check; the table name is built from a fixed internal constant and the setting cache is invalidated below regardless.
 	if ( $found ) {
-		$wpdb->update( $table, array( 'option_value' => $value ), array( 'option_key' => $key ), array( '%s' ), array( '%s' ) );
+		$wpdb->update( $table, array( 'option_value' => $value ), array( 'option_key' => $key ), array( '%s' ), array( '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 	} else {
-		$wpdb->insert( $table, array( 'option_key' => $key, 'option_value' => $value ), array( '%s', '%s' ) );
+		$wpdb->insert( $table, array( 'option_key' => $key, 'option_value' => $value ), array( '%s', '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 	}
 	wp_cache_delete( 'oby_mi_erp_setting_' . $key, 'oby_mi_erp' );
 }
@@ -148,7 +160,7 @@ function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description =
 	} else {
 		$user_id = get_current_user_id();
 	}
-	$wpdb->insert(
+	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path, no result to cache.
 		oby_mi_erp_table( 'audit_log' ),
 		array(
 			'user_id'      => $user_id,
@@ -164,16 +176,17 @@ function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description =
 
 function oby_mi_erp_next_employee_id() {
 	global $wpdb;
-	$max = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING(employee_id, %d) AS UNSIGNED)) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE employee_id LIKE %s", 5, 'EMP-%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- MUST return a fresh value every call to produce a unique employee number; caching would generate duplicates.
+	$max = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(CAST(SUBSTRING(employee_id, %d) AS UNSIGNED)) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE employee_id LIKE %s", 5, 'EMP-%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- MUST return a fresh value every call to produce a unique employee number; caching would generate duplicates.
 	return 'EMP-' . str_pad( $max + 1, 3, '0', STR_PAD_LEFT );
 }
 
 function oby_mi_erp_next_number( $table, $column, $prefix ) {
 	global $wpdb;
-	$year = current_time( 'Y' );
-	$max  = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching -- MUST return a fresh value every call to produce a unique sequential number; caching would generate duplicates.
+	$year   = current_time( 'Y' );
+	$column = esc_sql( $column );
+	$max    = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- MUST return a fresh value every call to produce a unique sequential number; caching would generate duplicates.
 		$wpdb->prepare(
-			"SELECT MAX(CAST(SUBSTRING({$column}, %d) AS UNSIGNED)) FROM {$table} WHERE {$column} LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted internal identifiers
+			"SELECT MAX(CAST(SUBSTRING({$column}, %d) AS UNSIGNED)) FROM {$table} WHERE {$column} LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted internal identifiers.
 			strlen( $prefix . $year . '-' ) + 1,
 			$prefix . $year . '-%'
 		)
@@ -223,12 +236,13 @@ function oby_mi_erp_get_accounts( $type = '' ) {
 
 	global $wpdb;
 	if ( $type ) {
-		$accounts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s ORDER BY code ASC", $type ) );
+		$accounts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s ORDER BY code ASC", $type ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	} else {
-		$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY code ASC" );
+		$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY code ASC" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	}
 
-	oby_mi_erp_cache_set( $cache_key, $accounts );
+	wp_cache_set( $cache_key, $accounts, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $accounts;
 }
 
@@ -242,10 +256,10 @@ function oby_mi_erp_account_balance( $account_id ) {
 	global $wpdb;
 	$account_id = (int) $account_id;
 	$table      = oby_mi_erp_table( 'journal_lines' );
-	$debit      = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(debit),0) FROM {$table} WHERE account_id = %d", $account_id ) );
-	$credit     = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit),0) FROM {$table} WHERE account_id = %d", $account_id ) );
+	$debit  = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(debit),0) FROM {$table} WHERE account_id = %d", $account_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table from fixed internal constant; cached below via literal wp_cache_set().
+	$credit = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(credit),0) FROM {$table} WHERE account_id = %d", $account_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table from fixed internal constant; cached below via literal wp_cache_set().
 
-	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE id = %d", $account_id ) );
+	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE id = %d", $account_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	if ( ! $account ) {
 		return 0;
 	}
@@ -253,7 +267,8 @@ function oby_mi_erp_account_balance( $account_id ) {
 	$normal_debit = in_array( $account->type, array( 'asset', 'expense' ), true );
 	$balance      = $normal_debit ? $debit - $credit : $credit - $debit;
 
-	oby_mi_erp_cache_set( $cache_key, $balance );
+	wp_cache_set( $cache_key, $balance, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $balance;
 }
 
@@ -265,14 +280,15 @@ function oby_mi_erp_total_income() {
 	}
 
 	global $wpdb;
-	$total = (float) $wpdb->get_var(
+	$total = (float) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 		$wpdb->prepare(
 			"SELECT SUM(credit) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
 			'income'
 		)
 	);
 
-	oby_mi_erp_cache_set( $cache_key, $total );
+	wp_cache_set( $cache_key, $total, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $total;
 }
 
@@ -284,14 +300,15 @@ function oby_mi_erp_total_expense() {
 	}
 
 	global $wpdb;
-	$total = (float) $wpdb->get_var(
+	$total = (float) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 		$wpdb->prepare(
 			"SELECT SUM(debit) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l INNER JOIN {$wpdb->prefix}oby_mi_erp_accounts a ON a.id = l.account_id WHERE a.type = %s",
 			'expense'
 		)
 	);
 
-	oby_mi_erp_cache_set( $cache_key, $total );
+	wp_cache_set( $cache_key, $total, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $total;
 }
 
@@ -303,10 +320,11 @@ function oby_mi_erp_contact_name( $id ) {
 	}
 
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$name = $name ? $name : '—';
 
-	oby_mi_erp_cache_set( $cache_key, $name );
+	wp_cache_set( $cache_key, $name, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $name;
 }
 
@@ -318,10 +336,11 @@ function oby_mi_erp_employee_name( $id ) {
 	}
 
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_employees WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$name = $name ? $name : '—';
 
-	oby_mi_erp_cache_set( $cache_key, $name );
+	wp_cache_set( $cache_key, $name, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $name;
 }
 
@@ -333,10 +352,11 @@ function oby_mi_erp_department_name( $id ) {
 	}
 
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_departments WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_departments WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$name = $name ? $name : '—';
 
-	oby_mi_erp_cache_set( $cache_key, $name );
+	wp_cache_set( $cache_key, $name, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $name;
 }
 
@@ -348,10 +368,11 @@ function oby_mi_erp_leave_type_name( $id ) {
 	}
 
 	global $wpdb;
-	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_leave_types WHERE id = %d", $id ) );
+	$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}oby_mi_erp_leave_types WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$name = $name ? $name : '—';
 
-	oby_mi_erp_cache_set( $cache_key, $name );
+	wp_cache_set( $cache_key, $name, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $name;
 }
 
@@ -397,7 +418,7 @@ function oby_mi_erp_create_journal_entry( $date, $description, $lines, $referenc
 
 	$fiscal_year_id = oby_mi_erp_get_fiscal_year_id();
 
-	$wpdb->insert(
+	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path; cache flushed at the end of this function.
 		oby_mi_erp_table( 'journal_entries' ),
 		array(
 			'entry_date'     => $date,
@@ -417,7 +438,7 @@ function oby_mi_erp_create_journal_entry( $date, $description, $lines, $referenc
 	}
 
 	foreach ( $lines as $line ) {
-		$wpdb->insert(
+		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path; cache flushed at the end of this function.
 			oby_mi_erp_table( 'journal_lines' ),
 			array(
 				'entry_id'    => $entry_id,
@@ -463,16 +484,17 @@ function oby_mi_erp_default_account( $type, $fallback_code ) {
 	}
 
 	global $wpdb;
-	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s AND code = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type, $fallback_code ) );
+	$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s AND code = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type, $fallback_code ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	if ( ! $account ) {
-		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type ) );
+		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE type = %s AND is_active = 1 ORDER BY id ASC LIMIT 1", $type ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	}
 	if ( ! $account ) {
-		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT 1", $fallback_code ) );
+		$account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT 1", $fallback_code ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	}
 
 	$account_id = $account ? (int) $account->id : 0;
-	oby_mi_erp_cache_set( $cache_key, $account_id );
+	wp_cache_set( $cache_key, $account_id, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 	return $account_id;
 }
 
@@ -494,7 +516,7 @@ function oby_mi_erp_get_account_balances_by_type() {
 	}
 
 	global $wpdb;
-	$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY id ASC" );
+	$accounts = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts ORDER BY id ASC" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- cached below via literal wp_cache_set().
 	$types    = array( 'asset' => 0, 'liability' => 0, 'equity' => 0, 'income' => 0, 'expense' => 0 );
 
 	foreach ( $accounts as $account ) {
@@ -504,7 +526,8 @@ function oby_mi_erp_get_account_balances_by_type() {
 		$types[ $account->type ] += oby_mi_erp_account_balance( $account->id );
 	}
 
-	oby_mi_erp_cache_set( $cache_key, $types );
+	wp_cache_set( $cache_key, $types, 'oby_mi_erp' );
+	oby_mi_erp_cache_register( $cache_key );
 
 	return $types;
 }

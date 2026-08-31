@@ -26,11 +26,11 @@ require_once OBY_MI_ERP_PATH . 'includes/oby-mi-erp-helpers.php';
 require_once OBY_MI_ERP_PATH . 'includes/class-oby-mi-erp-activator.php';
 require_once OBY_MI_ERP_PATH . 'includes/class-oby-mi-erp.php';
 
-register_activation_hook( __FILE__, array( 'ObyMiErp_Activator', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'ObyMiErp_Activator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( 'Oby_Mi_Erp_Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'Oby_Mi_Erp_Activator', 'deactivate' ) );
 
 function oby_mi_erp_bootstrap() {
-	new ObyMiErp();
+	new Oby_Mi_Erp();
 }
 add_action( 'plugins_loaded', 'oby_mi_erp_bootstrap' );
 

@@ -5,8 +5,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$oby_mi_erp_leave_types = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_leave_types ORDER BY name ASC" );
-$oby_mi_erp_employees   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = %s ORDER BY name ASC", 'active' ) );
+$oby_mi_erp_leave_types_key = 'oby_mi_erp_list_leave_types';
+$oby_mi_erp_leave_types = wp_cache_get( $oby_mi_erp_leave_types_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_leave_types ) {
+	global $wpdb;
+	$oby_mi_erp_leave_types = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_leave_types ORDER BY name ASC" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_leave_types_key, $oby_mi_erp_leave_types, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_leave_types_key );
+	}
+}
+
+$oby_mi_erp_employees_key = 'oby_mi_erp_list_employees_active';
+$oby_mi_erp_employees = wp_cache_get( $oby_mi_erp_employees_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_employees ) {
+	global $wpdb;
+	$oby_mi_erp_employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = %s ORDER BY name ASC", 'active' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_employees_key, $oby_mi_erp_employees, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_employees_key );
+	}
+}
 
 $oby_mi_erp_search = oby_mi_erp_query_text( 's' );
 
@@ -15,7 +34,7 @@ $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -26,7 +45,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -42,7 +61,7 @@ $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_requests = $wpdb->get_results(
+	$oby_mi_erp_requests = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT lr.* FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -56,7 +75,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_requests = $wpdb->get_results(
+	$oby_mi_erp_requests = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT lr.* FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -70,7 +89,7 @@ if ( $oby_mi_erp_search ) {
 $oby_mi_erp_edit_type_id = oby_mi_erp_query_int( 'edit_type' );
 $oby_mi_erp_editing_type = null;
 if ( $oby_mi_erp_edit_type_id ) {
-	$oby_mi_erp_editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_leave_types WHERE id = %d", $oby_mi_erp_edit_type_id ) );
+	$oby_mi_erp_editing_type = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_leave_types WHERE id = %d", $oby_mi_erp_edit_type_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 }
 
 $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'leave' );

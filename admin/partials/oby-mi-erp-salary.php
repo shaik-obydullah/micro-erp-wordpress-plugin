@@ -23,7 +23,7 @@ $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE e.name LIKE %s OR e.employee_id LIKE %s",
 			$oby_mi_erp_like,
@@ -31,7 +31,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE 1 = %d",
 			1
@@ -45,7 +45,7 @@ $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_employees = $wpdb->get_results(
+	$oby_mi_erp_employees = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}oby_mi_erp_employees e
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_departments d ON d.id = e.department_id
@@ -58,7 +58,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_employees = $wpdb->get_results(
+	$oby_mi_erp_employees = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}oby_mi_erp_employees e
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_departments d ON d.id = e.department_id
@@ -71,7 +71,7 @@ if ( $oby_mi_erp_search ) {
 
 $oby_mi_erp_payments = array();
 if ( $oby_mi_erp_employees ) {
-	$oby_mi_erp_rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_salary_payments WHERE month = %s", $oby_mi_erp_month ) );
+	$oby_mi_erp_rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_salary_payments WHERE month = %s", $oby_mi_erp_month ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 	foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) {
 		$oby_mi_erp_payments[ $oby_mi_erp_row->employee_id ] = $oby_mi_erp_row;
 	}
@@ -80,7 +80,7 @@ if ( $oby_mi_erp_employees ) {
 // Summary totals across ALL matching employees (cards must not change with paging).
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_totals = $wpdb->get_row(
+	$oby_mi_erp_totals = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
 				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
@@ -94,7 +94,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_totals = $wpdb->get_row(
+	$oby_mi_erp_totals = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
 				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,

@@ -16,7 +16,15 @@ if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $oby_mi_erp_date ) ) {
 	$oby_mi_erp_date = current_time( 'Y-m-d' );
 }
 
-$oby_mi_erp_employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = %s ORDER BY employee_id ASC", 'active' ) );
+$oby_mi_erp_cache_key = 'oby_mi_erp_list_active_employees';
+$oby_mi_erp_employees = wp_cache_get( $oby_mi_erp_cache_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_employees ) {
+	$oby_mi_erp_employees = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_employees WHERE status = %s ORDER BY employee_id ASC", 'active' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_cache_key, $oby_mi_erp_employees, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_cache_key );
+	}
+}
 
 $oby_mi_erp_existing = array();
 if ( $oby_mi_erp_employees ) {

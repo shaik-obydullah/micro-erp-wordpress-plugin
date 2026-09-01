@@ -11,7 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$oby_mi_erp_contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
+$oby_mi_erp_contacts_key = 'oby_mi_erp_list_contacts_customer_active';
+$oby_mi_erp_contacts = wp_cache_get( $oby_mi_erp_contacts_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_contacts ) {
+	global $wpdb;
+	$oby_mi_erp_contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_contacts_key, $oby_mi_erp_contacts, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_contacts_key );
+	}
+}
 $oby_mi_erp_accounts = oby_mi_erp_get_accounts();
 
 $oby_mi_erp_edit_id    = oby_mi_erp_query_int( 'edit' );
@@ -39,7 +48,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_quotations q
 			INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = q.contact_id
@@ -55,7 +64,7 @@ $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT q.* FROM {$wpdb->prefix}oby_mi_erp_quotations q
 			INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = q.contact_id
@@ -68,7 +77,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT q.* FROM {$wpdb->prefix}oby_mi_erp_quotations q
 			INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = q.contact_id

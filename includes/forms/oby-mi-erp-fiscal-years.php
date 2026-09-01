@@ -17,10 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_fiscal_year_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_save' );
 
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	$name       = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
 	$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
 	$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
 	$id         = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	if ( ! $name || ! $start_date || ! $end_date ) {
 		oby_mi_erp_redirect_notice( __( 'Name, start date and end date are required.', 'obydullah-micro-erp' ), 'error' );
@@ -36,11 +38,11 @@ function oby_mi_erp_handle_fiscal_year_form() {
 	);
 
 	if ( $id ) {
-		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s' ), array( '%d' ) );
+		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		$entity_id = $id;
 		$message   = __( 'Fiscal year updated.', 'obydullah-micro-erp' );
 	} else {
-		$wpdb->insert( $table, $data + array( 'is_active' => 0 ), array( '%s', '%s', '%s', '%d' ) );
+		$wpdb->insert( $table, $data + array( 'is_active' => 0 ), array( '%s', '%s', '%s', '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		$entity_id = (int) $wpdb->insert_id;
 		$message   = __( 'Fiscal year created.', 'obydullah-micro-erp' );
 	}
@@ -56,10 +58,10 @@ function oby_mi_erp_handle_fiscal_year_form() {
  */
 function oby_mi_erp_handle_delete_fiscal_year() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
-	$wpdb->delete( oby_mi_erp_table( 'fiscal_years' ), array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'fiscal_years' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_audit_log( 'delete', 'fiscal_year', $id, 'Deleted fiscal year #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Fiscal year deleted.', 'obydullah-micro-erp' ) );
 }
@@ -71,12 +73,12 @@ function oby_mi_erp_handle_delete_fiscal_year() {
  */
 function oby_mi_erp_handle_activate_fiscal_year() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_activate' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
 	$table = oby_mi_erp_table( 'fiscal_years' );
-	$wpdb->update( $table, array( 'is_active' => 0 ), null, array( '%d' ) );
-	$wpdb->update( $table, array( 'is_active' => 1 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
+	$wpdb->update( $table, array( 'is_active' => 0 ), null, array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	$wpdb->update( $table, array( 'is_active' => 1 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_audit_log( 'activate', 'fiscal_year', $id, 'Activated fiscal year #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Fiscal year activated.', 'obydullah-micro-erp' ) );
 }

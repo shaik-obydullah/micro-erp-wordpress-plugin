@@ -29,7 +29,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE 1 = %d",
 			1
@@ -52,7 +52,7 @@ if ( $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_entries = $wpdb->get_results(
+	$oby_mi_erp_entries = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries ORDER BY entry_date DESC, id DESC LIMIT %d OFFSET %d",
 			$oby_mi_erp_per_page,
@@ -83,7 +83,7 @@ if ( $oby_mi_erp_from ) {
 }
 
 if ( $oby_mi_erp_view_id ) {
-	$oby_mi_erp_view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE id = %d", $oby_mi_erp_view_id ) );
+	$oby_mi_erp_view_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_journal_entries WHERE id = %d", $oby_mi_erp_view_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 	$oby_mi_erp_view_lines = isset( $oby_mi_erp_lines_by_entry[ $oby_mi_erp_view_id ] ) ? $oby_mi_erp_lines_by_entry[ $oby_mi_erp_view_id ] : array();
 }
 ?>

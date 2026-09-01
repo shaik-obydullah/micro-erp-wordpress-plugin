@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$oby_mi_erp_rows = $wpdb->get_results(
+$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- derived value recomputed per request.
 	$wpdb->prepare(
 		"SELECT
 			DATE_FORMAT(sale_date, %s) AS ym,

@@ -14,10 +14,18 @@ global $wpdb;
 $oby_mi_erp_edit_id = oby_mi_erp_query_int( 'edit' );
 $oby_mi_erp_editing = null;
 if ( $oby_mi_erp_edit_id ) {
-	$oby_mi_erp_editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE id = %d", $oby_mi_erp_edit_id ) );
+	$oby_mi_erp_editing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years WHERE id = %d", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 }
 
-$oby_mi_erp_rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years ORDER BY start_date DESC" );
+$oby_mi_erp_cache_key = 'oby_mi_erp_list_fiscal_years';
+$oby_mi_erp_rows = wp_cache_get( $oby_mi_erp_cache_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_rows ) {
+	$oby_mi_erp_rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_fiscal_years ORDER BY start_date DESC" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_cache_key, $oby_mi_erp_rows, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_cache_key );
+	}
+}
 
 oby_mi_erp_print_admin_notice();
 

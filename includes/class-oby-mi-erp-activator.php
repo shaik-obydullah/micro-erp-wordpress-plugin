@@ -314,8 +314,8 @@ class ObyMiErp_Activator {
 				array( '5005', 'Marketing Expense', 'expense' ),
 			);
 			foreach ( $default_accounts as $account ) {
-				$wpdb->insert(
-					"{$t}accounts",
+$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
+				"{$t}accounts",
 					array(
 						'code' => $account[0],
 						'name' => $account[1],
@@ -336,8 +336,8 @@ class ObyMiErp_Activator {
 				array( 'Maternity Leave', 90 ),
 			);
 			foreach ( $default_leave_types as $leave_type ) {
-				$wpdb->insert(
-					"{$t}leave_types",
+$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
+				"{$t}leave_types",
 					array(
 						'name'          => $leave_type[0],
 						'days_per_year' => $leave_type[1],

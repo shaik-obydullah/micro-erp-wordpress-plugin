@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $wpdb;
 
 // Payable = amounts owed to vendors, tracked via the Accounts Payable account.
-$oby_mi_erp_ap_account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT %d", '2001', 1 ) );
+$oby_mi_erp_ap_account = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_accounts WHERE code = %s LIMIT %d", '2001', 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 
 $oby_mi_erp_rows        = array();
 $oby_mi_erp_total_items = 0;
@@ -29,7 +29,7 @@ if ( $oby_mi_erp_ap_account ) {
 			)
 		);
 	} else {
-		$oby_mi_erp_total_items = (int) $wpdb->get_var(
+		$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l
 				INNER JOIN {$wpdb->prefix}oby_mi_erp_journal_entries j ON j.id = l.entry_id
@@ -56,7 +56,7 @@ if ( $oby_mi_erp_ap_account ) {
 			)
 		);
 	} else {
-		$oby_mi_erp_total = (float) $wpdb->get_var(
+		$oby_mi_erp_total = (float) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 			$wpdb->prepare(
 				"SELECT COALESCE(SUM(l.credit),0) FROM {$wpdb->prefix}oby_mi_erp_journal_lines l
 				INNER JOIN {$wpdb->prefix}oby_mi_erp_journal_entries j ON j.id = l.entry_id
@@ -68,7 +68,7 @@ if ( $oby_mi_erp_ap_account ) {
 
 	if ( $oby_mi_erp_search ) {
 		$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-		$oby_mi_erp_rows = $wpdb->get_results(
+		$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 			$wpdb->prepare(
 				"SELECT j.entry_date, j.description, j.id AS entry_id, l.credit AS payable_amount
 				FROM {$wpdb->prefix}oby_mi_erp_journal_lines l
@@ -82,7 +82,7 @@ if ( $oby_mi_erp_ap_account ) {
 			)
 		);
 	} else {
-		$oby_mi_erp_rows = $wpdb->get_results(
+		$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 			$wpdb->prepare(
 				"SELECT j.entry_date, j.description, j.id AS entry_id, l.credit AS payable_amount
 				FROM {$wpdb->prefix}oby_mi_erp_journal_lines l

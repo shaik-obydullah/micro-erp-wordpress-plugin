@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 function oby_mi_erp_handle_attendance_form() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_save' );
 
-	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- every row value is sanitized individually in the loop below.
-	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
+	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above; every row value is sanitized individually in the loop below.
+	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	if ( ! $date ) {
 		oby_mi_erp_redirect_notice( __( 'A date is required.', 'obydullah-micro-erp' ), 'error' );
@@ -44,9 +44,9 @@ function oby_mi_erp_handle_attendance_form() {
 		);
 
 		if ( $existing ) {
-			$wpdb->update( $table, $data, array( 'id' => $existing ), array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ), array( '%d' ) );
+			$wpdb->update( $table, $data, array( 'id' => $existing ), array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		} else {
-			$wpdb->insert( $table, $data, array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ) );
+			$wpdb->insert( $table, $data, array( '%d', '%s', '%s', '%s', '%s', '%f', '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		}
 	}
 
@@ -56,10 +56,10 @@ function oby_mi_erp_handle_attendance_form() {
 
 function oby_mi_erp_handle_delete_attendance() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
-	$wpdb->delete( oby_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Attendance record deleted.', 'obydullah-micro-erp' ) );
 }

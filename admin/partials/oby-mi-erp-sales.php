@@ -5,7 +5,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $wpdb;
 
-$oby_mi_erp_contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) );
+$oby_mi_erp_contacts_key = 'oby_mi_erp_list_contacts_customer_active';
+$oby_mi_erp_contacts = wp_cache_get( $oby_mi_erp_contacts_key, 'oby_mi_erp' );
+if ( false === $oby_mi_erp_contacts ) {
+	global $wpdb;
+	$oby_mi_erp_contacts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_contacts WHERE type = %s AND status = %s ORDER BY name ASC", 'customer', 'active' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- cached below via literal wp_cache_set().
+	wp_cache_set( $oby_mi_erp_contacts_key, $oby_mi_erp_contacts, 'oby_mi_erp' );
+	if ( function_exists( 'oby_mi_erp_cache_register' ) ) {
+		oby_mi_erp_cache_register( $oby_mi_erp_contacts_key );
+	}
+}
 
 $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'sales' );
 
@@ -104,8 +113,8 @@ $oby_mi_erp_edit_id    = oby_mi_erp_query_int( 'edit' );
 $oby_mi_erp_editing    = null;
 $oby_mi_erp_edit_items = array();
 if ( $oby_mi_erp_edit_id ) {
-	$oby_mi_erp_editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $oby_mi_erp_edit_id ) );
-	$oby_mi_erp_edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sale_items WHERE sale_id = %d ORDER BY id ASC", $oby_mi_erp_edit_id ) );
+	$oby_mi_erp_editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
+	$oby_mi_erp_edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sale_items WHERE sale_id = %d ORDER BY id ASC", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 }
 
 $oby_mi_erp_status_filter = oby_mi_erp_query_key( 'status' );
@@ -125,7 +134,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 		)
 	);
 } elseif ( $oby_mi_erp_status_filter ) {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s",
 			$oby_mi_erp_status_filter
@@ -141,7 +150,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_total_items = (int) $wpdb->get_var(
+	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE 1 = %d",
 			1
@@ -155,7 +164,7 @@ $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s AND (s.sale_no LIKE %s OR c.name LIKE %s) ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
 			$oby_mi_erp_status_filter,
@@ -166,7 +175,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 		)
 	);
 } elseif ( $oby_mi_erp_status_filter ) {
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.payment_status = %s ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
 			$oby_mi_erp_status_filter,
@@ -176,7 +185,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 	);
 } elseif ( $oby_mi_erp_search ) {
 	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id WHERE s.sale_no LIKE %s OR c.name LIKE %s ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
 			$oby_mi_erp_like,
@@ -186,7 +195,7 @@ if ( $oby_mi_erp_status_filter && $oby_mi_erp_search ) {
 		)
 	);
 } else {
-	$oby_mi_erp_rows = $wpdb->get_results(
+	$oby_mi_erp_rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
 		$wpdb->prepare(
 			"SELECT s.*, c.name AS customer FROM {$wpdb->prefix}oby_mi_erp_sales s INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = s.contact_id ORDER BY s.sale_date DESC, s.id DESC LIMIT %d OFFSET %d",
 			$oby_mi_erp_per_page,

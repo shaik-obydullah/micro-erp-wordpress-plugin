@@ -16,7 +16,7 @@ require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-salary.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-quotations.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-sales.php';
 
-class ObyMiErp {
+class Oby_Mi_Erp {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'oby_mi_erp_register_menu' ) );

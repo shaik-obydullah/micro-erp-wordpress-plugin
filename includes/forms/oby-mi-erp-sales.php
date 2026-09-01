@@ -17,7 +17,7 @@ function oby_mi_erp_handle_sale_form() {
 
 	// Credit sale: Dr Accounts Receivable / Cr Sales Income.
 	if ( $created ) {
-		$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $entity_id ) );
+		$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $entity_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 		oby_mi_erp_create_sale_journal( $sale );
 
 		do_action( 'oby_mi_erp_sale_created', $entity_id );
@@ -28,11 +28,11 @@ function oby_mi_erp_handle_sale_form() {
 
 function oby_mi_erp_handle_delete_sale() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 
 	global $wpdb;
-	$wpdb->delete( oby_mi_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) );
-	$wpdb->delete( oby_mi_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) );
+	$wpdb->delete( oby_mi_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	$wpdb->delete( oby_mi_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 	oby_mi_erp_audit_log( 'delete', 'sale', $id, 'Deleted sale #' . $id );
 	oby_mi_erp_redirect_notice( __( 'Sale deleted.', 'obydullah-micro-erp' ) );
 }
@@ -40,15 +40,17 @@ function oby_mi_erp_handle_delete_sale() {
 function oby_mi_erp_handle_record_payment() {
 	oby_mi_erp_verify_nonce( 'oby_mi_erp_payment_save' );
 
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
 	$sale_id = (int) sanitize_text_field( wp_unslash( $_POST['sale_id'] ?? '' ) );
 	$amount  = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
 	$method  = sanitize_key( wp_unslash( $_POST['method'] ?? 'cash' ) );
 	$ref     = sanitize_text_field( wp_unslash( $_POST['reference'] ?? '' ) );
 	$deposit = (int) sanitize_text_field( wp_unslash( $_POST['deposit_to'] ?? '' ) );
 	$notes   = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	global $wpdb;
-	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $sale_id ) );
+	$sale = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_sales WHERE id = %d", $sale_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
 	if ( ! $sale ) {
 		oby_mi_erp_redirect_notice( __( 'Sale not found.', 'obydullah-micro-erp' ), 'error' );
 		return;
@@ -66,7 +68,7 @@ function oby_mi_erp_handle_record_payment() {
 		$status = 'paid';
 	}
 
-	$wpdb->update(
+	$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		oby_mi_erp_table( 'sales' ),
 		array(
 			'amount_paid'    => $new_paid,

@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for creating, updating, and deleting employees.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) an employee from $_POST.
+ *
+ * @param string $action 'update_employee' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_employee_form( $action ) {
 	check_admin_referer( 'oby_mi_erp_employee_save' );
 
@@ -33,7 +45,7 @@ function oby_mi_erp_handle_employee_form( $action ) {
 	global $wpdb;
 	$table = oby_mi_erp_table( 'employees' );
 
-	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %s AND id != %d", $data['employee_id'], $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream; table/column name comes from a fixed internal constant.
+	$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %s AND id != %d", $data['employee_id'], $id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a fixed plugin table name, not user input; the actual values are placeholder-bound above.
 	if ( $exists ) {
 		oby_mi_erp_redirect_notice( __( 'An employee with that ID already exists.', 'obydullah-micro-erp' ), 'error' );
 		return;
@@ -55,6 +67,11 @@ function oby_mi_erp_handle_employee_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete an employee named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_employee() {
 	check_admin_referer( 'oby_mi_erp_employee_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.

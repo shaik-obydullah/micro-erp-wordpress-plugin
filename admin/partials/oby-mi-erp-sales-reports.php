@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Sales Reports admin screen.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -113,8 +119,9 @@ oby_mi_erp_print_admin_notice();
 							<?php if ( empty( $oby_mi_erp_rows ) ) : ?>
 								<tr><td colspan="5" class="text-center p-4"><?php esc_html_e( 'No sales recorded yet.', 'obydullah-micro-erp' ); ?></td></tr>
 							<?php endif; ?>
-							<?php foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
-								$oby_mi_erp_month_name = date_i18n( 'F Y', strtotime( $oby_mi_erp_row->month_label . '-01' ) );
+							<?php
+							foreach ( $oby_mi_erp_rows as $oby_mi_erp_row ) :
+								$oby_mi_erp_month_name  = date_i18n( 'F Y', strtotime( $oby_mi_erp_row->month_label . '-01' ) );
 								$oby_mi_erp_outstanding = (float) $oby_mi_erp_row->total_sales - (float) $oby_mi_erp_row->total_paid;
 								?>
 								<tr>

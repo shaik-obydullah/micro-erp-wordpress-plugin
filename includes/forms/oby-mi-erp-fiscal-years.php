@@ -1,8 +1,19 @@
 <?php
+/**
+ * Form handlers for creating, deleting, and activating fiscal years.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a fiscal year from $_POST.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_fiscal_year_form() {
 	check_admin_referer( 'oby_mi_erp_fiscal_year_save' );
 
@@ -40,6 +51,11 @@ function oby_mi_erp_handle_fiscal_year_form() {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete a fiscal year named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_fiscal_year() {
 	check_admin_referer( 'oby_mi_erp_fiscal_year_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
@@ -50,6 +66,11 @@ function oby_mi_erp_handle_delete_fiscal_year() {
 	oby_mi_erp_redirect_notice( __( 'Fiscal year deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Make the fiscal year named by $_POST['id'] the sole active one.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_activate_fiscal_year() {
 	check_admin_referer( 'oby_mi_erp_fiscal_year_activate' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.

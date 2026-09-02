@@ -1,8 +1,19 @@
 <?php
+/**
+ * Form handler for saving daily employee attendance records.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (insert or update) each employee's attendance row for one date from $_POST['attendance'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_attendance_form() {
 	check_admin_referer( 'oby_mi_erp_attendance_save' );
 
@@ -32,7 +43,7 @@ function oby_mi_erp_handle_attendance_form() {
 			}
 		}
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %d AND date = %s", $employee_id, $date ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream; table/column name comes from a fixed internal constant.
+		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE employee_id = %d AND date = %s", $employee_id, $date ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a fixed plugin table name, not user input; the actual values are placeholder-bound above.
 		$data     = array(
 			'employee_id'  => $employee_id,
 			'date'         => $date,
@@ -52,4 +63,19 @@ function oby_mi_erp_handle_attendance_form() {
 
 	oby_mi_erp_audit_log( 'save', 'attendance', 0, 'Saved attendance for ' . $date );
 	oby_mi_erp_redirect_notice( __( 'Attendance saved.', 'obydullah-micro-erp' ) );
+}
+
+/**
+ * Delete an attendance record named by $_POST['id'].
+ *
+ * @return void
+ */
+function oby_mi_erp_handle_delete_attendance() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+
+	global $wpdb;
+	$wpdb->delete( oby_mi_erp_table( 'attendance' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	oby_mi_erp_audit_log( 'delete', 'attendance', $id, 'Deleted attendance #' . $id );
+	oby_mi_erp_redirect_notice( __( 'Attendance record deleted.', 'obydullah-micro-erp' ) );
 }

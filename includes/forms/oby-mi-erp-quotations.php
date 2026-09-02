@@ -1,20 +1,39 @@
 <?php
+/**
+ * Shared save logic plus form handlers for quotations and sales orders.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a quotation or sale and its line items from $_POST.
+ * Verifies the caller-appropriate nonce itself, since $type determines which
+ * nonce action applies.
+ *
+ * @param string $prefix      Document number prefix, e.g. 'QUO-' or 'SALE-'.
+ * @param string $table_main  Fully-prefixed main table (quotations or sales).
+ * @param string $table_items Fully-prefixed line-items table.
+ * @param string $item_col    Foreign key column on $table_items referencing the main row.
+ * @param string $type        'quotation' or 'sale'.
+ * @return array{0:int,1:bool} The saved entity's ID and whether it was newly created.
+ */
 function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_col, $type ) {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_' . $type . '_save' );
+
 	global $wpdb;
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified by check_admin_referer() in the calling form handler.
-	$contact_id = (int) sanitize_text_field( wp_unslash( $_POST['contact_id'] ?? '' ) );
-	$date       = sanitize_text_field( wp_unslash( $_POST['date'] ?? current_time( 'Y-m-d' ) ) );
-	$valid_until = sanitize_text_field( wp_unslash( $_POST['valid_until'] ?? '' ) );
+	$contact_id  = (int) sanitize_text_field( wp_unslash( $_POST['contact_id'] ?? '' ) );
+	$date        = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' );
+	$valid_until = isset( $_POST['valid_until'] ) ? sanitize_text_field( wp_unslash( $_POST['valid_until'] ) ) : '';
 	$valid_until = '' !== $valid_until ? $valid_until : null;
-	$discount   = (float) sanitize_text_field( wp_unslash( $_POST['discount'] ?? '' ) );
-	$notes      = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
-	$update_id  = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
-	$send       = (bool) sanitize_key( wp_unslash( $_POST['save_and_send'] ?? '' ) );
+	$discount    = (float) sanitize_text_field( wp_unslash( $_POST['discount'] ?? '' ) );
+	$notes       = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['notes'] ) ) : '';
+	$update_id   = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
+	$send        = isset( $_POST['save_and_send'] );
 
 	$descriptions = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_description'] ?? array() ) );
 	$quantities   = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_quantity'] ?? array() ) ) );
@@ -66,13 +85,13 @@ function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_c
 	);
 
 	if ( 'quotation' === $type ) {
-		$data['quotation_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT quotation_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_quotation_no(); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table from a fixed internal constant; lookup for the edit flow only.
+		$data['quotation_no']   = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT quotation_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_quotation_no(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_main is a fixed plugin table name, not user input; the actual value is placeholder-bound above.
 		$data['quotation_date'] = $date;
-		$data['valid_until'] = $valid_until;
+		$data['valid_until']    = $valid_until;
 		unset( $data['date'] );
 		$formats = array( '%d', '%f', '%f', '%f', '%f', '%s', '%s', '%s', '%s' );
 	} else {
-		$data['sale_no'] = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT sale_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_sale_no(); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table from a fixed internal constant; lookup for the edit flow only.
+		$data['sale_no']   = $update_id ? $wpdb->get_var( $wpdb->prepare( "SELECT sale_no FROM {$table_main} WHERE id = %d", $update_id ) ) : oby_mi_erp_next_sale_no(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_main is a fixed plugin table name, not user input; the actual value is placeholder-bound above.
 		$data['sale_date'] = $date;
 		unset( $data['date'] );
 		$formats = array( '%d', '%f', '%f', '%f', '%f', '%s', '%s', '%s' );
@@ -84,16 +103,16 @@ function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_c
 		$created   = false;
 	} else {
 		$data['created_by'] = get_current_user_id();
-	if ( 'quotation' === $type ) {
+		if ( 'quotation' === $type ) {
 			$data['status'] = $send ? 'sent' : 'draft';
-			$formats[] = '%d';
-			$formats[] = '%s';
+			$formats[]      = '%d';
+			$formats[]      = '%s';
 		} else {
 			$data['payment_status'] = 'unpaid';
 			$data['amount_paid']    = 0;
-			$formats[] = '%d';
-			$formats[] = '%s';
-			$formats[] = '%f';
+			$formats[]              = '%d';
+			$formats[]              = '%s';
+			$formats[]              = '%f';
 		}
 		$wpdb->insert( $table_main, $data, $formats ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		$entity_id = (int) $wpdb->insert_id;
@@ -110,8 +129,12 @@ function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_c
 	return array( $entity_id, $created );
 }
 
-function oby_mi_erp_handle_quotation_form( $action ) {
-	check_admin_referer( 'oby_mi_erp_quotation_save' );
+/**
+ * Save (create or update) a quotation and its line items from $_POST.
+ *
+ * @return void
+ */
+function oby_mi_erp_handle_quotation_form() {
 	list( $entity_id, $created ) = oby_mi_erp_save_quote_sale(
 		'QUO-',
 		oby_mi_erp_table( 'quotations' ),
@@ -122,6 +145,11 @@ function oby_mi_erp_handle_quotation_form( $action ) {
 	oby_mi_erp_redirect_notice( $created ? __( 'Quotation created.', 'obydullah-micro-erp' ) : __( 'Quotation updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete a quotation and its line items, named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_quotation() {
 	check_admin_referer( 'oby_mi_erp_quotation_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above.
@@ -133,6 +161,11 @@ function oby_mi_erp_handle_delete_quotation() {
 	oby_mi_erp_redirect_notice( __( 'Quotation deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Update a quotation's status (e.g. sent/accepted/rejected) named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_quotation_status() {
 	check_admin_referer( 'oby_mi_erp_quotation_status' );
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified above.
@@ -146,6 +179,11 @@ function oby_mi_erp_handle_quotation_status() {
 	oby_mi_erp_redirect_notice( __( 'Quotation status updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Convert a quotation named by $_POST['id'] into a new sale with matching line items.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_convert_quotation() {
 	check_admin_referer( 'oby_mi_erp_quotation_convert' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above.
@@ -163,18 +201,18 @@ function oby_mi_erp_handle_convert_quotation() {
 	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		oby_mi_erp_table( 'sales' ),
 		array(
-			'sale_no'       => $sale_no,
-			'quotation_id'  => $id,
-			'contact_id'    => $q->contact_id,
-			'sale_date'     => current_time( 'Y-m-d' ),
-			'payment_status'=> 'unpaid',
-			'subtotal'      => $q->subtotal,
-			'tax_amount'    => $q->tax_amount,
-			'discount'      => $q->discount,
-			'total'         => $q->total,
-			'amount_paid'   => 0,
-			'notes'         => $q->notes,
-			'created_by'    => get_current_user_id(),
+			'sale_no'        => $sale_no,
+			'quotation_id'   => $id,
+			'contact_id'     => $q->contact_id,
+			'sale_date'      => current_time( 'Y-m-d' ),
+			'payment_status' => 'unpaid',
+			'subtotal'       => $q->subtotal,
+			'tax_amount'     => $q->tax_amount,
+			'discount'       => $q->discount,
+			'total'          => $q->total,
+			'amount_paid'    => 0,
+			'notes'          => $q->notes,
+			'created_by'     => get_current_user_id(),
 		),
 		array( '%s', '%d', '%d', '%s', '%s', '%f', '%f', '%f', '%f', '%f', '%s', '%d' )
 	);

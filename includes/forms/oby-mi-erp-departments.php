@@ -1,8 +1,20 @@
 <?php
+/**
+ * Form handlers for creating, updating, and deleting departments.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a department from $_POST.
+ *
+ * @param string $action 'update_department' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_department_form( $action ) {
 	check_admin_referer( 'oby_mi_erp_department_save' );
 
@@ -39,6 +51,11 @@ function oby_mi_erp_handle_department_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete a department named by $_POST['id'], refusing if it has employees.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_department() {
 	check_admin_referer( 'oby_mi_erp_department_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.

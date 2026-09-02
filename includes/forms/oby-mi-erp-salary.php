@@ -4,9 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function oby_mi_erp_handle_salary_paid() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_salary_paid' );
+	check_admin_referer( 'oby_mi_erp_salary_paid' );
 
-	$month = isset( $_POST['month'] ) ? sanitize_text_field( wp_unslash( $_POST['month'] ) ) : current_time( 'Y-m' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	$month = sanitize_text_field( wp_unslash( $_POST['month'] ?? current_time( 'Y-m' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 	if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 		oby_mi_erp_redirect_notice( __( 'Invalid month.', 'obydullah-micro-erp' ), 'error' );
 		return;
@@ -15,7 +15,7 @@ function oby_mi_erp_handle_salary_paid() {
 	global $wpdb;
 	$employees = array();
 
-	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	$employee_id = (int) sanitize_text_field( wp_unslash( $_POST['employee_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	if ( $employee_id ) {
 		$employees[] = $employee_id;
@@ -33,9 +33,9 @@ function oby_mi_erp_handle_salary_paid() {
 		}
 
 		$base        = (float) $emp->basic_salary;
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-		$allowances  = isset( $_POST['allowances'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ) ) : 0;
-		$deductions  = isset( $_POST['deductions'][ $employee_id ] ) ? (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ) ) : 0;
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+		$allowances  = (float) sanitize_text_field( wp_unslash( $_POST['allowances'][ $employee_id ] ?? '' ) );
+		$deductions  = (float) sanitize_text_field( wp_unslash( $_POST['deductions'][ $employee_id ] ?? '' ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		$amount      = $base + $allowances - $deductions;
 

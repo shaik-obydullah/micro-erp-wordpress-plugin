@@ -4,18 +4,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function oby_mi_erp_handle_contact_form( $action ) {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_contact_save' );
+	check_admin_referer( 'oby_mi_erp_contact_save' );
 
 	$data = array(
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-		'type'    => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'customer',
-		'name'    => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-		'email'   => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
-		'phone'   => isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '',
-		'address' => isset( $_POST['address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['address'] ) ) : '',
-		'company' => isset( $_POST['company'] ) ? sanitize_text_field( wp_unslash( $_POST['company'] ) ) : '',
-		'tax_id'  => isset( $_POST['tax_id'] ) ? sanitize_text_field( wp_unslash( $_POST['tax_id'] ) ) : '',
-		'status'  => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'active',
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+		'type'    => sanitize_key( wp_unslash( $_POST['type'] ?? 'customer' ) ),
+		'name'    => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
+		'email'   => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
+		'phone'   => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+		'address' => sanitize_textarea_field( wp_unslash( $_POST['address'] ?? '' ) ),
+		'company' => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+		'tax_id'  => sanitize_text_field( wp_unslash( $_POST['tax_id'] ?? '' ) ),
+		'status'  => sanitize_key( wp_unslash( $_POST['status'] ?? 'active' ) ),
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 	);
 
@@ -28,7 +28,7 @@ function oby_mi_erp_handle_contact_form( $action ) {
 	$table = oby_mi_erp_table( 'contacts' );
 
 	if ( 'update_contact' === $action ) {
-		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		$entity_id = $id;
 		$message   = __( 'Contact updated.', 'obydullah-micro-erp' );
@@ -45,8 +45,8 @@ function oby_mi_erp_handle_contact_form( $action ) {
 }
 
 function oby_mi_erp_handle_delete_contact() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_contact_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_contact_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'contacts' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.

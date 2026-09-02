@@ -59,22 +59,22 @@ function oby_mi_erp_flush_cache() {
 
 function oby_mi_erp_query_has( $key ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
-	return isset( $_GET[ $key ] );
+	return array_key_exists( $key, $_GET );
 }
 
 function oby_mi_erp_query_text( $key, $default = '' ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
-	return isset( $_GET[ $key ] ) ? sanitize_text_field( wp_unslash( $_GET[ $key ] ) ) : $default;
+	return sanitize_text_field( wp_unslash( $_GET[ $key ] ?? $default ) );
 }
 
 function oby_mi_erp_query_key( $key, $default = '' ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
-	return isset( $_GET[ $key ] ) ? sanitize_key( wp_unslash( $_GET[ $key ] ) ) : $default;
+	return sanitize_key( wp_unslash( $_GET[ $key ] ?? $default ) );
 }
 
 function oby_mi_erp_query_int( $key, $default = 0 ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
-	return isset( $_GET[ $key ] ) ? absint( wp_unslash( $_GET[ $key ] ) ) : $default;
+	return absint( wp_unslash( $_GET[ $key ] ?? $default ) );
 }
 
 /**
@@ -153,6 +153,19 @@ function oby_mi_erp_set_setting( $key, $value ) {
 	wp_cache_delete( 'oby_mi_erp_setting_' . $key, 'oby_mi_erp' );
 }
 
+/**
+ * Append a row to the audit log.
+ *
+ * SECURITY: This is a private write helper. It is only ever called from a
+ * form handler that has already run check_admin_referer() against its own
+ * nonce _and_ passed the manage_options capability gate in the dispatcher,
+ * so no CSRF-unverified request reaches this insert.
+ *
+ * @param string $action      Verb (e.g. 'save', 'delete').
+ * @param string $entity_type Entity kind (e.g. 'journal', 'contact').
+ * @param int    $entity_id   Related record id.
+ * @param string $description Human-readable summary.
+ */
 function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description = '' ) {
 	global $wpdb;
 	if ( ! current_user_can( 'manage_options' ) && ! is_user_logged_in() ) {
@@ -168,7 +181,7 @@ function oby_mi_erp_audit_log( $action, $entity_type, $entity_id, $description =
 			'entity_type'  => $entity_type,
 			'entity_id'    => $entity_id,
 			'description'  => $description,
-			'ip_address'   => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
+			'ip_address'   => sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) ),
 		),
 		array( '%d', '%s', '%s', '%d', '%s', '%s' )
 	);
@@ -218,13 +231,19 @@ function oby_mi_erp_print_admin_notice() {
 	}
 }
 
+/**
+ * Compatibility wrapper around check_admin_referer().
+ *
+ * Formerly a custom nonce verifier; handlers now call check_admin_referer()
+ * directly so the guard is explicit and recognized by standard tooling.
+ * Retained so any third-party caller keeps working.
+ *
+ * @param string $action Nonce action.
+ * @param string $arg    Query argument holding the nonce.
+ * @return int|false The nonce value on success, otherwise dies.
+ */
 function oby_mi_erp_verify_nonce( $action, $arg = '_wpnonce' ) {
-	// Verify nonce - sanitize the input first.
-	$nonce = sanitize_text_field( wp_unslash( $_POST[ $arg ] ?? '' ) );
-
-	if ( ! wp_verify_nonce( $nonce, $action ) ) {
-		wp_die( esc_html__( 'Security check failed.', 'obydullah-micro-erp' ) );
-	}
+	return check_admin_referer( $action, $arg );
 }
 
 function oby_mi_erp_get_accounts( $type = '' ) {

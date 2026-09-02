@@ -4,17 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function oby_mi_erp_handle_account_form( $action ) {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_save' );
+	check_admin_referer( 'oby_mi_erp_account_save' );
 
-	$id        = isset( $_POST['id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-	$parent_id = isset( $_POST['parent_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['parent_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	$id        = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+	$parent_id = (int) sanitize_text_field( wp_unslash( $_POST['parent_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	$data = array(
-		'code'      => isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-		'name'      => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-		'type'      => isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'asset', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		'code'      => sanitize_text_field( wp_unslash( $_POST['code'] ?? '' ) ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+		'name'      => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+		'type'      => sanitize_key( wp_unslash( $_POST['type'] ?? 'asset' ) ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 		'parent_id' => $parent_id ? $parent_id : null,
-		'is_active' => isset( $_POST['is_active'] ) ? 1 : 0, // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		'is_active' => sanitize_key( wp_unslash( $_POST['is_active'] ?? '' ) ) ? 1 : 0, // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 	);
 
 	if ( ! $data['code'] || ! $data['name'] ) {
@@ -48,8 +48,8 @@ function oby_mi_erp_handle_account_form( $action ) {
 }
 
 function oby_mi_erp_handle_delete_account() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_account_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_account_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$table       = oby_mi_erp_table( 'accounts' );

@@ -4,9 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function oby_mi_erp_handle_employee_form( $action ) {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_employee_save' );
+	check_admin_referer( 'oby_mi_erp_employee_save' );
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified by oby_mi_erp_verify_nonce() above.
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified by check_admin_referer() above.
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 
 	$data = array(
@@ -56,8 +56,8 @@ function oby_mi_erp_handle_employee_form( $action ) {
 }
 
 function oby_mi_erp_handle_delete_employee() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_employee_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_employee_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'employees' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.

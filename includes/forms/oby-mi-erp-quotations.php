@@ -17,10 +17,10 @@ function oby_mi_erp_save_quote_sale( $prefix, $table_main, $table_items, $item_c
 	$update_id   = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 	$send        = isset( $_POST['save_and_send'] );
 
-	$descriptions = isset( $_POST['item_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_description'] ) ) : array();
-	$quantities   = isset( $_POST['item_quantity'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_quantity'] ) ) ) : array();
-	$prices       = isset( $_POST['item_price'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_price'] ) ) ) : array();
-	$tax_rates    = isset( $_POST['item_tax'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_tax'] ) ) ) : array();
+	$descriptions = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_description'] ?? array() ) );
+	$quantities   = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_quantity'] ?? array() ) ) );
+	$prices       = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_price'] ?? array() ) ) );
+	$tax_rates    = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['item_tax'] ?? array() ) ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	if ( ! $contact_id || empty( $descriptions ) ) {
@@ -123,7 +123,7 @@ function oby_mi_erp_handle_quotation_form() {
 }
 
 function oby_mi_erp_handle_delete_quotation() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_delete' );
+	check_admin_referer( 'oby_mi_erp_quotation_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above.
 
 	global $wpdb;
@@ -134,10 +134,10 @@ function oby_mi_erp_handle_delete_quotation() {
 }
 
 function oby_mi_erp_handle_quotation_status() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_status' );
+	check_admin_referer( 'oby_mi_erp_quotation_status' );
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified above.
 	$id     = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
-	$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'draft';
+	$status = sanitize_key( wp_unslash( $_POST['status'] ?? 'draft' ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	global $wpdb;
@@ -147,7 +147,7 @@ function oby_mi_erp_handle_quotation_status() {
 }
 
 function oby_mi_erp_handle_convert_quotation() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_quotation_convert' );
+	check_admin_referer( 'oby_mi_erp_quotation_convert' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above.
 
 	global $wpdb;

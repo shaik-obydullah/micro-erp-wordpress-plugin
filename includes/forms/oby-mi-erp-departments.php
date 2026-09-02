@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function oby_mi_erp_handle_department_form( $action ) {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_department_save' );
+	check_admin_referer( 'oby_mi_erp_department_save' );
 
 	$data = array(
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-		'name'        => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-		'description' => isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '',
-		'status'      => isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'active',
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+		'name'        => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
+		'description' => sanitize_textarea_field( wp_unslash( $_POST['description'] ?? '' ) ),
+		'status'      => sanitize_key( wp_unslash( $_POST['status'] ?? 'active' ) ),
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 	);
 
@@ -35,7 +35,7 @@ function oby_mi_erp_handle_department_form( $action ) {
 	$table = oby_mi_erp_table( 'departments' );
 
 	if ( 'update_department' === $action ) {
-		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+		$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 		$wpdb->update( $table, $data, array( 'id' => $id ), array( '%s', '%s', '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		$entity_id = $id;
 		$message   = __( 'Department updated.', 'obydullah-micro-erp' );
@@ -57,8 +57,8 @@ function oby_mi_erp_handle_department_form( $action ) {
  * @return void
  */
 function oby_mi_erp_handle_delete_department() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_department_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_department_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$used = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE department_id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- single-row lookup gating a write flow; caches are flushed downstream; table/column name comes from a fixed internal constant.

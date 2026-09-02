@@ -15,12 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function oby_mi_erp_handle_fiscal_year_form() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_save' );
+	check_admin_referer( 'oby_mi_erp_fiscal_year_save' );
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-	$name       = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-	$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
-	$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+	$name       = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+	$start_date = sanitize_text_field( wp_unslash( $_POST['start_date'] ?? '' ) );
+	$end_date   = sanitize_text_field( wp_unslash( $_POST['end_date'] ?? '' ) );
 	$id         = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
@@ -57,8 +57,8 @@ function oby_mi_erp_handle_fiscal_year_form() {
  * @return void
  */
 function oby_mi_erp_handle_delete_fiscal_year() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_fiscal_year_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'fiscal_years' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
@@ -72,8 +72,8 @@ function oby_mi_erp_handle_delete_fiscal_year() {
  * @return void
  */
 function oby_mi_erp_handle_activate_fiscal_year() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_fiscal_year_activate' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_fiscal_year_activate' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$table = oby_mi_erp_table( 'fiscal_years' );

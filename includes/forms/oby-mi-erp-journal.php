@@ -16,15 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function oby_mi_erp_handle_journal_form() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
+	check_admin_referer( 'oby_mi_erp_journal_save' );
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
-	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
-	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
-	$accounts    = isset( $_POST['account_id'] ) ? array_map( 'intval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['account_id'] ) ) ) : array();
-	$debits      = isset( $_POST['debit'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['debit'] ) ) ) : array();
-	$credits     = isset( $_POST['credit'] ) ? array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['credit'] ) ) ) : array();
-	$line_desc   = isset( $_POST['line_description'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['line_description'] ) ) : array();
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
+	$date        = sanitize_text_field( wp_unslash( $_POST['entry_date'] ?? current_time( 'Y-m-d' ) ) );
+	$description = sanitize_text_field( wp_unslash( $_POST['description'] ?? '' ) );
+	$accounts    = array_map( 'intval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['account_id'] ?? array() ) ) );
+	$debits      = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['debit'] ?? array() ) ) );
+	$credits     = array_map( 'floatval', array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['credit'] ?? array() ) ) );
+	$line_desc   = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['line_description'] ?? array() ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	if ( ! $description ) {
@@ -64,7 +64,7 @@ function oby_mi_erp_handle_journal_form() {
  * @return void
  */
 function oby_mi_erp_handle_transaction_form() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_save' );
+	check_admin_referer( 'oby_mi_erp_journal_save' );
 
 	$tx_mode     = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
 	$mode        = 'expense' === $tx_mode ? 'expense' : 'income';
@@ -124,8 +124,8 @@ function oby_mi_erp_handle_transaction_form() {
  * @return void
  */
 function oby_mi_erp_handle_delete_journal() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_journal_delete' );
-	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	check_admin_referer( 'oby_mi_erp_journal_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	global $wpdb;
 	$wpdb->delete( oby_mi_erp_table( 'journal_lines' ), array( 'entry_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.

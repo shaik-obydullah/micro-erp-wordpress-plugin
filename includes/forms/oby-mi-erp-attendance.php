@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function oby_mi_erp_handle_attendance_form() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_attendance_save' );
+	check_admin_referer( 'oby_mi_erp_attendance_save' );
 
-	$employees = isset( $_POST['attendance'] ) ? (array) wp_unslash( $_POST['attendance'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above; every row value is sanitized individually in the loop below.
-	$date      = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : current_time( 'Y-m-d' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	$employees = (array) wp_unslash( $_POST['attendance'] ?? array() ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above; every row value is sanitized individually in the loop below.
+	$date      = sanitize_text_field( wp_unslash( $_POST['date'] ?? current_time( 'Y-m-d' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 
 	if ( ! $date ) {
 		oby_mi_erp_redirect_notice( __( 'A date is required.', 'obydullah-micro-erp' ), 'error' );

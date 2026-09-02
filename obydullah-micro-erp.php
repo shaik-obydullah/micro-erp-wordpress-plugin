@@ -1,12 +1,13 @@
 <?php
 /**
  * Plugin Name: Obydullah Micro ERP
- * Author URI: https://obydullah.com
+ * Contributors: obydullah
  * Plugin URI: https://obydullah.com/project/micro-erp-wordpress-plugin
  * Description: Obydullah Micro ERP — a lightweight ERP system for small businesses: contacts, accounting, HRM, and sales management, all inside WordPress.
- * Author: Shaik Obydullah
- * Text Domain: obydullah-micro-erp
  * Version: 1.0.0
+ * Author: Shaik Obydullah
+ * Author URI: https://obydullah.com
+ * Text Domain: obydullah-micro-erp
  * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 8.0

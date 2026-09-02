@@ -199,9 +199,6 @@ class ObyMiErp {
 			case 'save_attendance':
 				oby_mi_erp_handle_attendance_form();
 				break;
-			case 'delete_attendance':
-				oby_mi_erp_handle_delete_attendance();
-				break;
 			case 'save_leave_type':
 			case 'update_leave_type':
 				oby_mi_erp_handle_leave_type_form( $action );
@@ -238,9 +235,6 @@ class ObyMiErp {
 			case 'update_sale':
 				oby_mi_erp_handle_sale_form();
 				break;
-			case 'delete_sale':
-				oby_mi_erp_handle_delete_sale();
-				break;
 			case 'record_payment':
 				oby_mi_erp_handle_record_payment();
 				break;
@@ -260,7 +254,7 @@ class ObyMiErp {
 	 */
 	public function oby_mi_erp_render_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Menu page slug from WP core routing, read-only.
-		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'oby-mi-erp/dashboard';
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? 'oby-mi-erp/dashboard' ) );
 
 		if ( strpos( $page, 'oby-mi-erp-header-' ) === 0 ) {
 			$redirect_map = array(

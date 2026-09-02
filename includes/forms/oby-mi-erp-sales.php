@@ -60,9 +60,9 @@ function oby_mi_erp_handle_delete_sale() {
  * @return void
  */
 function oby_mi_erp_handle_record_payment() {
-	oby_mi_erp_verify_nonce( 'oby_mi_erp_payment_save' );
+	check_admin_referer( 'oby_mi_erp_payment_save' );
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 	$sale_id = (int) sanitize_text_field( wp_unslash( $_POST['sale_id'] ?? '' ) );
 	$amount  = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
 	$method  = sanitize_key( wp_unslash( $_POST['method'] ?? 'cash' ) );

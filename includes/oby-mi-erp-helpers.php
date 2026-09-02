@@ -75,7 +75,7 @@ function oby_mi_erp_flush_cache() {
  */
 function oby_mi_erp_query_has( $key ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter, see docblock above.
-	return isset( $_GET[ $key ] );
+	return array_key_exists( $key, $_GET );
 }
 
 /**
@@ -361,12 +361,7 @@ function oby_mi_erp_print_admin_notice() {
  * @return void
  */
 function oby_mi_erp_verify_nonce( $action, $arg = '_wpnonce' ) {
-	// Verify nonce - sanitize the input first.
-	$nonce = sanitize_text_field( wp_unslash( $_POST[ $arg ] ?? '' ) );
-
-	if ( ! wp_verify_nonce( $nonce, $action ) ) {
-		wp_die( esc_html__( 'Security check failed.', 'obydullah-micro-erp' ) );
-	}
+	return check_admin_referer( $action, $arg );
 }
 
 /**

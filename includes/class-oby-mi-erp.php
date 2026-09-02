@@ -100,7 +100,8 @@ class Oby_Mi_Erp {
 			wp_die( esc_html__( 'You are not allowed to perform this action.', 'obydullah-micro-erp' ) );
 		}
 
-		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- dispatch read only; each form handler verifies its own nonce via check_admin_referer() before processing.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only used to route to a handler below; each handler verifies its own nonce via oby_mi_erp_verify_nonce() before touching any data.
+		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) );
 
 		if ( '' === $action ) {
 			return;
@@ -180,7 +181,7 @@ class Oby_Mi_Erp {
 				break;
 			case 'save_quotation':
 			case 'update_quotation':
-				oby_mi_erp_handle_quotation_form( $action );
+				oby_mi_erp_handle_quotation_form();
 				break;
 			case 'delete_quotation':
 				oby_mi_erp_handle_delete_quotation();
@@ -193,17 +194,15 @@ class Oby_Mi_Erp {
 				break;
 			case 'save_sale':
 			case 'update_sale':
-				oby_mi_erp_handle_sale_form( $action );
+				oby_mi_erp_handle_sale_form();
 				break;
 			case 'record_payment':
 				oby_mi_erp_handle_record_payment();
 				break;
 		}
 
-		$redirect = esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read only; the dispatched handler has already verified the nonce.
-		if ( '' === $redirect ) {
-			$redirect = admin_url( 'admin.php?page=oby-mi-erp/dashboard' );
-		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read after the handler above already verified its own nonce; value is only used as a wp_safe_redirect() target, which only allows local/whitelisted hosts.
+		$redirect = isset( $_POST['oby_mi_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ) ) : admin_url( 'admin.php?page=oby-mi-erp/dashboard' );
 		wp_safe_redirect( $redirect );
 		exit;
 	}
@@ -216,9 +215,9 @@ class Oby_Mi_Erp {
 			$redirect_map = array(
 				'oby-mi-erp-header-accounting' => 'oby-mi-erp/accounts',
 				'oby-mi-erp-header-hrm'        => 'oby-mi-erp/employees',
-				'oby-mi-erp-header-sales'       => 'oby-mi-erp/quotations',
+				'oby-mi-erp-header-sales'      => 'oby-mi-erp/quotations',
 			);
-			$target = isset( $redirect_map[ $page ] ) ? $redirect_map[ $page ] : 'oby-mi-erp/dashboard';
+			$target       = isset( $redirect_map[ $page ] ) ? $redirect_map[ $page ] : 'oby-mi-erp/dashboard';
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $target ) );
 			exit;
 		}

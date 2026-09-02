@@ -33,8 +33,8 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -60,8 +60,8 @@ $oby_mi_erp_paged       = min( $oby_mi_erp_paged, $oby_mi_erp_total_pages );
 $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_requests = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like     = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_requests = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT lr.* FROM {$wpdb->prefix}oby_mi_erp_leave_requests lr
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_employees e ON e.id = lr.employee_id
@@ -100,17 +100,39 @@ oby_mi_erp_print_admin_notice();
 	<h1 class="wp-heading-inline mb-3"><?php esc_html_e( 'Leave Management', 'obydullah-micro-erp' ); ?></h1>
 	<hr class="wp-header-end">
 
-	<?php if ( ! empty( $oby_mi_erp_leave_types ) ) :
-		$oby_mi_erp_leave_styles = array(
-			array( 'icon' => 'palmtree',       'tone' => 'green', 'match' => array( 'annual', 'earned', 'vacation' ) ),
-			array( 'icon' => 'smiley',         'tone' => 'blue',  'match' => array( 'casual', 'personal' ) ),
-			array( 'icon' => 'shield-alt2',    'tone' => 'red',   'match' => array( 'sick', 'medical' ) ),
-			array( 'icon' => 'admin-users',    'tone' => 'amber', 'match' => array( 'matern', 'patern', 'parent' ) ),
+	<?php
+	if ( ! empty( $oby_mi_erp_leave_types ) ) :
+		$oby_mi_erp_leave_styles  = array(
+			array(
+				'icon'  => 'palmtree',
+				'tone'  => 'green',
+				'match' => array( 'annual', 'earned', 'vacation' ),
+			),
+			array(
+				'icon'  => 'smiley',
+				'tone'  => 'blue',
+				'match' => array( 'casual', 'personal' ),
+			),
+			array(
+				'icon'  => 'shield-alt2',
+				'tone'  => 'red',
+				'match' => array( 'sick', 'medical' ),
+			),
+			array(
+				'icon'  => 'admin-users',
+				'tone'  => 'amber',
+				'match' => array( 'matern', 'patern', 'parent' ),
+			),
 		);
-		$oby_mi_erp_default_style = array( 'icon' => 'calendar-alt', 'tone' => 'blue', 'match' => array() );
+		$oby_mi_erp_default_style = array(
+			'icon'  => 'calendar-alt',
+			'tone'  => 'blue',
+			'match' => array(),
+		);
 		?>
 		<div class="stat-cards">
-			<?php foreach ( $oby_mi_erp_leave_types as $oby_mi_erp_lt ) :
+			<?php
+			foreach ( $oby_mi_erp_leave_types as $oby_mi_erp_lt ) :
 				$oby_mi_erp_name_lower = strtolower( $oby_mi_erp_lt->name );
 				$oby_mi_erp_style      = $oby_mi_erp_default_style;
 				foreach ( $oby_mi_erp_leave_styles as $oby_mi_erp_ls ) {
@@ -191,10 +213,10 @@ oby_mi_erp_print_admin_notice();
 
 				<form method="post" action="" class="mb-3">
 					<?php
-					$action = $oby_mi_erp_editing_type ? 'update_leave_type' : 'save_leave_type';
+					$form_action = $oby_mi_erp_editing_type ? 'update_leave_type' : 'save_leave_type';
 					wp_nonce_field( 'oby_mi_erp_leave_type_save' );
 					?>
-					<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+					<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 					<?php if ( $oby_mi_erp_editing_type ) : ?>
 						<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing_type->id; ?>">
 					<?php endif; ?>

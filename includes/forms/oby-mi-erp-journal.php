@@ -49,11 +49,10 @@ function oby_mi_erp_handle_journal_form() {
 function oby_mi_erp_handle_transaction_form() {
 	check_admin_referer( 'oby_mi_erp_journal_save' );
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
-	$tx_mode    = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
-	$mode       = 'expense' === $tx_mode ? 'expense' : 'income';
-	$date        = sanitize_text_field( wp_unslash( $_POST['entry_date'] ?? current_time( 'Y-m-d' ) ) );
-	$description = sanitize_text_field( wp_unslash( $_POST['description'] ?? '' ) );
+	$tx_mode     = sanitize_key( wp_unslash( $_POST['tx_mode'] ?? 'income' ) );
+	$mode        = 'expense' === $tx_mode ? 'expense' : 'income';
+	$date        = isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : current_time( 'Y-m-d' );
+	$description = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
 	$amount      = (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
 	$account_id  = (int) sanitize_text_field( wp_unslash( $_POST['account_id'] ?? '' ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
@@ -64,17 +63,33 @@ function oby_mi_erp_handle_transaction_form() {
 	}
 
 	if ( 'expense' === $mode ) {
-		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'expense', '5001' );
-		$lines = array(
-			array( 'account_id' => $acct, 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => 0, 'credit' => $amount ),
+		$acct     = $account_id ? $account_id : oby_mi_erp_default_account( 'expense', '5001' );
+		$lines    = array(
+			array(
+				'account_id' => $acct,
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => oby_mi_erp_default_account( 'asset', '1001' ),
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		);
 		$ref_type = 'expense';
 	} else {
-		$acct  = $account_id ? $account_id : oby_mi_erp_default_account( 'income', '4001' );
-		$lines = array(
-			array( 'account_id' => oby_mi_erp_default_account( 'asset', '1001' ), 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => $acct, 'debit' => 0, 'credit' => $amount ),
+		$acct     = $account_id ? $account_id : oby_mi_erp_default_account( 'income', '4001' );
+		$lines    = array(
+			array(
+				'account_id' => oby_mi_erp_default_account( 'asset', '1001' ),
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => $acct,
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		);
 		$ref_type = 'income';
 	}

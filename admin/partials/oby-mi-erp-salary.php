@@ -10,8 +10,8 @@ if ( ! preg_match( '/^\d{4}-\d{2}$/', $oby_mi_erp_month ) ) {
 	$oby_mi_erp_month = current_time( 'Y-m' );
 }
 
-$oby_mi_erp_year  = (int) substr( $oby_mi_erp_month, 0, 4 );
-$oby_mi_erp_mnum  = (int) substr( $oby_mi_erp_month, 5, 2 );
+$oby_mi_erp_year = (int) substr( $oby_mi_erp_month, 0, 4 );
+$oby_mi_erp_mnum = (int) substr( $oby_mi_erp_month, 5, 2 );
 
 $oby_mi_erp_prev = gmdate( 'Y-m', mktime( 0, 0, 0, $oby_mi_erp_mnum - 1, 1, $oby_mi_erp_year ) );
 $oby_mi_erp_next = gmdate( 'Y-m', mktime( 0, 0, 0, $oby_mi_erp_mnum + 1, 1, $oby_mi_erp_year ) );
@@ -22,8 +22,8 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees e WHERE e.name LIKE %s OR e.employee_id LIKE %s",
 			$oby_mi_erp_like,
@@ -44,8 +44,8 @@ $oby_mi_erp_paged       = min( $oby_mi_erp_paged, $oby_mi_erp_total_pages );
 $oby_mi_erp_offset      = ( $oby_mi_erp_paged - 1 ) * $oby_mi_erp_per_page;
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_employees = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like      = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_employees = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT e.*, d.name AS department_name FROM {$wpdb->prefix}oby_mi_erp_employees e
 			LEFT JOIN {$wpdb->prefix}oby_mi_erp_departments d ON d.id = e.department_id
@@ -79,8 +79,8 @@ if ( $oby_mi_erp_employees ) {
 
 // Summary totals across ALL matching employees (cards must not change with paging).
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_totals = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like   = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_totals = $wpdb->get_row(
 		$wpdb->prepare(
 			"SELECT COALESCE(SUM(e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0)),0) AS salary,
 				COALESCE(SUM(IF(p.status = 'paid', e.basic_salary + COALESCE(p.allowances,0) - COALESCE(p.deductions,0), 0)),0) AS paid,
@@ -236,13 +236,14 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'salary', array( 'month' => $oby_mi
 								<?php if ( empty( $oby_mi_erp_employees ) ) : ?>
 									<tr><td colspan="9" class="text-center p-4"><?php esc_html_e( 'Add employees first.', 'obydullah-micro-erp' ); ?></td></tr>
 								<?php endif; ?>
-								<?php foreach ( $oby_mi_erp_employees as $oby_mi_erp_emp ) :
-									$oby_mi_erp_payment   = isset( $oby_mi_erp_payments[ $oby_mi_erp_emp->id ] ) ? $oby_mi_erp_payments[ $oby_mi_erp_emp->id ] : null;
-									$oby_mi_erp_basic     = (float) $oby_mi_erp_emp->basic_salary;
-									$oby_mi_erp_allow     = $oby_mi_erp_payment ? (float) $oby_mi_erp_payment->allowances : 0;
-									$oby_mi_erp_deduct    = $oby_mi_erp_payment ? (float) $oby_mi_erp_payment->deductions : 0;
-									$oby_mi_erp_net       = $oby_mi_erp_basic + $oby_mi_erp_allow - $oby_mi_erp_deduct;
-									$oby_mi_erp_is_paid   = $oby_mi_erp_payment && 'paid' === $oby_mi_erp_payment->status;
+								<?php
+								foreach ( $oby_mi_erp_employees as $oby_mi_erp_emp ) :
+									$oby_mi_erp_payment = isset( $oby_mi_erp_payments[ $oby_mi_erp_emp->id ] ) ? $oby_mi_erp_payments[ $oby_mi_erp_emp->id ] : null;
+									$oby_mi_erp_basic   = (float) $oby_mi_erp_emp->basic_salary;
+									$oby_mi_erp_allow   = $oby_mi_erp_payment ? (float) $oby_mi_erp_payment->allowances : 0;
+									$oby_mi_erp_deduct  = $oby_mi_erp_payment ? (float) $oby_mi_erp_payment->deductions : 0;
+									$oby_mi_erp_net     = $oby_mi_erp_basic + $oby_mi_erp_allow - $oby_mi_erp_deduct;
+									$oby_mi_erp_is_paid = $oby_mi_erp_payment && 'paid' === $oby_mi_erp_payment->status;
 									?>
 									<tr>
 										<td><?php echo esc_html( $oby_mi_erp_emp->employee_id ); ?></td>

@@ -280,7 +280,7 @@ class Oby_Mi_Erp_Activator {
 		}
 
 		// Default Chart of Accounts.
-		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check: runs once during activation, so caching is pointless; the table name is built from the plugin's fixed prefix constant.
+		$account_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}accounts WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $account_count ) {
 			$default_accounts = array(
 				array( '1001', 'Cash', 'asset' ),
@@ -311,7 +311,7 @@ $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- a
 		}
 
 		// Default leave types.
-		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check; table name from the plugin's fixed prefix constant.
+		$lt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}leave_types WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $lt_count ) {
 			$default_leave_types = array(
 				array( 'Annual Leave', 12 ),
@@ -332,10 +332,10 @@ $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- a
 		}
 
 		// Default fiscal year covering the current calendar year.
-		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- activation-time seed check; table name from the plugin's fixed prefix constant.
+		$fy_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t}fiscal_years WHERE 1 = %d", 1 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $t is the plugin's fixed table-name constant, not user input.
 		if ( ! $fy_count ) {
-			$year  = (int) date_i18n( 'Y' );
-			$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- activation-time seeding, runs once.
+			$year = (int) date_i18n( 'Y' );
+			$wpdb->insert(
 				"{$t}fiscal_years",
 				array(
 					'name'       => sprintf( 'FY %d-%d', $year, $year + 1 ),

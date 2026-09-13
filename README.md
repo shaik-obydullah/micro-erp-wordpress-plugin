@@ -5,13 +5,14 @@
 Contacts (CRM), double-entry accounting, HRM, and sales management, all inside your existing WordPress admin dashboard. No extra SaaS, no separate login, no per-user fees — just one plugin, one database, one dashboard.
 
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759B?logo=wordpress&logoColor=white)](https://wordpress.org/)
-[![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![jQuery](https://img.shields.io/badge/jQuery-3.x-0769AD?logo=jquery&logoColor=white)](https://jquery.com/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
 [![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)](https://github.com/shaik-obydullah/micro-erp-wordpress-plugin)
+[![WordPress Plugin](https://img.shields.io/badge/WordPress-plugin-blue?logo=wordpress&logoColor=white)](https://wordpress.org/plugins/obydullah-micro-erp)
 [![Tables](https://img.shields.io/badge/Tables-18-orange)]()
 [![Admin Pages](https://img.shields.io/badge/Admin%20Pages-19-2D3436)]()
 
@@ -109,7 +110,7 @@ The plugin creates its own `oby_mi_erp_*` tables automatically on activation —
 
 | Technology | Usage |
 |---|---|
-| PHP 7.4+ | Backend logic, form handling, database queries |
+| PHP 8.0+ | Backend logic, form handling, database queries |
 | WordPress 6.0+ | Platform, admin UI, security APIs |
 | MySQL 8.0 | 18 custom tables via `$wpdb` with prepared statements |
 | jQuery | Client-side dynamic forms (journal balancing, line item calculator) |

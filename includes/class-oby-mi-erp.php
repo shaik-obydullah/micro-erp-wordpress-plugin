@@ -125,6 +125,18 @@ class ObyMiErp {
 		wp_enqueue_style( 'oby-mi-erp-base', OBY_MI_ERP_URL . 'assets/css/oby-mi-erp-base.css', array(), $css_ver );
 		wp_enqueue_style( 'oby-mi-erp-admin', OBY_MI_ERP_URL . 'assets/css/oby-mi-erp-admin.css', array( 'oby-mi-erp-base' ), $css_ver );
 		wp_enqueue_script( 'oby-mi-erp-admin', OBY_MI_ERP_URL . 'assets/js/oby-mi-erp-admin.js', array( 'jquery' ), OBY_MI_ERP_VERSION, true );
+		wp_localize_script(
+			'oby-mi-erp-admin',
+			'obyMiErpL10n',
+			array(
+				'journalLineRequired' => __( 'At least one journal line is required.', 'obydullah-micro-erp' ),
+				'itemRequired'        => __( 'At least one item is required.', 'obydullah-micro-erp' ),
+				/* translators: %1$s: debit total, %2$s: credit total */
+				'debitCreditMismatch' => __( 'Debit (%1$s) does not match Credit (%2$s).', 'obydullah-micro-erp' ),
+				/* translators: %s: balanced debit/credit total */
+				'balanced'            => __( 'Balanced: Debit = Credit = %s', 'obydullah-micro-erp' ),
+			)
+		);
 	}
 
 	/**

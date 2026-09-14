@@ -8,6 +8,16 @@
 		return parseFloat(n || 0).toFixed(2);
 	}
 
+	var l10n = window.obyMiErpL10n || {};
+
+	function l10nText(key, fallback, args) {
+		var text = l10n[key] || fallback;
+		var i = 0;
+		return text.replace(/%\d+\$s|%s/g, function () {
+			return args[i++];
+		});
+	}
+
 	/* ---------- Journal lines ---------- */
 	var $journal = $('#journal-lines');
 	if ($journal.length) {
@@ -26,10 +36,16 @@
 			var note = $('.j-balance-note');
 			if (Math.abs(d - c) > 0.005) {
 				note.css('color', '#d63638').text(
-					'Debit (' + formatMoney(d) + ') does not match Credit (' + formatMoney(c) + ').'
+					l10nText(
+						'debitCreditMismatch',
+						'Debit (%1$s) does not match Credit (%2$s).',
+						[formatMoney(d), formatMoney(c)]
+					)
 				);
 			} else {
-				note.css('color', '#00a32a').text('Balanced: Debit = Credit = ' + formatMoney(d));
+				note.css('color', '#00a32a').text(
+					l10nText('balanced', 'Balanced: Debit = Credit = %s', [formatMoney(d)])
+				);
 			}
 		}
 
@@ -48,7 +64,7 @@
 				$(this).closest('tr').remove();
 				journalTotals();
 			} else {
-				alert('At least one journal line is required.');
+				alert(l10nText('journalLineRequired', 'At least one journal line is required.', []));
 			}
 		});
 
@@ -104,7 +120,7 @@
 				$(this).closest('tr').remove();
 				itemsTotals();
 			} else {
-				alert('At least one item is required.');
+				alert(l10nText('itemRequired', 'At least one item is required.', []));
 			}
 		});
 

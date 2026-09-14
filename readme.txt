@@ -1,11 +1,11 @@
 === Obydullah Micro ERP ===
-Contributors: obydullah
+Contributors: obydullah, alkesh7
 Plugin URI: https://obydullah.com/project/micro-erp-wordpress-plugin
 Tags: erp, accounting, hrm, sales, inventory
 Text Domain: obydullah-micro-erp
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 8.0
 Domain Path: /languages
 License: GPLv2 or later
@@ -63,6 +63,10 @@ Yes, fiscal years can be managed from Obydullah Micro ERP → Fiscal Years.
 18. Settings.
 
 == Changelog ==
+
+= 1.0.1 =
+* Add alkesh7 as a listed contributor.
+* Confirm compatibility with WordPress 7.1 "Mary Lou" and PHP 8.0–8.5; no code changes were required.
 
 = 1.0.0 =
 * Initial release

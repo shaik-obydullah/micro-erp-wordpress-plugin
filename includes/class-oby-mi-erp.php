@@ -1,4 +1,11 @@
 <?php
+/**
+ * Core plugin class: registers the admin menu, enqueues assets, dispatches
+ * form submissions to the right handler, and renders admin screens.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -16,8 +23,14 @@ require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-salary.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-quotations.php';
 require_once OBY_MI_ERP_PATH . 'includes/forms/oby-mi-erp-sales.php';
 
-class Oby_Mi_Erp {
+/**
+ * Bootstraps the plugin's admin menu, assets, and request handling.
+ */
+class ObyMiErp {
 
+	/**
+	 * Register the plugin's WordPress admin hooks.
+	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'oby_mi_erp_register_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'oby_mi_erp_enqueue_assets' ) );
@@ -28,11 +41,19 @@ class Oby_Mi_Erp {
 	/**
 	 * WP core re-encodes "/" as "%2F" in the admin canonical URL, whose JS
 	 * then rewrites the browser address bar. Keep slashes readable.
+	 *
+	 * @param string $url Canonical admin URL.
+	 * @return string Filtered URL.
 	 */
 	public function oby_mi_erp_fix_canonical_url( $url ) {
 		return str_replace( '%2F', '/', $url );
 	}
 
+	/**
+	 * Register the plugin's top-level admin menu and all of its submenu pages.
+	 *
+	 * @return void
+	 */
 	public function oby_mi_erp_register_menu() {
 		$cap = 'manage_options';
 
@@ -73,6 +94,12 @@ class Oby_Mi_Erp {
 		add_submenu_page( 'oby-mi-erp/dashboard', __( 'Fiscal Years', 'obydullah-micro-erp' ), __( 'Fiscal Years', 'obydullah-micro-erp' ), $cap, 'oby-mi-erp/fiscal-years', array( $this, 'oby_mi_erp_render_page' ) );
 	}
 
+	/**
+	 * Add a non-clickable section-header submenu item (e.g. "Accounting", "HRM").
+	 *
+	 * @param string $text Header label.
+	 * @return void
+	 */
 	private function oby_mi_erp_add_header( $text ) {
 		add_submenu_page(
 			'oby-mi-erp/dashboard',
@@ -84,6 +111,11 @@ class Oby_Mi_Erp {
 		);
 	}
 
+	/**
+	 * Enqueue the plugin's admin CSS/JS, only on the plugin's own screens.
+	 *
+	 * @return void
+	 */
 	public function oby_mi_erp_enqueue_assets() {
 		$screen = get_current_screen();
 		if ( ! $screen || strpos( $screen->id, 'oby-mi-erp' ) === false ) {
@@ -95,12 +127,20 @@ class Oby_Mi_Erp {
 		wp_enqueue_script( 'oby-mi-erp-admin', OBY_MI_ERP_URL . 'assets/js/oby-mi-erp-admin.js', array( 'jquery' ), OBY_MI_ERP_VERSION, true );
 	}
 
+	/**
+	 * Dispatch a submitted plugin form (via $_POST['oby_mi_erp_action']) to its
+	 * handler, then redirect back to the calling page. Each individual handler
+	 * verifies its own nonce before touching any data.
+	 *
+	 * @return void
+	 */
 	public function oby_mi_erp_handle_forms() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to perform this action.', 'obydullah-micro-erp' ) );
 		}
 
-		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- dispatch read only; each form handler verifies its own nonce via check_admin_referer() before processing.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only used to route to a handler below; each handler verifies its own nonce via oby_mi_erp_verify_nonce() before touching any data.
+		$action = sanitize_key( wp_unslash( $_POST['oby_mi_erp_action'] ?? '' ) );
 
 		if ( '' === $action ) {
 			return;
@@ -180,7 +220,7 @@ class Oby_Mi_Erp {
 				break;
 			case 'save_quotation':
 			case 'update_quotation':
-				oby_mi_erp_handle_quotation_form( $action );
+				oby_mi_erp_handle_quotation_form();
 				break;
 			case 'delete_quotation':
 				oby_mi_erp_handle_delete_quotation();
@@ -193,21 +233,25 @@ class Oby_Mi_Erp {
 				break;
 			case 'save_sale':
 			case 'update_sale':
-				oby_mi_erp_handle_sale_form( $action );
+				oby_mi_erp_handle_sale_form();
 				break;
 			case 'record_payment':
 				oby_mi_erp_handle_record_payment();
 				break;
 		}
 
-		$redirect = esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read only; the dispatched handler has already verified the nonce.
-		if ( '' === $redirect ) {
-			$redirect = admin_url( 'admin.php?page=oby-mi-erp/dashboard' );
-		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read after the handler above already verified its own nonce; value is only used as a wp_safe_redirect() target, which only allows local/whitelisted hosts.
+		$redirect = isset( $_POST['oby_mi_erp_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['oby_mi_erp_redirect'] ) ) : admin_url( 'admin.php?page=oby-mi-erp/dashboard' );
 		wp_safe_redirect( $redirect );
 		exit;
 	}
 
+	/**
+	 * Render the plugin admin screen matching the current 'page' query var,
+	 * redirecting section-header menu clicks to their first real subpage.
+	 *
+	 * @return void
+	 */
 	public function oby_mi_erp_render_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Menu page slug from WP core routing, read-only.
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? 'oby-mi-erp/dashboard' ) );
@@ -216,9 +260,9 @@ class Oby_Mi_Erp {
 			$redirect_map = array(
 				'oby-mi-erp-header-accounting' => 'oby-mi-erp/accounts',
 				'oby-mi-erp-header-hrm'        => 'oby-mi-erp/employees',
-				'oby-mi-erp-header-sales'       => 'oby-mi-erp/quotations',
+				'oby-mi-erp-header-sales'      => 'oby-mi-erp/quotations',
 			);
-			$target = isset( $redirect_map[ $page ] ) ? $redirect_map[ $page ] : 'oby-mi-erp/dashboard';
+			$target       = isset( $redirect_map[ $page ] ) ? $redirect_map[ $page ] : 'oby-mi-erp/dashboard';
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $target ) );
 			exit;
 		}

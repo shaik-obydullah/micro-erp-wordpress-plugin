@@ -1,10 +1,22 @@
 <?php
+/**
+ * Form handlers for saving a sale and posting its accounting entries.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function oby_mi_erp_handle_sale_form( $action ) {
-	check_admin_referer( 'oby_mi_erp_sale_save' );
+/**
+ * Save (create or update) a sale and its line items, posting the sale journal
+ * entry when a new sale is created.
+ *
+ * @return void
+ */
+function oby_mi_erp_handle_sale_form() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_save' );
 
 	global $wpdb;
 	list( $entity_id, $created ) = oby_mi_erp_save_quote_sale(
@@ -26,6 +38,27 @@ function oby_mi_erp_handle_sale_form( $action ) {
 	oby_mi_erp_redirect_notice( $created ? __( 'Sale created.', 'obydullah-micro-erp' ) : __( 'Sale updated.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Delete a sale and its line items, named by $_POST['id'].
+ *
+ * @return void
+ */
+function oby_mi_erp_handle_delete_sale() {
+	oby_mi_erp_verify_nonce( 'oby_mi_erp_sale_delete' );
+	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via oby_mi_erp_verify_nonce() above.
+
+	global $wpdb;
+	$wpdb->delete( oby_mi_erp_table( 'sale_items' ), array( 'sale_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	$wpdb->delete( oby_mi_erp_table( 'sales' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
+	oby_mi_erp_audit_log( 'delete', 'sale', $id, 'Deleted sale #' . $id );
+	oby_mi_erp_redirect_notice( __( 'Sale deleted.', 'obydullah-micro-erp' ) );
+}
+
+/**
+ * Record a payment against a sale from $_POST and post the matching cash journal entry.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_record_payment() {
 	check_admin_referer( 'oby_mi_erp_payment_save' );
 
@@ -60,7 +93,7 @@ function oby_mi_erp_handle_record_payment() {
 	$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		oby_mi_erp_table( 'sales' ),
 		array(
-			'amount_paid'   => $new_paid,
+			'amount_paid'    => $new_paid,
 			'payment_status' => $status,
 			'payment_method' => $method,
 		),
@@ -78,8 +111,16 @@ function oby_mi_erp_handle_record_payment() {
 		current_time( 'Y-m-d' ),
 		sprintf( 'Sale Payment - %s (%s)', $sale->sale_no, $ref ),
 		array(
-			array( 'account_id' => $deposit, 'debit' => $amount, 'credit' => 0 ),
-			array( 'account_id' => $ar_account, 'debit' => 0, 'credit' => $amount ),
+			array(
+				'account_id' => $deposit,
+				'debit'      => $amount,
+				'credit'     => 0,
+			),
+			array(
+				'account_id' => $ar_account,
+				'debit'      => 0,
+				'credit'     => $amount,
+			),
 		),
 		'sale_payment',
 		$sale_id

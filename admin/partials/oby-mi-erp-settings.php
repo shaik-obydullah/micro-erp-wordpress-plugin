@@ -1,23 +1,29 @@
 <?php
+/**
+ * Renders the plugin Settings admin screen (company profile and currency).
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 global $wpdb;
 
-$oby_mi_erp_fy         = oby_mi_erp_get_active_fiscal_year();
-$oby_mi_erp_accounts   = oby_mi_erp_get_accounts();
-$oby_mi_erp_income_accounts   = oby_mi_erp_get_accounts( 'income' );
-$oby_mi_erp_expense_accounts  = oby_mi_erp_get_accounts( 'expense' );
-$oby_mi_erp_asset_accounts    = oby_mi_erp_get_accounts( 'asset' );
+$oby_mi_erp_fy               = oby_mi_erp_get_active_fiscal_year();
+$oby_mi_erp_accounts         = oby_mi_erp_get_accounts();
+$oby_mi_erp_income_accounts  = oby_mi_erp_get_accounts( 'income' );
+$oby_mi_erp_expense_accounts = oby_mi_erp_get_accounts( 'expense' );
+$oby_mi_erp_asset_accounts   = oby_mi_erp_get_accounts( 'asset' );
 
 oby_mi_erp_print_admin_notice();
 
 $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'settings' );
 
-$oby_mi_erp_currency = oby_mi_erp_get_currency_symbol();
-$oby_mi_erp_company  = oby_mi_erp_get_setting( 'company_name', '' );
-$oby_mi_erp_tax_rate = oby_mi_erp_get_setting( 'default_tax_rate', 5 );
+$oby_mi_erp_currency    = oby_mi_erp_get_currency_symbol();
+$oby_mi_erp_company     = oby_mi_erp_get_setting( 'company_name', '' );
+$oby_mi_erp_tax_rate    = oby_mi_erp_get_setting( 'default_tax_rate', 5 );
 $oby_mi_erp_def_income  = (int) oby_mi_erp_get_setting( 'default_income_account', 0 );
 $oby_mi_erp_def_expense = (int) oby_mi_erp_get_setting( 'default_expense_account', 0 );
 $oby_mi_erp_cash_acct   = (int) oby_mi_erp_get_setting( 'cash_account', 0 );
@@ -56,7 +62,16 @@ $oby_mi_erp_cash_acct   = (int) oby_mi_erp_get_setting( 'cash_account', 0 );
 					<div class="mb-3">
 						<label for="currency_symbol" class="form-label"><?php esc_html_e( 'Currency Symbol', 'obydullah-micro-erp' ); ?></label>
 						<select id="currency_symbol" name="currency_symbol" class="form-control">
-							<?php foreach ( array( '$' => 'USD', '€' => 'EUR', '£' => 'GBP', '৳' => 'BDT', '₹' => 'INR', '¥' => 'JPY' ) as $oby_mi_erp_sym => $oby_mi_erp_label ) : ?>
+							<?php
+							foreach ( array(
+								'$' => 'USD',
+								'€' => 'EUR',
+								'£' => 'GBP',
+								'৳' => 'BDT',
+								'₹' => 'INR',
+								'¥' => 'JPY',
+							) as $oby_mi_erp_sym => $oby_mi_erp_label ) :
+								?>
 								<option value="<?php echo esc_attr( $oby_mi_erp_sym ); ?>" <?php selected( $oby_mi_erp_currency, $oby_mi_erp_sym ); ?>><?php echo esc_html( $oby_mi_erp_sym ); ?> - <?php echo esc_html( $oby_mi_erp_label ); ?></option>
 							<?php endforeach; ?>
 						</select>

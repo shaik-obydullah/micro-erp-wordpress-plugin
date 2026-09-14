@@ -1,16 +1,28 @@
 <?php
+/**
+ * Form handlers for leave types and employee leave requests.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Save (create or update) a leave type from $_POST.
+ *
+ * @param string $action 'update_leave_type' to update the existing row named by $_POST['id'], otherwise create a new one.
+ * @return void
+ */
 function oby_mi_erp_handle_leave_type_form( $action ) {
 	check_admin_referer( 'oby_mi_erp_leave_type_save' );
 
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 	$data = array(
-		'name'         => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
-		'days_per_year'=> (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
-		'is_active'    => sanitize_key( wp_unslash( $_POST['is_active'] ?? '' ) ) ? 1 : 0,
+		'name'          => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+		'days_per_year' => (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
+		'is_active'     => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
@@ -37,6 +49,11 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 	oby_mi_erp_redirect_notice( $message );
 }
 
+/**
+ * Delete a leave type named by $_POST['id'].
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_delete_leave_type() {
 	check_admin_referer( 'oby_mi_erp_leave_type_delete' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
@@ -47,6 +64,11 @@ function oby_mi_erp_handle_delete_leave_type() {
 	oby_mi_erp_redirect_notice( __( 'Leave type deleted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Submit a new employee leave request from $_POST, in 'pending' status.
+ *
+ * @return void
+ */
 function oby_mi_erp_handle_leave_request_form() {
 	check_admin_referer( 'oby_mi_erp_leave_request_save' );
 
@@ -73,13 +95,13 @@ function oby_mi_erp_handle_leave_request_form() {
 	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		oby_mi_erp_table( 'leave_requests' ),
 		array(
-			'employee_id'  => $employee_id,
-			'leave_type_id'=> $leave_type,
-			'start_date'   => $start,
-			'end_date'     => $end,
-			'total_days'   => $total_days,
-			'reason'       => $reason,
-			'status'       => 'pending',
+			'employee_id'   => $employee_id,
+			'leave_type_id' => $leave_type,
+			'start_date'    => $start,
+			'end_date'      => $end,
+			'total_days'    => $total_days,
+			'reason'        => $reason,
+			'status'        => 'pending',
 		),
 		array( '%d', '%d', '%s', '%s', '%d', '%s', '%s' )
 	);
@@ -89,6 +111,12 @@ function oby_mi_erp_handle_leave_request_form() {
 	oby_mi_erp_redirect_notice( __( 'Leave request submitted.', 'obydullah-micro-erp' ) );
 }
 
+/**
+ * Update a leave request's status (e.g. approve/reject) named by $_POST['id'].
+ *
+ * @param string $status New status to set, e.g. 'approved' or 'rejected'.
+ * @return void
+ */
 function oby_mi_erp_handle_leave_status( $status ) {
 	check_admin_referer( 'oby_mi_erp_leave_status' );
 	$id = (int) sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
@@ -96,7 +124,10 @@ function oby_mi_erp_handle_leave_status( $status ) {
 	global $wpdb;
 	$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		oby_mi_erp_table( 'leave_requests' ),
-		array( 'status' => $status, 'approved_by' => get_current_user_id() ),
+		array(
+			'status'      => $status,
+			'approved_by' => get_current_user_id(),
+		),
 		array( 'id' => $id ),
 		array( '%s', '%d' ),
 		array( '%d' )

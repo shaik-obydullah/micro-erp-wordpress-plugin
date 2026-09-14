@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Fiscal Years admin screen and its add form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -42,10 +48,10 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'fiscal-years' );
 					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Fiscal Year Details', 'obydullah-micro-erp' ); ?></h2>
 					<form method="post" action="">
 						<?php
-						$action = $oby_mi_erp_editing ? 'save_fiscal_year' : 'save_fiscal_year';
+						$form_action = $oby_mi_erp_editing ? 'save_fiscal_year' : 'save_fiscal_year';
 						wp_nonce_field( 'oby_mi_erp_fiscal_year_save' );
 						?>
-						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 						<?php if ( $oby_mi_erp_editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 						<?php endif; ?>

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Quotations admin screen and its add/edit form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,12 +23,12 @@ if ( false === $oby_mi_erp_contacts ) {
 }
 $oby_mi_erp_accounts = oby_mi_erp_get_accounts();
 
-$oby_mi_erp_edit_id = oby_mi_erp_query_int( 'edit' );
-$oby_mi_erp_editing = null;
+$oby_mi_erp_edit_id    = oby_mi_erp_query_int( 'edit' );
+$oby_mi_erp_editing    = null;
 $oby_mi_erp_edit_items = array();
 if ( $oby_mi_erp_edit_id ) {
-	$oby_mi_erp_editing   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE id = %d", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
-	$oby_mi_erp_edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotation_items WHERE quotation_id = %d ORDER BY id ASC", $oby_mi_erp_edit_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- single-row lookup gating a write flow; caches are flushed downstream.
+	$oby_mi_erp_editing    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotations WHERE id = %d", $oby_mi_erp_edit_id ) );
+	$oby_mi_erp_edit_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}oby_mi_erp_quotation_items WHERE quotation_id = %d ORDER BY id ASC", $oby_mi_erp_edit_id ) );
 }
 
 $oby_mi_erp_search = oby_mi_erp_query_text( 's' );
@@ -31,8 +37,8 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_quotations q
 			INNER JOIN {$wpdb->prefix}oby_mi_erp_contacts c ON c.id = q.contact_id
@@ -99,10 +105,10 @@ oby_mi_erp_print_admin_notice();
 
 		<form method="post" action="">
 			<?php
-			$action = $oby_mi_erp_editing ? 'update_quotation' : 'save_quotation';
+			$form_action = $oby_mi_erp_editing ? 'update_quotation' : 'save_quotation';
 			wp_nonce_field( 'oby_mi_erp_quotation_save' );
 			?>
-			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 			<?php if ( $oby_mi_erp_editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 			<?php endif; ?>

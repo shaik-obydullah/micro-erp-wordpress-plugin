@@ -1,4 +1,10 @@
 <?php
+/**
+ * Renders the Departments admin screen and its add/edit form.
+ *
+ * @package Obydullah_Micro_ERP
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,8 +23,8 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_departments d WHERE d.name LIKE %s OR d.description LIKE %s",
 			$oby_mi_erp_like,
@@ -85,10 +91,10 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'departments' );
 					<h2 id="form-title" class="mb-3 mt-1"><?php esc_html_e( 'Department Details', 'obydullah-micro-erp' ); ?></h2>
 					<form method="post" action="">
 						<?php
-						$action = $oby_mi_erp_editing ? 'update_department' : 'save_department';
+						$form_action = $oby_mi_erp_editing ? 'update_department' : 'save_department';
 						wp_nonce_field( 'oby_mi_erp_department_save' );
 						?>
-						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+						<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 						<?php if ( $oby_mi_erp_editing ) : ?>
 							<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 						<?php endif; ?>

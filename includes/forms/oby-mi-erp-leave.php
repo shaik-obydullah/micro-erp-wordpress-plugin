@@ -8,9 +8,9 @@ function oby_mi_erp_handle_leave_type_form( $action ) {
 
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified via check_admin_referer() above.
 	$data = array(
-		'name'         => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
-		'days_per_year'=> (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
-		'is_active'    => sanitize_key( wp_unslash( $_POST['is_active'] ?? '' ) ) ? 1 : 0,
+		'name'          => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+		'days_per_year' => (int) sanitize_text_field( wp_unslash( $_POST['days_per_year'] ?? '' ) ),
+		'is_active'     => isset( $_POST['is_active'] ) ? 1 : 0,
 	);
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
@@ -73,13 +73,13 @@ function oby_mi_erp_handle_leave_request_form() {
 	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- write path.
 		oby_mi_erp_table( 'leave_requests' ),
 		array(
-			'employee_id'  => $employee_id,
-			'leave_type_id'=> $leave_type,
-			'start_date'   => $start,
-			'end_date'     => $end,
-			'total_days'   => $total_days,
-			'reason'       => $reason,
-			'status'       => 'pending',
+			'employee_id'   => $employee_id,
+			'leave_type_id' => $leave_type,
+			'start_date'    => $start,
+			'end_date'      => $end,
+			'total_days'    => $total_days,
+			'reason'        => $reason,
+			'status'        => 'pending',
 		),
 		array( '%d', '%d', '%s', '%s', '%d', '%s', '%s' )
 	);
@@ -96,7 +96,10 @@ function oby_mi_erp_handle_leave_status( $status ) {
 	global $wpdb;
 	$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- write path.
 		oby_mi_erp_table( 'leave_requests' ),
-		array( 'status' => $status, 'approved_by' => get_current_user_id() ),
+		array(
+			'status'      => $status,
+			'approved_by' => get_current_user_id(),
+		),
 		array( 'id' => $id ),
 		array( '%s', '%d' ),
 		array( '%d' )

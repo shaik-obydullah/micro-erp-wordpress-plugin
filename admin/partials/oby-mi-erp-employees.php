@@ -29,8 +29,8 @@ $oby_mi_erp_per_page = 20;
 $oby_mi_erp_paged    = max( 1, oby_mi_erp_query_int( 'paged', 1 ) );
 
 if ( $oby_mi_erp_dept_filter && $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE department_id = %d AND (name LIKE %s OR employee_id LIKE %s)",
 			$oby_mi_erp_dept_filter,
@@ -46,8 +46,8 @@ if ( $oby_mi_erp_dept_filter && $oby_mi_erp_search ) {
 		)
 	);
 } elseif ( $oby_mi_erp_search ) {
-	$oby_mi_erp_like = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
-	$oby_mi_erp_total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- filtered admin list query; caching would multiply keys by every filter/page combo without meaningful benefit.
+	$oby_mi_erp_like        = '%' . $wpdb->esc_like( $oby_mi_erp_search ) . '%';
+	$oby_mi_erp_total_items = (int) $wpdb->get_var(
 		$wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}oby_mi_erp_employees WHERE name LIKE %s OR employee_id LIKE %s",
 			$oby_mi_erp_like,
@@ -126,10 +126,10 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'employees' );
 
 		<form method="post" action="">
 			<?php
-			$action = $oby_mi_erp_editing ? 'update_employee' : 'save_employee';
+			$form_action = $oby_mi_erp_editing ? 'update_employee' : 'save_employee';
 			wp_nonce_field( 'oby_mi_erp_employee_save' );
 			?>
-			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $action ); ?>">
+			<input type="hidden" name="oby_mi_erp_action" value="<?php echo esc_attr( $form_action ); ?>">
 			<?php if ( $oby_mi_erp_editing ) : ?>
 				<input type="hidden" name="id" value="<?php echo (int) $oby_mi_erp_editing->id; ?>">
 			<?php endif; ?>
@@ -209,8 +209,8 @@ $oby_mi_erp_back_url = oby_mi_erp_admin_url( 'employees' );
 						<div class="mb-3">
 							<label for="status" class="form-label"><?php esc_html_e( 'Status', 'obydullah-micro-erp' ); ?> <span class="text-danger">*</span></label>
 							<select name="status" id="status" class="form-control" required>
-								<?php foreach ( array( 'active', 'inactive', 'terminated' ) as $s ) : ?>
-									<option value="<?php echo esc_attr( $s ); ?>" <?php selected( $oby_mi_erp_editing ? $oby_mi_erp_editing->status : 'active', $s ); ?>><?php echo esc_html( ucfirst( $s ) ); ?></option>
+								<?php foreach ( array( 'active', 'inactive', 'terminated' ) as $status_option ) : ?>
+									<option value="<?php echo esc_attr( $status_option ); ?>" <?php selected( $oby_mi_erp_editing ? $oby_mi_erp_editing->status : 'active', $status_option ); ?>><?php echo esc_html( ucfirst( $status_option ) ); ?></option>
 								<?php endforeach; ?>
 							</select>
 						</div>
